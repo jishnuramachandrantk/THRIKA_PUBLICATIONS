@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Your Copy | Thrika Publications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prata&family=Plus+Jakarta+Sans:wght@300;500;700&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <style>
+        :root { --emerald: #062c26; --surface: #0a1f1c; --gold: #d4af37; }
+        body { background: linear-gradient(180deg, var(--emerald) 0%, var(--surface) 100%); color: white; font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+        h1, h2, h3 { font-family: 'Prata', serif; }
+        .input-field { background: rgba(255,255,255,0.05); border: 1px solid rgba(212, 175, 55, 0.2); padding: 12px; border-radius: 12px; width: 100%; color: white; outline: none; transition: all 0.3s ease; }
+        .input-field:focus { border-color: var(--gold); background-color: rgba(255,255,255,0.08); }
+        select.input-field option { background-color: #0a1f1c; color: white; padding: 10px; }
+        .gold-button { background: var(--gold); color: var(--emerald); transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .gold-button:hover:not(:disabled) { background: white; transform: translateY(-1px); }
+        .gold-button:disabled { opacity: 0.3; cursor: not-allowed; filter: grayscale(1); }
+        #qrcode img { margin: 0 auto; border: 6px solid white; border-radius: 4px; }
+        .modal-container { max-width: 450px; width: 95%; background: #0a1f1c; border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 24px; position: relative; padding: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        .step-num { background: var(--gold); color: var(--emerald); width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 10px; font-weight: 800; margin-right: 8px; }
+        .info-box { background: rgba(212, 175, 55, 0.05); border-left: 2px solid var(--gold); padding: 10px; border-radius: 0 8px 8px 0; margin-bottom: 20px; }
+    </style>
+</head>
+<body class="p-4 md:p-12">
+
+    <div class="max-w-6xl mx-auto w-full my-auto">
+       
+
+        <div id="main-content" class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <h1 class="text-4xl md:text-5xl mb-4 leading-tight">The Book You’ll Book<br><span class="text-gold">Mark Forever</span></h1>
+                <p class="opacity-40 mb-8 text-xs max-w-sm">Confirm your details and complete payment via UPI to secure your edition.</p>
+
+                <form id="order-form" class="space-y-4">
+                    <input type="hidden" name="transaction_id" id="hidden-trans-id">
+                    <input type="hidden" name="total_amount" id="hidden-total-amount">
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="text" name="user_name" class="input-field text-sm" placeholder="Full Name" required>
+                        <input type="tel" name="user_phone" class="input-field text-sm" placeholder="10-Digit Mobile" 
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0,10);" maxlength="10" required>
+                    </div>
+                    <input type="email" name="user_email" class="input-field text-sm" placeholder="Email Address" required>
+                    
+                    <div class="flex gap-4">
+                        <select name="book_title" id="book-select" class="input-field text-sm flex-grow" required>
+                            <option value="" disabled selected>Select Book</option>
+                            <!-- <option value="The Emerald Narrative">The Emerald Narrative</option> -->
+                            <!-- <option value="Legacy of Thrika">Legacy of Thrika</option> -->
+                        </select>
+                        <input type="number" name="book_count" id="book-qty" class="input-field text-sm w-20 text-center" min="1" value="1" required>
+                    </div>
+
+                    <textarea name="shipping_address" class="input-field text-sm h-24 resize-none" placeholder="Complete Shipping Address" required></textarea>
+                    <button type="submit" id="submit-btn" class="gold-button w-full py-4 rounded-xl text-[11px]">Proceed to Payment</button>
+                </form>
+            </div>
+
+            <div class="hidden lg:flex flex-col items-center justify-center bg-white/5 border border-white/10 rounded-3xl p-12 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-48 h-48 bg-gold/5 blur-[80px] rounded-full"></div>
+                <img id="Poster.jpg" src="Poster.jpg" class="w-56 h-80 object-cover rounded shadow-2xl border border-white/10 transition-all duration-500">
+                <h3 id="display-title" class="text-gold text-lg uppercase tracking-widest mt-6 text-center">Selection Pending</h3>
+            </div>
+        </div>
+
+        <div id="success-screen" class="hidden text-center max-w-lg mx-auto py-20">
+            <div class="w-16 h-16 border border-gold rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <h2 class="text-3xl mb-4 text-gold font-serif">Order Confirmed</h2>
+            <p class="opacity-50 text-sm mb-8">We have successfully recorded your payment and order details. Your transaction is currently being verified. We will dispatch your book and share the Proof of Delivery (POD) details with you shortly.</p>
+            <button onclick="location.reload()" class="gold-button px-8 py-3 rounded-full text-[10px] mx-auto">New Order</button>
+        </div>
+    </div>
+
+    <div id="payment-modal" class="hidden fixed inset-0 bg-black/95 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="modal-container">
+            <div class="info-box">
+                <p class="text-[10px] text-gold font-bold uppercase tracking-widest">Instructions:</p>
+                <p class="text-[10px] text-white/70 leading-relaxed">1. Complete payment. <br> 2. Copy the Transaction ID. <br> 3. Enter ID below and click Submit.</p>
+            </div>
+
+            <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
+                <h3 class="text-gold text-xl">Payment</h3>
+                <div class="text-right">
+                    <p class="text-[9px] text-gold/60 uppercase">Amount Due</p>
+                    <p id="amount-display" class="text-white text-2xl font-bold">₹0.00</p>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div id="payment-step-1">
+                    <p class="text-[11px] mb-3 font-bold uppercase tracking-wider"><span class="step-num">1</span> Pay via UPI</p>
+                    <div id="method-selection" class="grid grid-cols-2 gap-3">
+                        <a id="upi-deep-link" href="#" class="gold-button py-3 rounded-xl text-[9px] flex flex-col">
+                            <span>Open UPI App</span>
+                            <span id="btn-amount" class="text-[8px] opacity-70 mt-1 lowercase">Pay ₹0.00</span>
+                        </a>
+                        <button onclick="showQrCode()" class="border border-gold/30 text-gold py-3 rounded-xl text-[9px] uppercase font-bold hover:bg-gold/10">Scan QR Code</button>
+                    </div>
+                    <div id="qr-section" class="hidden mt-2 text-center">
+                        <div class="bg-white rounded-xl p-3 inline-block">
+                            <div id="qrcode"></div>
+                        </div>
+                        <button onclick="hideQrCode()" class="flex items-center justify-center gap-2 w-full text-[9px] text-gold uppercase mt-4 hover:text-white transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                            Back to Options
+                        </button>
+                    </div>
+                </div>
+
+                <div id="payment-step-2">
+                    <p class="text-[11px] mb-3 font-bold uppercase tracking-wider"><span class="step-num">2</span> Verification</p>
+                    <input type="text" id="upi-trans-id" placeholder="Paste 12-digit Ref Number" 
+                           class="input-field text-center text-xs tracking-[0.2em]"
+                           oninput="validateUpiInput(this)">
+                </div>
+
+                <div class="pt-2 border-t border-white/5">
+                    <button id="final-confirm-btn" onclick="sendToSheetAndEmail()" disabled
+                            class="gold-button w-full py-4 rounded-xl text-[10px]">
+                        Confirm & Submit Order
+                    </button>
+                    <button onclick="closeModal()" class="w-full text-[9px] opacity-30 mt-4 uppercase tracking-widest hover:text-white transition">Cancel Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        (function() { emailjs.init("3ONOIlzte6FVtVslu"); })();
+
+        const UPI_ID = "jishnuashwin-3@okaxis"; 
+        const MERCHANT_NAME = "Jishnu Tk";
+        // REPLACE WITH YOUR ACTUAL DEPLOYED SCRIPT URL
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwQwCUfvZuDhdWb16j9SR3IPmZDje_p40YPLTkeTqAXjLic211VyAnNcNu_NUdyrc2U2w/exec"; 
+        
+        const BOOK_PRICES = { "The Emerald Narrative": 1, "Legacy of Thrika": 1 };
+
+        const form = document.getElementById('order-form');
+        const modal = document.getElementById('payment-modal');
+        const finalBtn = document.getElementById('final-confirm-btn');
+        const transInput = document.getElementById('upi-trans-id');
+        const hiddenTransId = document.getElementById('hidden-trans-id');
+        const hiddenAmount = document.getElementById('hidden-total-amount');
+
+        function showQrCode() { document.getElementById('method-selection').classList.add('hidden'); document.getElementById('qr-section').classList.remove('hidden'); }
+        function hideQrCode() { document.getElementById('qr-section').classList.add('hidden'); document.getElementById('method-selection').classList.remove('hidden'); }
+        function closeModal() { modal.classList.add('hidden'); document.getElementById('submit-btn').disabled = false; hideQrCode(); transInput.value = ""; finalBtn.disabled = true; }
+        function validateUpiInput(el) { finalBtn.disabled = el.value.trim().length < 8; }
+
+        async function sendToSheetAndEmail() {
+            finalBtn.innerHTML = "SYNCING...";
+            finalBtn.disabled = true;
+            
+            // Sync trans ID to form for EmailJS
+            hiddenTransId.value = transInput.value;
+            
+            const formData = new FormData(form);
+            formData.append('transaction_id', transInput.value);
+            const params = new URLSearchParams(formData).toString();
+
+            try {
+                await fetch(`${GOOGLE_SCRIPT_URL}?${params}`, { method: 'GET', mode: 'no-cors' });
+                await emailjs.sendForm('service_sqpuucv', 'template_4v5w254', form);
+                
+                modal.classList.add('hidden');
+                document.getElementById('main-content').classList.add('hidden');
+                document.getElementById('success-screen').classList.remove('hidden');
+                form.reset();
+            } catch (e) {
+                modal.classList.add('hidden');
+                document.getElementById('main-content').classList.add('hidden');
+                document.getElementById('success-screen').classList.remove('hidden');
+            }
+        }
+
+        document.getElementById('book-select').addEventListener('change', (e) => {
+            const val = e.target.value;
+            document.getElementById('display-title').innerText = val;
+            const img = document.getElementById('book-preview-img');
+            img.style.opacity = "0";
+            const imgs = { "The Emerald Narrative": "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=400", "Legacy of Thrika": "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=400" };
+            setTimeout(() => { img.src = imgs[val]; img.style.opacity = "1"; }, 300);
+        });
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const qty = document.getElementById('book-qty').value;
+            const total = BOOK_PRICES[document.getElementById('book-select').value] * qty;
+            
+            // Update hidden amount for Sheet and email
+            hiddenAmount.value = total;
+
+            document.getElementById('amount-display').innerText = `₹${total}`;
+            document.getElementById('btn-amount').innerText = `Pay ₹${total}`;
+            document.getElementById('submit-btn').disabled = true;
+            
+            const upiUrl = `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(MERCHANT_NAME)}&am=${total}&cu=INR&tn=${encodeURIComponent('Prebook: ' + document.getElementById('book-select').value)}`;
+            document.getElementById('qrcode').innerHTML = "";
+            new QRCode(document.getElementById('qrcode'), { text: upiUrl, width: 140, height: 140 });
+            document.getElementById('upi-deep-link').href = upiUrl;
+            modal.classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>
