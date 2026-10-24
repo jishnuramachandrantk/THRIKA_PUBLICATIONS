@@ -558,6 +558,30 @@
             border-color: var(--whatsapp-green);
         }
 
+        .btn-return-store {
+            width: 100%;
+            background: var(--gold-accent);
+            color: var(--emerald-deep);
+            border: none;
+            padding: 14px;
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.25s ease;
+            text-decoration: none;
+            margin-top: 5px;
+        }
+
+        .btn-return-store:hover {
+            background: #e6bf3c;
+            transform: translateY(-2px);
+        }
+
         @media (max-width: 768px) {
             .checkout-container {
                 grid-template-columns: 1fr;
@@ -758,7 +782,7 @@
             <p>Thank you for shopping with Thrika Publications. Your payment has been received and order logged.</p>
             
             <div class="order-details-box">
-                <p><span>Order ID:</span> <strong id="modal-order-id">#THK-0000</strong></p>
+                <p><span>Order ID:</span> <strong id="modal-order-id">#THK-000001</strong></p>
                 <p><span>Txn ID (Razorpay):</span> <span class="badge-txn-id" id="modal-payment-id">pay_xxxxxxxxx</span></p>
                 <p><span>Items Ordered:</span> <strong id="modal-book-title">--</strong></p>
                 <p><span>Delivery to:</span> <strong id="modal-delivery-state">Kerala</strong></p>
@@ -766,11 +790,12 @@
                 <p><span>Order Status:</span> <span style="color: #15803d; font-weight: 800;">Payment Received</span></p>
             </div>
 
+            <!-- Pre-filled link to Thrika Publications WhatsApp support -->
             <a href="#" target="_blank" class="btn-whatsapp-receipt" id="btn-user-whatsapp">
                 <i class="fa-brands fa-whatsapp"></i> Get Order Details on WhatsApp
             </a>
 
-            <a href="Catalog.html" class="btn-pay-now" style="text-decoration: none; margin-top: 5px;">Return to Store</a>
+            <a href="Catalog.html" class="btn-return-store">Return to Store</a>
         </div>
     </div>
 
@@ -790,20 +815,57 @@
         const RAZORPAY_KEY_ID = "rzp_test_TrI5N3Ez3NLnBv"; 
         const MERCHANT_NAME = "Thrika Publications";
 
+        // Thrika Publications Official WhatsApp Phone Number for order confirmations
+        const THRIKA_OFFICIAL_WHATSAPP = "918943650356";
+
         // Lightweight logo for Razorpay modal
         const MERCHANT_LOGO_URL = "https://via.placeholder.com/150/0b3c2f/ffffff?text=Thrika";
 
         let checkoutCart = [];
         let itemsSubtotal = 0;
+        let existingOrders = [];
 
         // Dynamic rates table loaded exclusively from Google Sheet
         let deliveryRates = null;
         let currentDeliveryCharge = 0;
         let grandTotal = 0;
 
+        // Fetch Live Orders to calculate sequential ID (Latest + 1)
+        function fetchLiveOrdersForSequence() {
+            fetch(`${GOOGLE_SHEET_WEBHOOK_URL}?type=orders`)
+                .then(res => res.json())
+                .then(orders => {
+                    if (Array.isArray(orders)) {
+                        existingOrders = orders;
+                    }
+                })
+                .catch(err => console.warn("Could not fetch orders for sequence:", err));
+        }
+
+        // Calculate next sequential Order ID (#THK-000004 after #THK-000003)
+        function getNextSequentialOrderId() {
+            let maxNumber = 0;
+
+            if (Array.isArray(existingOrders)) {
+                existingOrders.forEach(o => {
+                    if (o && o.id) {
+                        const digits = o.id.match(/\d+/g);
+                        if (digits) {
+                            const val = parseInt(digits.join(''), 10);
+                            if (!isNaN(val) && val > maxNumber) {
+                                maxNumber = val;
+                            }
+                        }
+                    }
+                });
+            }
+
+            const nextNum = maxNumber + 1;
+            return `#THK-${String(nextNum).padStart(6, '0')}`;
+        }
+
         // Fetch Live Delivery Settings directly from Google Sheet Settings tab
         function fetchLiveDeliveryRates() {
-            // First check if admin recently saved fresh rates in localStorage
             const cachedRates = localStorage.getItem('thrika_delivery_rates_cache');
             if (cachedRates) {
                 try {
@@ -815,7 +877,6 @@
                 } catch(e) {}
             }
 
-            // Fetch live rates from Google Sheet
             fetch(`${GOOGLE_SHEET_WEBHOOK_URL}?type=settings`)
                 .then(res => res.json())
                 .then(sheetRates => {
@@ -828,7 +889,6 @@
                 .catch(err => {
                     console.error("Could not load delivery rates from Google Sheets:", err);
                     if (!deliveryRates) {
-                        // Safe fallback only if network completely fails
                         deliveryRates = { "Kerala": 0, "Tamil Nadu": 0, "Karnataka": 0, "Other": 0 };
                         updateDeliveryRate();
                     }
@@ -848,7 +908,6 @@
 
             const selectedState = document.getElementById('state').value;
             
-            // Map fee from Google Sheet settings
             if (deliveryRates[selectedState] !== undefined) {
                 currentDeliveryCharge = parseFloat(deliveryRates[selectedState]) || 0;
             } else if (deliveryRates["Other"] !== undefined) {
@@ -867,14 +926,11 @@
 
             grandTotal = itemsSubtotal + currentDeliveryCharge;
             document.getElementById('summary-total-price').textContent = `₹${grandTotal}`;
-            
-            // Enable button once calculation finishes
             payBtn.disabled = false;
         }
 
         // Unpack cart directly from localStorage
         function loadOrderItems() {
-            // Strip any bloated query strings from URL to prevent 414 URI Too Long errors
             if (window.location.search && window.location.search.length > 120) {
                 try {
                     window.history.replaceState({}, document.title, window.location.pathname);
@@ -943,6 +999,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             loadOrderItems();
             fetchLiveDeliveryRates();
+            fetchLiveOrdersForSequence();
 
             ['fullName', 'phone', 'street', 'city', 'pincode'].forEach(id => {
                 const el = document.getElementById(id);
@@ -1000,7 +1057,9 @@
                 return;
             }
 
-            const generatedOrderId = '#THK-' + Math.floor(100000 + Math.random() * 900000);
+            // AUTO-INCREMENTED SEQUENTIAL ORDER ID (Latest Sheet ID + 1)
+            const sequentialOrderId = getNextSequentialOrderId();
+
             const fullName = document.getElementById('fullName').value.trim();
             const phone = document.getElementById('phone').value.trim();
             const street = document.getElementById('street').value.trim();
@@ -1010,7 +1069,7 @@
 
             const booksDescription = checkoutCart.map(i => `${i.title} (${i.quantity || 1})`).join(', ');
 
-            // Use only a standard clean URL to avoid URL-too-long errors
+            // Use only a safe HTTP/HTTPS URL for the Razorpay dialog logo
             let rzpSafeImage = MERCHANT_LOGO_URL;
             if (checkoutCart[0] && checkoutCart[0].image && checkoutCart[0].image.startsWith('http')) {
                 rzpSafeImage = checkoutCart[0].image;
@@ -1028,7 +1087,7 @@
 
                     const orderPayload = {
                         action: "placeOrder",
-                        orderId: generatedOrderId,
+                        orderId: sequentialOrderId,
                         txnId: capturedTxnId,
                         paymentId: capturedTxnId,
                         status: "payment_received",
@@ -1039,7 +1098,6 @@
                         pincode: pincode,
                         state: selectedState,
                         bookTitle: booksDescription,
-                        deliveryCharge: currentDeliveryCharge,
                         amount: grandTotal,
                         paymentMode: "Razorpay (Online)"
                     };
@@ -1049,7 +1107,7 @@
                     localStorage.removeItem('thrika_user_cart');
                     localStorage.removeItem('thrika_checkout_cart');
 
-                    showOrderSuccess(generatedOrderId, capturedTxnId, fullName, phone, selectedState, booksDescription);
+                    showOrderSuccess(sequentialOrderId, capturedTxnId, fullName, phone, selectedState, booksDescription);
                 },
                 "prefill": {
                     "name": fullName,
@@ -1070,6 +1128,7 @@
             rzp.open();
         }
 
+        // Show Success Confirmation Modal with fixed WhatsApp receiver link
         function showOrderSuccess(orderId, txnId, name, phone, state, booksList) {
             document.getElementById('modal-order-id').textContent = orderId;
             document.getElementById('modal-payment-id').textContent = txnId || "N/A";
@@ -1077,11 +1136,10 @@
             document.getElementById('modal-delivery-state').textContent = state;
             document.getElementById('modal-amount').textContent = `₹${grandTotal} (Incl. ₹${currentDeliveryCharge} Delivery)`;
 
-            let cleanPhone = phone.replace(/[^0-9]/g, '');
-            if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
-
-            const waMsg = `Namaskaram ${name},\n\nYour order with *Thrika Publications* has been placed successfully! 📚\n\n*Order ID:* ${orderId}\n*Transaction ID:* ${txnId}\n*Books:* ${booksList}\n*Total Paid:* ₹${grandTotal} (Delivery: ₹${currentDeliveryCharge})\n*Destination:* ${state}\n\nWe will update tracking details once dispatched. Thank you!`;
-            document.getElementById('btn-user-whatsapp').href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(waMsg)}`;
+            // Customer sends order confirmation to THRIKA PUBLICATIONS (+91 8943650356)
+            const waMsg = `Namaskaram Thrika Publications,\n\nI have placed an order and completed payment! 📚\n\n*Order ID:* ${orderId}\n*Transaction ID:* ${txnId}\n*Customer Name:* ${name}\n*Phone:* ${phone}\n*Books:* ${booksList}\n*Total Paid:* ₹${grandTotal}\n*Destination State:* ${state}\n\nPlease verify and share my tracking number once dispatched. Thank you!`;
+            
+            document.getElementById('btn-user-whatsapp').href = `https://wa.me/${THRIKA_OFFICIAL_WHATSAPP}?text=${encodeURIComponent(waMsg)}`;
 
             document.getElementById('success-modal').classList.add('active');
         }
