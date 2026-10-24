@@ -365,9 +365,7 @@
             font-size: 1.1rem;
         }
 
-        /* ========================================================
-           CORRECTED CARD & ADD-TO-CART ALIGNMENT
-           ======================================================== */
+        /* Book Grid Layout */
         .book-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
@@ -521,7 +519,7 @@
             font-size: 0.75rem;
         }
 
-        /* Perfectly aligned & non-overlapping price + Add to Cart footer */
+        /* Price + Add to Cart footer */
         .price-row {
             margin-top: auto;
             display: flex;
@@ -1080,7 +1078,7 @@
     <!-- Main Navigation Header -->
     <header>
         <div class="nav-container">
-            <a href="index.html" class="brand-logo">
+            <a href="Catalog.html" class="brand-logo">
                 THRIKA <span>Publications</span>
             </a>
             
@@ -1185,7 +1183,7 @@
             <div class="footer-col">
                 <h3>Quick Links</h3>
                 <ul class="footer-links">
-                    <li><a href="index.html">About Us</a></li>
+                    <li><a href="Catalog.html">About Us</a></li>
                     <li><a href="#">List Your Book</a></li>
                     <li><a onclick="openPolicyModal('contact')">Contact Us</a></li>
                     <li><a onclick="openTrackModal()">Track Order</a></li>
@@ -1224,9 +1222,9 @@
                 <button class="btn-close-x" onclick="closeTrackModal()"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="modal-body">
-                <p>Enter the <strong>Mobile Number</strong> used while placing the order to view shipping status and POD / tracking number.</p>
+                <p>Enter your <strong>10-digit Mobile Number</strong> to view shipping status and tracking numbers.</p>
                 <div class="track-search-group">
-                    <input type="tel" id="track-phone-input" placeholder="Enter 10-digit Phone Number..." maxlength="12">
+                    <input type="tel" id="track-phone-input" placeholder="Enter Phone Number..." maxlength="12">
                     <button class="btn-track-submit" onclick="trackOrderByPhone()">Search</button>
                 </div>
                 <div id="track-results-container"></div>
@@ -1490,23 +1488,17 @@
             document.getElementById('cart-drawer-overlay').classList.remove('active');
         }
 
+        // ========================================================
+        // SAFE REDIRECT (PREVENTS 414 URI TOO LONG)
+        // ========================================================
         function proceedToCheckout() {
             if (userCart.length === 0) return;
 
-            const primaryBook = userCart[0];
-            const isSingle = userCart.length === 1 && primaryBook.quantity === 1;
-
-            const summarizedTitle = isSingle 
-                ? primaryBook.title 
-                : `${primaryBook.title} (${primaryBook.quantity}) + ${userCart.length - 1} more`;
-
-            const totalAmount = userCart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
-
+            // Save clean cart array directly to localStorage
             localStorage.setItem('thrika_checkout_cart', JSON.stringify(userCart));
 
-            const checkoutUrl = `order-confirmation.html?title=${encodeURIComponent(summarizedTitle)}&author=${encodeURIComponent(primaryBook.author)}&price=${encodeURIComponent(totalAmount)}&image=${encodeURIComponent(primaryBook.image)}`;
-
-            window.location.href = checkoutUrl;
+            // Navigate cleanly to order-confirmation.html without massive Base64 query strings
+            window.location.href = "order-confirmation.html";
         }
 
         // 4. Search Filter
