@@ -58,7 +58,6 @@
             overflow: hidden;
         }
 
-        /* Fixed Header Alignment */
         .sidebar-brand {
             height: 72px;
             padding: 0 16px;
@@ -199,13 +198,8 @@
             justify-content: center;
         }
 
-        .btn-store-link:hover {
-            color: var(--gold-accent);
-        }
-
-        .btn-sidebar-lock:hover {
-            color: #fca5a5;
-        }
+        .btn-store-link:hover { color: var(--gold-accent); }
+        .btn-sidebar-lock:hover { color: #fca5a5; }
 
         /* Workspace */
         main.main-content {
@@ -218,13 +212,8 @@
             transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        body.sidebar-collapsed aside.sidebar {
-            width: var(--sidebar-collapsed);
-        }
-
-        body.sidebar-collapsed main.main-content {
-            margin-left: var(--sidebar-collapsed);
-        }
+        body.sidebar-collapsed aside.sidebar { width: var(--sidebar-collapsed); }
+        body.sidebar-collapsed main.main-content { margin-left: var(--sidebar-collapsed); }
 
         body.sidebar-collapsed .brand-info,
         body.sidebar-collapsed .sidebar-menu li a span,
@@ -232,31 +221,12 @@
             display: none !important;
         }
 
-        body.sidebar-collapsed .sidebar-brand {
-            justify-content: center;
-            padding: 0;
-        }
-
-        body.sidebar-collapsed .sidebar-menu li a {
-            padding: 14px 0;
-            justify-content: center;
-            gap: 0;
-        }
-
-        body.sidebar-collapsed .sidebar-footer {
-            padding: 16px 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
+        body.sidebar-collapsed .sidebar-brand { justify-content: center; padding: 0; }
+        body.sidebar-collapsed .sidebar-menu li a { padding: 14px 0; justify-content: center; gap: 0; }
+        body.sidebar-collapsed .sidebar-footer { padding: 16px 0; display: flex; flex-direction: column; align-items: center; }
         body.sidebar-collapsed .btn-store-link,
-        body.sidebar-collapsed .btn-sidebar-lock {
-            justify-content: center;
-            gap: 0;
-        }
+        body.sidebar-collapsed .btn-sidebar-lock { justify-content: center; gap: 0; }
 
-        /* Top Header */
         .top-header {
             display: flex;
             justify-content: space-between;
@@ -320,7 +290,6 @@
             border-color: #dc2626;
         }
 
-        /* Embedded Frame */
         #content-frame {
             width: 100%;
             flex: 1;
@@ -354,12 +323,6 @@
             text-align: center;
             box-shadow: 0 20px 50px rgba(0,0,0,0.35);
             border: 2px solid var(--gold-accent);
-            animation: lockPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        @keyframes lockPop {
-            0% { transform: scale(0.92); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
         }
 
         .lock-icon {
@@ -411,21 +374,10 @@
             font-size: 0.92rem;
             cursor: pointer;
             transition: all 0.2s;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
         }
 
-        .btn-unlock:hover {
-            background: #e6bf3c;
-            transform: translateY(-1px);
-        }
-
-        .btn-unlock:disabled {
-            background: #cbd5e1;
-            color: #64748b;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
+        .btn-unlock:hover { background: #e6bf3c; }
+        .btn-unlock:disabled { background: #cbd5e1; cursor: not-allowed; }
 
         #lock-error-msg {
             color: #dc2626;
@@ -438,12 +390,12 @@
 </head>
 <body>
 
-    <!-- Fullscreen Security Lock Overlay -->
+    <!-- Security Lock Overlay -->
     <div id="admin-lock-screen">
         <div class="lock-card">
             <i class="fa-solid fa-shield-halved lock-icon"></i>
             <h3>Admin Verification</h3>
-            <p>Enter the Secret Admin Key configured in your Google Sheet to access the portal.</p>
+            <p>Enter the SecretKey from your Google Sheet <code>AdminAuth</code> tab, or sign in via the login page.</p>
             
             <form onsubmit="handleAdminKeySubmit(event)">
                 <input type="password" id="admin-passkey-input" class="lock-input" placeholder="Enter Secret Passkey..." autofocus required>
@@ -451,9 +403,12 @@
             </form>
 
             <p id="lock-error-msg"></p>
-            <div style="margin-top: 18px; border-top: 1px solid var(--border-light); padding-top: 12px;">
-                <a href="Catalog.html" style="font-size: 0.8rem; color: var(--emerald-mid); text-decoration: none; font-weight: 700;">
-                    <i class="fa-solid fa-arrow-left"></i> Return to Public Storefront
+            <div style="margin-top: 18px; border-top: 1px solid var(--border-light); padding-top: 12px; display: flex; justify-content: space-between; font-size: 0.8rem;">
+                <a href="login.html" style="color: var(--emerald-main); text-decoration: none; font-weight: 700;">
+                    <i class="fa-solid fa-user-lock"></i> Go to Login Page
+                </a>
+                <a href="Catalog.html" style="color: var(--text-muted); text-decoration: none;">
+                    Storefront
                 </a>
             </div>
         </div>
@@ -495,8 +450,8 @@
             <a href="Catalog.html" class="btn-store-link" target="_blank" title="View Live Store">
                 <i class="fa-solid fa-store"></i> <span>View Live Store</span>
             </a>
-            <button class="btn-sidebar-lock" onclick="lockAdminSession()" title="Lock / Sign Out">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i> <span>Sign Out & Lock</span>
+            <button class="btn-sidebar-lock" onclick="lockAdminSession()" title="Sign Out">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> <span>Sign Out</span>
             </button>
         </div>
     </aside>
@@ -511,7 +466,7 @@
             <div class="user-profile">
                 <div class="avatar">TP</div>
                 <div>
-                    <h5 style="font-size: 0.88rem; font-weight: 700; color: var(--emerald-deep);">Administrator</h5>
+                    <h5 id="admin-display-name" style="font-size: 0.88rem; font-weight: 700; color: var(--emerald-deep);">Administrator</h5>
                     <p style="font-size: 0.75rem; color: var(--text-muted);">Thrika Publications</p>
                 </div>
                 <button class="btn-top-lock" onclick="lockAdminSession()" title="Lock Portal">
@@ -525,28 +480,29 @@
     </main>
 
     <script>
-        // GOOGLE APPS SCRIPT WEBAPP URL
         const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzswEvEe8UQRRTIXKmAukCrOLINLtPaMnTHv8tcaHOnYNs8RCaL3yGajFMY_00164Tm/exec";
 
-        // ==========================================
-        // ADMIN SECURITY & VERIFICATION LAYER
-        // ==========================================
+        // Check authentication on load
         (function initAdminSecurity() {
             const urlParams = new URLSearchParams(window.location.search);
             const urlKey = urlParams.get('key');
 
-            // 1. If key passed in bookmarked URL (e.g. admin.html?key=thrika@9981)
+            // 1. Key passed in bookmark URL (e.g. admin.html?key=3456)
             if (urlKey) {
                 verifyKeyWithSheet(urlKey, true);
                 return;
             }
 
-            // 2. If already unlocked on this browser
+            // 2. Verified session from login.html or previous visit
             if (localStorage.getItem('thrika_admin_token') === 'verified') {
-                return; // Access authorized
+                const user = localStorage.getItem('thrika_admin_user');
+                if (user && document.getElementById('admin-display-name')) {
+                    document.getElementById('admin-display-name').textContent = user;
+                }
+                return;
             }
 
-            // 3. Otherwise show verification prompt
+            // 3. Otherwise show lock screen
             document.addEventListener('DOMContentLoaded', () => {
                 const lock = document.getElementById('admin-lock-screen');
                 if (lock) lock.style.display = 'flex';
@@ -560,12 +516,13 @@
             verifyKeyWithSheet(entered, false);
         }
 
+        // Live check against AdminAuth sheet
         function verifyKeyWithSheet(keyToTest, isFromUrl) {
             const btn = document.getElementById('btn-verify-key');
             const err = document.getElementById('lock-error-msg');
             if (btn) {
                 btn.disabled = true;
-                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Verifying with Google Sheet...`;
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Checking Google Sheet...`;
             }
 
             fetch(GOOGLE_APPS_SCRIPT_URL, {
@@ -577,7 +534,7 @@
             })
             .then(res => res.json())
             .then(data => {
-                if (data.authorized) {
+                if (data && data.authorized) {
                     localStorage.setItem('thrika_admin_token', 'verified');
                     
                     if (isFromUrl) {
@@ -588,11 +545,11 @@
                     if (lock) lock.style.display = 'none';
                 } else {
                     if (isFromUrl) {
-                        alert("Unauthorized secret key. Redirecting to store.");
-                        window.location.href = "Catalog.html";
+                        alert("Unauthorized secret key. Redirecting to login.");
+                        window.location.href = "login.html";
                     } else {
                         if (err) {
-                            err.textContent = "Invalid Secret Key. Please check your Google Sheet Settings.";
+                            err.textContent = "Invalid SecretKey. Please check your AdminAuth sheet.";
                             err.style.display = "block";
                         }
                         if (btn) {
@@ -603,41 +560,25 @@
                 }
             })
             .catch(() => {
-                // Offline fallback key
-                if (keyToTest === "thrika@9981") {
-                    localStorage.setItem('thrika_admin_token', 'verified');
-                    const lock = document.getElementById('admin-lock-screen');
-                    if (lock) lock.style.display = 'none';
-                } else {
-                    if (err) {
-                        err.textContent = "Verification failed. Check your internet connection.";
-                        err.style.display = "block";
-                    }
-                    if (btn) {
-                        btn.disabled = false;
-                        btn.textContent = "Unlock Dashboard";
-                    }
+                if (err) {
+                    err.textContent = "Verification failed. Unable to reach Google Sheets.";
+                    err.style.display = "block";
+                }
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = "Unlock Dashboard";
                 }
             });
         }
 
         function lockAdminSession() {
-            if (confirm("Lock the admin portal? You will need your secret key to sign back in.")) {
+            if (confirm("Lock the admin portal?")) {
                 localStorage.removeItem('thrika_admin_token');
-                const lock = document.getElementById('admin-lock-screen');
-                if (lock) {
-                    lock.style.display = 'flex';
-                    document.getElementById('admin-passkey-input').value = '';
-                    document.getElementById('admin-passkey-input').focus();
-                } else {
-                    window.location.reload();
-                }
+                localStorage.removeItem('thrika_admin_user');
+                window.location.href = "login.html";
             }
         }
 
-        // ==========================================
-        // SIDEBAR & NAVIGATION CONTROLS
-        // ==========================================
         function toggleSidebar() {
             document.body.classList.toggle('sidebar-collapsed');
         }
@@ -659,9 +600,7 @@
                 if (innerDoc && innerDoc.body) {
                     frame.style.height = (innerDoc.body.scrollHeight + 30) + 'px';
                 }
-            } catch (e) {
-                console.log("Frame height adjusted.");
-            }
+            } catch (e) {}
         });
     </script>
 </body>
