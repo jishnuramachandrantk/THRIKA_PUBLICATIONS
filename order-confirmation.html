@@ -550,20 +550,6 @@
             border-color: var(--whatsapp-green);
         }
 
-        .btn-close-modal {
-            background: var(--emerald-main);
-            color: #ffffff;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 20px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            cursor: pointer;
-            margin-top: 10px;
-            display: block;
-            width: 100%;
-        }
-
         @media (max-width: 768px) {
             .checkout-container {
                 grid-template-columns: 1fr;
@@ -600,7 +586,7 @@
         <!-- Left Column: Items & Form -->
         <div class="checkout-main">
             
-            <!-- Book Summary Card (Unpacks Multi-Item Cart) -->
+            <!-- Book Summary Card -->
             <div class="checkout-card">
                 <h3 class="card-title">
                     <span><i class="fa-solid fa-bag-shopping"></i> Order Items</span>
@@ -652,7 +638,7 @@
                             <span class="error-message">Enter valid 6-digit PIN code (e.g. 680001)</span>
                         </div>
 
-                        <!-- State (Triggers State-wise Rate Update) -->
+                        <!-- State -->
                         <div class="form-group full-width">
                             <label for="state">State / Region *</label>
                             <select id="state" onchange="updateDeliveryRate()">
@@ -796,7 +782,9 @@
         const RAZORPAY_KEY_ID = "rzp_test_TrI5N3Ez3NLnBv"; 
         const MERCHANT_NAME = "Thrika Publications";
 
-        // Multi-Item Cart State
+        // Safe official merchant image URL (NEVER use a Base64 data:image string for Razorpay checkout)
+        const MERCHANT_LOGO_URL = "https://via.placeholder.com/150/0b3c2f/ffffff?text=Thrika";
+
         let checkoutCart = [];
         let itemsSubtotal = 0;
 
@@ -810,7 +798,6 @@
         let currentDeliveryCharge = 30;
         let grandTotal = 0;
 
-        // Fetch Live Delivery Settings from Google Sheet
         function fetchLiveDeliveryRates() {
             fetch(`${GOOGLE_SHEET_WEBHOOK_URL}?type=settings`)
                 .then(res => res.json())
@@ -825,7 +812,6 @@
                 });
         }
 
-        // Recalculate price when state selection changes
         function updateDeliveryRate() {
             const selectedState = document.getElementById('state').value;
             currentDeliveryCharge = deliveryRates[selectedState] !== undefined ? deliveryRates[selectedState] : (deliveryRates["Other"] || 70);
@@ -843,8 +829,15 @@
             document.getElementById('summary-total-price').textContent = `₹${grandTotal}`;
         }
 
-        // Unpack Cart from Storage & Render All Selected Books
+        // Unpack clean cart directly from localStorage
         function loadOrderItems() {
+            // Strip any bloated query strings from the URL bar immediately to prevent 414 URI Too Long errors
+            if (window.location.search && window.location.search.length > 120) {
+                try {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } catch (e) {}
+            }
+
             const container = document.getElementById('order-items-list-container');
             const storedCart = localStorage.getItem('thrika_checkout_cart') || localStorage.getItem('thrika_user_cart');
 
@@ -859,19 +852,17 @@
                 console.warn("Could not parse storage cart:", e);
             }
 
-            // Fallback to URL params if localStorage is empty
+            // Fallback default if storage was cleared
             if (checkoutCart.length === 0) {
-                const urlParams = new URLSearchParams(window.location.search);
-                checkoutCart = [{
-                    title: urlParams.get('title') || "Selected Book",
-                    author: urlParams.get('author') || "Thrika Author",
-                    price: parseFloat(urlParams.get('price')) || 150,
-                    image: urlParams.get('image') || "https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Book+Cover",
-                    quantity: 1
-                }];
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 25px; color: var(--text-muted);">
+                        <p>No items found in your checkout session.</p>
+                        <a href="Catalog.html" style="color: var(--emerald-main); font-weight: 700; text-decoration: underline; margin-top: 6px; display: inline-block;">Return to Storefront</a>
+                    </div>
+                `;
+                return;
             }
 
-            // Calculate Subtotal and build items markup
             itemsSubtotal = 0;
             let totalItemQuantity = 0;
 
@@ -883,9 +874,12 @@
                 itemsSubtotal += rowTotal;
                 totalItemQuantity += qty;
 
+                // Handle local preview images safely
+                const displayImg = item.image && item.image.trim() !== '' ? item.image : 'https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Cover';
+
                 return `
                     <div class="order-item-row">
-                        <img src="${item.image || 'https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Cover'}" alt="${item.title}" class="book-thumb" onerror="this.src='https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Cover'">
+                        <img src="${displayImg}" alt="${item.title}" class="book-thumb" onerror="this.src='https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Cover'">
                         <div class="book-info">
                             <h4 title="${item.title}">${item.title}</h4>
                             <p>By ${item.author || 'Author'}</p>
@@ -915,7 +909,6 @@
             });
         });
 
-        // Form Validation
         function validateField(fieldId) {
             const el = document.getElementById(fieldId);
             const group = document.getElementById('group-' + fieldId);
@@ -959,9 +952,12 @@
             }).catch(err => console.error("Error logging order:", err));
         }
 
-        // Process Multi-Item Checkout via Razorpay
         function processOrder() {
             if (!validateAddressForm()) return;
+            if (checkoutCart.length === 0) {
+                alert("Cart is empty. Please return to store and add items.");
+                return;
+            }
 
             const generatedOrderId = '#THK-' + Math.floor(100000 + Math.random() * 900000);
             const fullName = document.getElementById('fullName').value.trim();
@@ -971,17 +967,21 @@
             const pincode = document.getElementById('pincode').value.trim();
             const selectedState = document.getElementById('state').value;
 
-            // Build detailed books representation for sheet and messages
             const booksDescription = checkoutCart.map(i => `${i.title} (${i.quantity || 1})`).join(', ');
+
+            // Sanitize logo: Only use a safe HTTP/HTTPS URL, never a giant Base64 string
+            let rzpSafeImage = MERCHANT_LOGO_URL;
+            if (checkoutCart[0] && checkoutCart[0].image && checkoutCart[0].image.startsWith('http')) {
+                rzpSafeImage = checkoutCart[0].image;
+            }
 
             const razorpayOptions = {
                 "key": RAZORPAY_KEY_ID,
-                "amount": Math.round(grandTotal * 100), // (Total in paise)
+                "amount": Math.round(grandTotal * 100),
                 "currency": "INR",
                 "name": MERCHANT_NAME,
-                "description": `Order: ${booksDescription.substring(0, 200)}`,
-                "image": checkoutCart[0].image || "https://via.placeholder.com/150/0b3c2f/ffffff?text=Thrika",
-                
+                "description": `Order: ${booksDescription.substring(0, 180)}`,
+                "image": rzpSafeImage, // Fixed: Prevents URI Too Long
                 "handler": function (response) {
                     const capturedTxnId = response.razorpay_payment_id;
 
@@ -997,7 +997,7 @@
                         city: city,
                         pincode: pincode,
                         state: selectedState,
-                        bookTitle: booksDescription, // Saves full multi-item list to sheet
+                        bookTitle: booksDescription,
                         deliveryCharge: currentDeliveryCharge,
                         amount: grandTotal,
                         paymentMode: "Razorpay (Online)"
@@ -1005,7 +1005,6 @@
 
                     sendOrderToGoogleSheet(orderPayload);
                     
-                    // Clear the user's cart after successful placement
                     localStorage.removeItem('thrika_user_cart');
                     localStorage.removeItem('thrika_checkout_cart');
 
@@ -1030,7 +1029,6 @@
             rzp.open();
         }
 
-        // Show Success Confirmation Modal with Multi-Book Receipt
         function showOrderSuccess(orderId, txnId, name, phone, state, booksList) {
             document.getElementById('modal-order-id').textContent = orderId;
             document.getElementById('modal-payment-id').textContent = txnId || "N/A";
@@ -1047,7 +1045,6 @@
             document.getElementById('success-modal').classList.add('active');
         }
 
-        // Policy Modal Handlers
         function openPolicyModal(type) {
             const titleEl = document.getElementById('policy-title');
             const contentEl = document.getElementById('policy-content');
