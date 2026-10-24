@@ -164,12 +164,15 @@
         }
 
         .sidebar-footer {
-            padding: 16px;
+            padding: 14px 16px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             white-space: nowrap;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        .btn-store-link {
+        .btn-store-link, .btn-sidebar-lock {
             color: var(--emerald-tint);
             text-decoration: none;
             font-size: 0.85rem;
@@ -178,17 +181,30 @@
             align-items: center;
             gap: 16px;
             transition: color 0.2s;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            width: 100%;
+            text-align: left;
         }
 
-        .btn-store-link i {
+        .btn-store-link i, .btn-sidebar-lock i {
             font-size: 1.1rem;
             width: 24px;
             min-width: 24px;
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .btn-store-link:hover {
             color: var(--gold-accent);
+        }
+
+        .btn-sidebar-lock:hover {
+            color: #fca5a5;
         }
 
         /* Workspace */
@@ -230,10 +246,12 @@
         body.sidebar-collapsed .sidebar-footer {
             padding: 16px 0;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
         }
 
-        body.sidebar-collapsed .btn-store-link {
+        body.sidebar-collapsed .btn-store-link,
+        body.sidebar-collapsed .btn-sidebar-lock {
             justify-content: center;
             gap: 0;
         }
@@ -280,6 +298,28 @@
             font-weight: 800;
         }
 
+        .btn-top-lock {
+            background: var(--emerald-soft);
+            color: var(--emerald-main);
+            border: 1px solid var(--border-light);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-top-lock:hover {
+            background: #dc2626;
+            color: #ffffff;
+            border-color: #dc2626;
+        }
+
         /* Embedded Frame */
         #content-frame {
             width: 100%;
@@ -289,9 +329,135 @@
             border-radius: 16px;
             background: transparent;
         }
+
+        /* Fullscreen Security Lock Overlay */
+        #admin-lock-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(6, 44, 34, 0.96);
+            backdrop-filter: blur(8px);
+            z-index: 99999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lock-card {
+            background: #ffffff;
+            padding: 34px 28px;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+            border: 2px solid var(--gold-accent);
+            animation: lockPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes lockPop {
+            0% { transform: scale(0.92); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .lock-icon {
+            font-size: 2.6rem;
+            color: var(--emerald-main);
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+
+        .lock-card h3 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--emerald-deep);
+            margin-bottom: 6px;
+        }
+
+        .lock-card p {
+            font-size: 0.84rem;
+            color: var(--text-muted);
+            margin-bottom: 18px;
+            line-height: 1.5;
+        }
+
+        .lock-input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            outline: none;
+            margin-bottom: 14px;
+            text-align: center;
+            color: var(--text-dark);
+        }
+
+        .lock-input:focus {
+            border-color: var(--emerald-mid);
+            box-shadow: 0 0 0 3px rgba(20, 83, 67, 0.12);
+        }
+
+        .btn-unlock {
+            width: 100%;
+            background: var(--gold-accent);
+            color: var(--emerald-deep);
+            border: none;
+            padding: 12px;
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 0.92rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-unlock:hover {
+            background: #e6bf3c;
+            transform: translateY(-1px);
+        }
+
+        .btn-unlock:disabled {
+            background: #cbd5e1;
+            color: #64748b;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #lock-error-msg {
+            color: #dc2626;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-top: 12px;
+            display: none;
+        }
     </style>
 </head>
 <body>
+
+    <!-- Fullscreen Security Lock Overlay -->
+    <div id="admin-lock-screen">
+        <div class="lock-card">
+            <i class="fa-solid fa-shield-halved lock-icon"></i>
+            <h3>Admin Verification</h3>
+            <p>Enter the Secret Admin Key configured in your Google Sheet to access the portal.</p>
+            
+            <form onsubmit="handleAdminKeySubmit(event)">
+                <input type="password" id="admin-passkey-input" class="lock-input" placeholder="Enter Secret Passkey..." autofocus required>
+                <button type="submit" id="btn-verify-key" class="btn-unlock">Unlock Dashboard</button>
+            </form>
+
+            <p id="lock-error-msg"></p>
+            <div style="margin-top: 18px; border-top: 1px solid var(--border-light); padding-top: 12px;">
+                <a href="Catalog.html" style="font-size: 0.8rem; color: var(--emerald-mid); text-decoration: none; font-weight: 700;">
+                    <i class="fa-solid fa-arrow-left"></i> Return to Public Storefront
+                </a>
+            </div>
+        </div>
+    </div>
 
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
@@ -320,16 +486,18 @@
             <li onclick="navigateTo('inventory-catalog.html', this, 'Inventory & Catalog Manager', 'View, filter, or remove books from your live inventory')">
                 <a title="Managed Inventory"><i class="fa-solid fa-book-bookmark"></i> <span>Managed Inventory</span></a>
             </li>
-            <!-- New Delivery Charge Option -->
             <li onclick="navigateTo('delivery_charge.html', this, 'State Delivery Charges', 'Configure shipping fees per state and regional zones')">
                 <a title="Delivery Charges"><i class="fa-solid fa-truck-fast"></i> <span>Delivery Charges</span></a>
             </li>
         </ul>
 
         <div class="sidebar-footer">
-            <a href="index.html" class="btn-store-link" target="_blank" title="View Live Store">
+            <a href="Catalog.html" class="btn-store-link" target="_blank" title="View Live Store">
                 <i class="fa-solid fa-store"></i> <span>View Live Store</span>
             </a>
+            <button class="btn-sidebar-lock" onclick="lockAdminSession()" title="Lock / Sign Out">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> <span>Sign Out & Lock</span>
+            </button>
         </div>
     </aside>
 
@@ -346,6 +514,9 @@
                     <h5 style="font-size: 0.88rem; font-weight: 700; color: var(--emerald-deep);">Administrator</h5>
                     <p style="font-size: 0.75rem; color: var(--text-muted);">Thrika Publications</p>
                 </div>
+                <button class="btn-top-lock" onclick="lockAdminSession()" title="Lock Portal">
+                    <i class="fa-solid fa-lock"></i> Lock
+                </button>
             </div>
         </div>
 
@@ -354,6 +525,119 @@
     </main>
 
     <script>
+        // GOOGLE APPS SCRIPT WEBAPP URL
+        const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzswEvEe8UQRRTIXKmAukCrOLINLtPaMnTHv8tcaHOnYNs8RCaL3yGajFMY_00164Tm/exec";
+
+        // ==========================================
+        // ADMIN SECURITY & VERIFICATION LAYER
+        // ==========================================
+        (function initAdminSecurity() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlKey = urlParams.get('key');
+
+            // 1. If key passed in bookmarked URL (e.g. admin.html?key=thrika@9981)
+            if (urlKey) {
+                verifyKeyWithSheet(urlKey, true);
+                return;
+            }
+
+            // 2. If already unlocked on this browser
+            if (localStorage.getItem('thrika_admin_token') === 'verified') {
+                return; // Access authorized
+            }
+
+            // 3. Otherwise show verification prompt
+            document.addEventListener('DOMContentLoaded', () => {
+                const lock = document.getElementById('admin-lock-screen');
+                if (lock) lock.style.display = 'flex';
+            });
+        })();
+
+        function handleAdminKeySubmit(event) {
+            event.preventDefault();
+            const entered = document.getElementById('admin-passkey-input').value.trim();
+            if (!entered) return;
+            verifyKeyWithSheet(entered, false);
+        }
+
+        function verifyKeyWithSheet(keyToTest, isFromUrl) {
+            const btn = document.getElementById('btn-verify-key');
+            const err = document.getElementById('lock-error-msg');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Verifying with Google Sheet...`;
+            }
+
+            fetch(GOOGLE_APPS_SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "verifyAdminKey",
+                    providedKey: keyToTest
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.authorized) {
+                    localStorage.setItem('thrika_admin_token', 'verified');
+                    
+                    if (isFromUrl) {
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    }
+
+                    const lock = document.getElementById('admin-lock-screen');
+                    if (lock) lock.style.display = 'none';
+                } else {
+                    if (isFromUrl) {
+                        alert("Unauthorized secret key. Redirecting to store.");
+                        window.location.href = "Catalog.html";
+                    } else {
+                        if (err) {
+                            err.textContent = "Invalid Secret Key. Please check your Google Sheet Settings.";
+                            err.style.display = "block";
+                        }
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.textContent = "Unlock Dashboard";
+                        }
+                    }
+                }
+            })
+            .catch(() => {
+                // Offline fallback key
+                if (keyToTest === "thrika@9981") {
+                    localStorage.setItem('thrika_admin_token', 'verified');
+                    const lock = document.getElementById('admin-lock-screen');
+                    if (lock) lock.style.display = 'none';
+                } else {
+                    if (err) {
+                        err.textContent = "Verification failed. Check your internet connection.";
+                        err.style.display = "block";
+                    }
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.textContent = "Unlock Dashboard";
+                    }
+                }
+            });
+        }
+
+        function lockAdminSession() {
+            if (confirm("Lock the admin portal? You will need your secret key to sign back in.")) {
+                localStorage.removeItem('thrika_admin_token');
+                const lock = document.getElementById('admin-lock-screen');
+                if (lock) {
+                    lock.style.display = 'flex';
+                    document.getElementById('admin-passkey-input').value = '';
+                    document.getElementById('admin-passkey-input').focus();
+                } else {
+                    window.location.reload();
+                }
+            }
+        }
+
+        // ==========================================
+        // SIDEBAR & NAVIGATION CONTROLS
+        // ==========================================
         function toggleSidebar() {
             document.body.classList.toggle('sidebar-collapsed');
         }
