@@ -104,6 +104,7 @@
             display: grid;
             grid-template-columns: 1.4fr 1fr;
             gap: 28px;
+            align-items: start;
         }
 
         .checkout-card {
@@ -305,41 +306,6 @@
             color: var(--text-muted);
         }
 
-        .policy-links-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .policy-btn {
-            background: var(--emerald-soft);
-            border: 1px solid var(--border-light);
-            padding: 10px 8px;
-            border-radius: 8px;
-            font-size: 0.78rem;
-            font-weight: 700;
-            color: var(--emerald-main);
-            text-align: center;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
-        }
-
-        .policy-btn:hover {
-            background: var(--emerald-main);
-            color: #ffffff;
-            border-color: var(--emerald-main);
-        }
-
-        .policy-btn i {
-            font-size: 1rem;
-            color: var(--gold-accent);
-        }
-
         /* Order Summary Sidebar */
         .order-summary-card {
             background: var(--card-bg);
@@ -431,6 +397,69 @@
         .trust-badges i {
             color: var(--emerald-mid);
             font-size: 1.1rem;
+        }
+
+        /* Sidebar Integrated Store Policies */
+        .sidebar-policies-section {
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px dashed var(--border-light);
+        }
+
+        .sidebar-policies-header {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--emerald-deep);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-policies-header i {
+            color: var(--gold-accent);
+        }
+
+        .sidebar-policies-subtext {
+            font-size: 0.74rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .policy-links-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .policy-btn {
+            background: var(--emerald-soft);
+            border: 1px solid var(--border-light);
+            padding: 9px 4px;
+            border-radius: 8px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--emerald-main);
+            text-align: center;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+            line-height: 1.25;
+        }
+
+        .policy-btn:hover {
+            background: var(--emerald-main);
+            color: #ffffff;
+            border-color: var(--emerald-main);
+        }
+
+        .policy-btn i {
+            font-size: 0.95rem;
+            color: var(--gold-accent);
         }
 
         /* Success Receipt Modal */
@@ -703,26 +732,6 @@
                 </div>
             </div>
 
-            <!-- Store Policies Section -->
-            <div class="checkout-card">
-                <h3 class="card-title"><i class="fa-solid fa-file-contract"></i> Store Policies & Terms</h3>
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">By placing an order with Thrika Publications, you agree to our standard store policies:</p>
-                <div class="policy-links-grid">
-                    <button class="policy-btn" onclick="openPolicyModal('refund')">
-                        <i class="fa-solid fa-rotate-left"></i>
-                        <span>Refund & Cancellation</span>
-                    </button>
-                    <button class="policy-btn" onclick="openPolicyModal('shipping')">
-                        <i class="fa-solid fa-truck-ramp-box"></i>
-                        <span>Shipping & Delivery</span>
-                    </button>
-                    <button class="policy-btn" onclick="openPolicyModal('privacy')">
-                        <i class="fa-solid fa-user-shield"></i>
-                        <span>Privacy Policy</span>
-                    </button>
-                </div>
-            </div>
-
         </div>
 
         <!-- Right Column: Summary Sidebar -->
@@ -748,10 +757,12 @@
                     <span class="price" id="summary-total-price">₹0</span>
                 </div>
 
+                <!-- Pay & Confirm Button -->
                 <button type="button" class="btn-pay-now" id="btn-pay-now" onclick="processOrder()" disabled>
                     Pay & Confirm Order <i class="fa-solid fa-arrow-right"></i>
                 </button>
 
+                <!-- Trust Badges -->
                 <div class="trust-badges">
                     <div>
                         <i class="fa-solid fa-shield-halved"></i>
@@ -764,6 +775,30 @@
                     <div>
                         <i class="fa-solid fa-rotate-left"></i>
                         <span>Easy Returns</span>
+                    </div>
+                </div>
+
+                <!-- Store Policies & Terms Relocated Below Pay Button -->
+                <div class="sidebar-policies-section">
+                    <div class="sidebar-policies-header">
+                        <i class="fa-solid fa-file-contract"></i>
+                        <span>Store Policies & Terms</span>
+                    </div>
+                    <p class="sidebar-policies-subtext">By placing an order, you agree to our standard customer terms:</p>
+                    
+                    <div class="policy-links-grid">
+                        <button type="button" class="policy-btn" onclick="openPolicyModal('refund')">
+                            <i class="fa-solid fa-rotate-left"></i>
+                            <span>Refunds</span>
+                        </button>
+                        <button type="button" class="policy-btn" onclick="openPolicyModal('shipping')">
+                            <i class="fa-solid fa-truck-ramp-box"></i>
+                            <span>Shipping</span>
+                        </button>
+                        <button type="button" class="policy-btn" onclick="openPolicyModal('privacy')">
+                            <i class="fa-solid fa-user-shield"></i>
+                            <span>Privacy</span>
+                        </button>
                     </div>
                 </div>
 
@@ -806,7 +841,7 @@
             <div id="policy-content">
                 <p>Loading policy content...</p>
             </div>
-            <button class="btn-close-modal" onclick="closePolicyModal()">Close & Return</button>
+            <button class="btn-close-modal" onclick="closePolicyModal()" style="background: var(--emerald-main); color: #ffffff; border: none; width: 100%; padding: 10px; border-radius: 8px; font-weight: 700; margin-top: 16px; cursor: pointer;">Close & Return</button>
         </div>
     </div>
 
@@ -1057,7 +1092,6 @@
                 return;
             }
 
-            // AUTO-INCREMENTED SEQUENTIAL ORDER ID (Latest Sheet ID + 1)
             const sequentialOrderId = getNextSequentialOrderId();
 
             const fullName = document.getElementById('fullName').value.trim();
@@ -1069,7 +1103,6 @@
 
             const booksDescription = checkoutCart.map(i => `${i.title} (${i.quantity || 1})`).join(', ');
 
-            // Use only a safe HTTP/HTTPS URL for the Razorpay dialog logo
             let rzpSafeImage = MERCHANT_LOGO_URL;
             if (checkoutCart[0] && checkoutCart[0].image && checkoutCart[0].image.startsWith('http')) {
                 rzpSafeImage = checkoutCart[0].image;
@@ -1128,7 +1161,7 @@
             rzp.open();
         }
 
-        // Show Success Confirmation Modal with fixed WhatsApp receiver link
+        // Show Success Confirmation Modal with direct WhatsApp receiver link
         function showOrderSuccess(orderId, txnId, name, phone, state, booksList) {
             document.getElementById('modal-order-id').textContent = orderId;
             document.getElementById('modal-payment-id').textContent = txnId || "N/A";
@@ -1136,7 +1169,6 @@
             document.getElementById('modal-delivery-state').textContent = state;
             document.getElementById('modal-amount').textContent = `₹${grandTotal} (Incl. ₹${currentDeliveryCharge} Delivery)`;
 
-            // Customer sends order confirmation to THRIKA PUBLICATIONS (+91 8943650356)
             const waMsg = `Namaskaram Thrika Publications,\n\nI have placed an order and completed payment! 📚\n\n*Order ID:* ${orderId}\n*Transaction ID:* ${txnId}\n*Customer Name:* ${name}\n*Phone:* ${phone}\n*Books:* ${booksList}\n*Total Paid:* ₹${grandTotal}\n*Destination State:* ${state}\n\nPlease verify and share my tracking number once dispatched. Thank you!`;
             
             document.getElementById('btn-user-whatsapp').href = `https://wa.me/${THRIKA_OFFICIAL_WHATSAPP}?text=${encodeURIComponent(waMsg)}`;
