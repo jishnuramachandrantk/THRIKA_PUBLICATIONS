@@ -402,6 +402,14 @@
             box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
         }
 
+        .btn-pay-now:disabled {
+            background: #cbd5e1;
+            color: #64748b;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
         .trust-badges {
             display: flex;
             justify-content: space-around;
@@ -704,7 +712,7 @@
                 </div>
                 <div class="summary-row">
                     <span>Delivery Charges</span>
-                    <span id="summary-delivery-fee" class="free-tag">₹0</span>
+                    <span id="summary-delivery-fee" class="free-tag"><i class="fa-solid fa-spinner fa-spin"></i> Checking...</span>
                 </div>
                 <div class="summary-row">
                     <span>GST / Taxes</span>
@@ -716,7 +724,7 @@
                     <span class="price" id="summary-total-price">₹0</span>
                 </div>
 
-                <button type="button" class="btn-pay-now" onclick="processOrder()">
+                <button type="button" class="btn-pay-now" id="btn-pay-now" onclick="processOrder()" disabled>
                     Pay & Confirm Order <i class="fa-solid fa-arrow-right"></i>
                 </button>
 
@@ -779,44 +787,76 @@
 
     <script>
         const GOOGLE_SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzswEvEe8UQRRTIXKmAukCrOLINLtPaMnTHv8tcaHOnYNs8RCaL3yGajFMY_00164Tm/exec";
-        const RAZORPAY_KEY_ID = "rzp_live_TrHxzDnuvrMGQl"; 
+        const RAZORPAY_KEY_ID = "rzp_test_TrI5N3Ez3NLnBv"; 
         const MERCHANT_NAME = "Thrika Publications";
 
-        // Safe official merchant image URL (NEVER use a Base64 data:image string for Razorpay checkout)
+        // Lightweight logo for Razorpay modal
         const MERCHANT_LOGO_URL = "https://via.placeholder.com/150/0b3c2f/ffffff?text=Thrika";
 
         let checkoutCart = [];
         let itemsSubtotal = 0;
 
-        let deliveryRates = {
-            "Kerala": 30,
-            "Tamil Nadu": 50,
-            "Karnataka": 50,
-            "Other": 70
-        };
-
-        let currentDeliveryCharge = 30;
+        // Dynamic rates table loaded exclusively from Google Sheet
+        let deliveryRates = null;
+        let currentDeliveryCharge = 0;
         let grandTotal = 0;
 
+        // Fetch Live Delivery Settings directly from Google Sheet Settings tab
         function fetchLiveDeliveryRates() {
+            // First check if admin recently saved fresh rates in localStorage
+            const cachedRates = localStorage.getItem('thrika_delivery_rates_cache');
+            if (cachedRates) {
+                try {
+                    const parsed = JSON.parse(cachedRates);
+                    if (parsed && typeof parsed === 'object') {
+                        deliveryRates = parsed;
+                        updateDeliveryRate();
+                    }
+                } catch(e) {}
+            }
+
+            // Fetch live rates from Google Sheet
             fetch(`${GOOGLE_SHEET_WEBHOOK_URL}?type=settings`)
                 .then(res => res.json())
-                .then(data => {
-                    if (data && typeof data === 'object' && Object.keys(data).length > 0) {
-                        deliveryRates = Object.assign(deliveryRates, data);
+                .then(sheetRates => {
+                    if (sheetRates && typeof sheetRates === 'object' && Object.keys(sheetRates).length > 0) {
+                        deliveryRates = sheetRates;
+                        localStorage.setItem('thrika_delivery_rates_cache', JSON.stringify(sheetRates));
                         updateDeliveryRate();
                     }
                 })
-                .catch(() => {
-                    updateDeliveryRate();
+                .catch(err => {
+                    console.error("Could not load delivery rates from Google Sheets:", err);
+                    if (!deliveryRates) {
+                        // Safe fallback only if network completely fails
+                        deliveryRates = { "Kerala": 0, "Tamil Nadu": 0, "Karnataka": 0, "Other": 0 };
+                        updateDeliveryRate();
+                    }
                 });
         }
 
+        // Recalculate price dynamically when state selection changes
         function updateDeliveryRate() {
-            const selectedState = document.getElementById('state').value;
-            currentDeliveryCharge = deliveryRates[selectedState] !== undefined ? deliveryRates[selectedState] : (deliveryRates["Other"] || 70);
-
+            const payBtn = document.getElementById('btn-pay-now');
             const feeElement = document.getElementById('summary-delivery-fee');
+
+            if (!deliveryRates) {
+                feeElement.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Checking sheet...`;
+                payBtn.disabled = true;
+                return;
+            }
+
+            const selectedState = document.getElementById('state').value;
+            
+            // Map fee from Google Sheet settings
+            if (deliveryRates[selectedState] !== undefined) {
+                currentDeliveryCharge = parseFloat(deliveryRates[selectedState]) || 0;
+            } else if (deliveryRates["Other"] !== undefined) {
+                currentDeliveryCharge = parseFloat(deliveryRates["Other"]) || 0;
+            } else {
+                currentDeliveryCharge = 0;
+            }
+
             if (currentDeliveryCharge === 0) {
                 feeElement.textContent = "FREE";
                 feeElement.className = "free-tag";
@@ -827,11 +867,14 @@
 
             grandTotal = itemsSubtotal + currentDeliveryCharge;
             document.getElementById('summary-total-price').textContent = `₹${grandTotal}`;
+            
+            // Enable button once calculation finishes
+            payBtn.disabled = false;
         }
 
-        // Unpack clean cart directly from localStorage
+        // Unpack cart directly from localStorage
         function loadOrderItems() {
-            // Strip any bloated query strings from the URL bar immediately to prevent 414 URI Too Long errors
+            // Strip any bloated query strings from URL to prevent 414 URI Too Long errors
             if (window.location.search && window.location.search.length > 120) {
                 try {
                     window.history.replaceState({}, document.title, window.location.pathname);
@@ -852,7 +895,6 @@
                 console.warn("Could not parse storage cart:", e);
             }
 
-            // Fallback default if storage was cleared
             if (checkoutCart.length === 0) {
                 container.innerHTML = `
                     <div style="text-align: center; padding: 25px; color: var(--text-muted);">
@@ -874,7 +916,6 @@
                 itemsSubtotal += rowTotal;
                 totalItemQuantity += qty;
 
-                // Handle local preview images safely
                 const displayImg = item.image && item.image.trim() !== '' ? item.image : 'https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Cover';
 
                 return `
@@ -969,7 +1010,7 @@
 
             const booksDescription = checkoutCart.map(i => `${i.title} (${i.quantity || 1})`).join(', ');
 
-            // Sanitize logo: Only use a safe HTTP/HTTPS URL, never a giant Base64 string
+            // Use only a standard clean URL to avoid URL-too-long errors
             let rzpSafeImage = MERCHANT_LOGO_URL;
             if (checkoutCart[0] && checkoutCart[0].image && checkoutCart[0].image.startsWith('http')) {
                 rzpSafeImage = checkoutCart[0].image;
@@ -981,7 +1022,7 @@
                 "currency": "INR",
                 "name": MERCHANT_NAME,
                 "description": `Order: ${booksDescription.substring(0, 180)}`,
-                "image": rzpSafeImage, // Fixed: Prevents URI Too Long
+                "image": rzpSafeImage,
                 "handler": function (response) {
                     const capturedTxnId = response.razorpay_payment_id;
 
