@@ -42,32 +42,6 @@
             overflow: hidden;
         }
 
-        /* Ambient Background Orbs */
-        body::before {
-            content: '';
-            position: absolute;
-            width: 450px;
-            height: 450px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(212, 175, 55, 0.12) 0%, transparent 70%);
-            top: -100px;
-            left: -100px;
-            pointer-events: none;
-        }
-
-        body::after {
-            content: '';
-            position: absolute;
-            width: 500px;
-            height: 500px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(20, 83, 67, 0.3) 0%, transparent 70%);
-            bottom: -120px;
-            right: -120px;
-            pointer-events: none;
-        }
-
-        /* Login Card */
         .login-card {
             background: #ffffff;
             border-radius: 20px;
@@ -82,7 +56,7 @@
 
         .login-header {
             text-align: center;
-            margin-bottom: 28px;
+            margin-bottom: 24px;
         }
 
         .brand-logo {
@@ -90,7 +64,6 @@
             font-weight: 800;
             color: var(--emerald-main);
             text-decoration: none;
-            letter-spacing: -0.5px;
             display: inline-flex;
             align-items: center;
             gap: 6px;
@@ -122,9 +95,8 @@
             color: var(--text-muted);
         }
 
-        /* Form Controls */
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             display: flex;
             flex-direction: column;
             gap: 6px;
@@ -178,11 +150,6 @@
             padding: 4px;
         }
 
-        .toggle-password:hover {
-            color: var(--emerald-main);
-        }
-
-        /* Error Notification */
         .error-alert {
             display: none;
             background: #fef2f2;
@@ -197,11 +164,6 @@
             gap: 8px;
         }
 
-        .error-alert.active {
-            display: flex;
-        }
-
-        /* Submit Button */
         .btn-login {
             width: 100%;
             background: var(--gold-accent);
@@ -224,7 +186,6 @@
         .btn-login:hover {
             background: #e6bf3c;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
         }
 
         .btn-login:disabled {
@@ -235,7 +196,6 @@
             box-shadow: none;
         }
 
-        /* Footer Link */
         .login-footer {
             margin-top: 24px;
             text-align: center;
@@ -251,11 +211,6 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            transition: color 0.2s;
-        }
-
-        .login-footer a:hover {
-            color: var(--gold-accent);
         }
     </style>
 </head>
@@ -265,21 +220,19 @@
         <div class="login-header">
             <span class="portal-badge"><i class="fa-solid fa-shield-halved"></i> Management Console</span>
             <div>
-                <a href="index.html" class="brand-logo">
+                <a href="Catalog.html" class="brand-logo">
                     THRIKA <span>Publications</span>
                 </a>
             </div>
-            <p>Please enter your administrator credentials</p>
+            <p>Credentials are verified live against your Google Sheet</p>
         </div>
 
-        <!-- Error Message Alert Box -->
         <div class="error-alert" id="error-box">
             <i class="fa-solid fa-triangle-exclamation"></i>
             <span id="error-message">Invalid username or password.</span>
         </div>
 
         <form id="admin-login-form" onsubmit="handleAdminLogin(event)">
-            <!-- Username Input -->
             <div class="form-group">
                 <label for="username">Username / Admin ID</label>
                 <div class="input-wrap">
@@ -288,87 +241,88 @@
                 </div>
             </div>
 
-            <!-- Password Input -->
             <div class="form-group">
                 <label for="password">Password</label>
                 <div class="input-wrap">
                     <i class="fa-solid fa-lock input-icon"></i>
                     <input type="password" id="password" placeholder="Enter password" autocomplete="current-password" required>
-                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility()" title="Show/Hide Password">
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">
                         <i class="fa-solid fa-eye" id="eye-icon"></i>
                     </button>
                 </div>
             </div>
 
             <button type="submit" class="btn-login" id="btn-submit">
-                <span>Sign In to Portal</span>
+                <span>Sign In</span>
                 <i class="fa-solid fa-arrow-right"></i>
             </button>
         </form>
 
         <div class="login-footer">
-            <a href="index.html"><i class="fa-solid fa-store"></i> Return to Public Storefront</a>
+            <a href="Catalog.html"><i class="fa-solid fa-store"></i> Return to Storefront</a>
         </div>
     </div>
 
     <script>
-        // Set Administrator Credentials
-        const ADMIN_CREDENTIALS = {
-            username: "admin",
-            password: "thrika@2026"
-        };
+        const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzswEvEe8UQRRTIXKmAukCrOLINLtPaMnTHv8tcaHOnYNs8RCaL3yGajFMY_00164Tm/exec";
 
-        // Redirect directly if already authenticated in this session
-        if (sessionStorage.getItem('thrika_admin_auth') === 'true') {
+        // If already authorized, redirect immediately to admin
+        if (localStorage.getItem('thrika_admin_token') === 'verified') {
             window.location.href = "admin.html";
         }
 
-        // Toggle password show/hide
         function togglePasswordVisibility() {
             const pwdInput = document.getElementById('password');
             const eyeIcon = document.getElementById('eye-icon');
-
             if (pwdInput.type === "password") {
                 pwdInput.type = "text";
-                eyeIcon.classList.remove('fa-eye');
-                eyeIcon.classList.add('fa-eye-slash');
+                eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
             } else {
                 pwdInput.type = "password";
-                eyeIcon.classList.remove('fa-eye-slash');
-                eyeIcon.classList.add('fa-eye');
+                eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
             }
         }
 
-        // Login Handler
         function handleAdminLogin(event) {
             event.preventDefault();
 
-            const userVal = document.getElementById('username').value.trim();
-            const passVal = document.getElementById('password').value;
+            const usernameVal = document.getElementById('username').value.trim();
+            const passwordVal = document.getElementById('password').value.trim();
             const errorBox = document.getElementById('error-box');
             const errorMsg = document.getElementById('error-message');
             const submitBtn = document.getElementById('btn-submit');
 
-            // Hide previous error
-            errorBox.classList.remove('active');
+            errorBox.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Checking Google Sheet...`;
 
-            if (userVal === ADMIN_CREDENTIALS.username && passVal === ADMIN_CREDENTIALS.password) {
-                // Set session flag and redirect
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Authenticating...`;
-
-                sessionStorage.setItem('thrika_admin_auth', 'true');
-                sessionStorage.setItem('thrika_admin_user', userVal);
-
-                setTimeout(() => {
+            fetch(GOOGLE_APPS_SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "adminLogin",
+                    username: usernameVal,
+                    password: passwordVal
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.authenticated) {
+                    localStorage.setItem('thrika_admin_token', 'verified');
+                    localStorage.setItem('thrika_admin_user', usernameVal);
                     window.location.href = "admin.html";
-                }, 600);
-            } else {
-                errorMsg.textContent = "Invalid username or password. Please try again.";
-                errorBox.classList.add('active');
-                document.getElementById('password').value = '';
-                document.getElementById('password').focus();
-            }
+                } else {
+                    errorMsg.textContent = "Invalid username or password. Check your AdminAuth sheet.";
+                    errorBox.style.display = 'flex';
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = `<span>Sign In</span> <i class="fa-solid fa-arrow-right"></i>`;
+                }
+            })
+            .catch(() => {
+                errorMsg.textContent = "Network error. Unable to connect to Google Sheets.";
+                errorBox.style.display = 'flex';
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<span>Sign In</span> <i class="fa-solid fa-arrow-right"></i>`;
+            });
         }
     </script>
 </body>
