@@ -390,7 +390,35 @@
             border-color: var(--gold-accent);
         }
 
-        /* Scoped image frame keeping badges inside without blocking covers */
+        /* Skeleton Loading Cards */
+        .skeleton-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        .skeleton-box {
+            background: linear-gradient(90deg, #edf2f0 25%, #f6faf8 50%, #edf2f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-img { height: 260px; width: 100%; border-radius: 10px; }
+        .skeleton-line { height: 14px; width: 85%; }
+        .skeleton-line.short { width: 50%; height: 12px; }
+        .skeleton-btn { height: 36px; width: 100%; border-radius: 20px; }
+
         .book-cover-wrap {
             position: relative;
             width: 100%;
@@ -417,7 +445,7 @@
             transform: scale(1.02);
         }
 
-        /* Clean % OFF discount ribbon */
+        /* Discount Ribbon */
         .discount-badge {
             position: absolute;
             top: 8px;
@@ -458,7 +486,6 @@
             border-color: #fca5a5;
         }
 
-        /* Stock Status Indicator */
         .stock-indicator {
             font-size: 0.74rem;
             font-weight: 700;
@@ -519,7 +546,6 @@
             font-size: 0.75rem;
         }
 
-        /* Price + Add to Cart footer */
         .price-row {
             margin-top: auto;
             display: flex;
@@ -577,15 +603,6 @@
             border-color: #e2e8f0;
             pointer-events: none;
             cursor: not-allowed;
-        }
-
-        .loading-catalog {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 50px 20px;
-            color: var(--text-muted);
-            font-weight: 600;
-            font-size: 1rem;
         }
 
         /* Slide-over Cart Drawer */
@@ -977,12 +994,6 @@
 
         .modal-body p { margin-bottom: 12px; }
 
-        .modal-body h4 {
-            color: var(--emerald-deep);
-            margin: 14px 0 6px;
-            font-size: 0.98rem;
-        }
-
         .track-search-group {
             display: flex;
             gap: 8px;
@@ -1134,9 +1145,30 @@
         </div>
 
         <div class="book-grid" id="book-grid-container">
-            <div class="loading-catalog">
-                <i class="fa-solid fa-spinner fa-spin" style="font-size: 1.8rem; color: var(--emerald-main); margin-bottom: 10px; display: block;"></i>
-                Fetching books directly from Thrika Publications catalog...
+            <!-- Smooth Skeleton Shimmer Placeholders appear instantly -->
+            <div class="skeleton-card">
+                <div class="skeleton-box skeleton-img"></div>
+                <div class="skeleton-box skeleton-line"></div>
+                <div class="skeleton-box skeleton-line short"></div>
+                <div class="skeleton-box skeleton-btn"></div>
+            </div>
+            <div class="skeleton-card">
+                <div class="skeleton-box skeleton-img"></div>
+                <div class="skeleton-box skeleton-line"></div>
+                <div class="skeleton-box skeleton-line short"></div>
+                <div class="skeleton-box skeleton-btn"></div>
+            </div>
+            <div class="skeleton-card">
+                <div class="skeleton-box skeleton-img"></div>
+                <div class="skeleton-box skeleton-line"></div>
+                <div class="skeleton-box skeleton-line short"></div>
+                <div class="skeleton-box skeleton-btn"></div>
+            </div>
+            <div class="skeleton-card">
+                <div class="skeleton-box skeleton-img"></div>
+                <div class="skeleton-box skeleton-line"></div>
+                <div class="skeleton-box skeleton-line short"></div>
+                <div class="skeleton-box skeleton-btn"></div>
             </div>
         </div>
     </section>
@@ -1248,7 +1280,7 @@
 
         const CACHE_KEY = "thrika_catalog_cache";
         const CACHE_TIME_KEY = "thrika_catalog_timestamp";
-        const CACHE_EXPIRY_MS = 10 * 60 * 1000;
+        const CACHE_EXPIRY_MS = 60 * 60 * 1000; // 1 hour client cache
         const CART_STORAGE_KEY = "thrika_user_cart";
 
         let allBooks = [];
@@ -1266,51 +1298,61 @@
             if (badge) badge.textContent = count;
         }
 
-        // 1. Fetch Store Catalog with Caching
+        // ========================================================
+        // HIGH-SPEED STALE-WHILE-REVALIDATE CATALOG FETCH
+        // ========================================================
         function fetchStoreCatalog() {
-            const grid = document.getElementById('book-grid-container');
             const cachedData = localStorage.getItem(CACHE_KEY);
             const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
             const now = Date.now();
 
-            let hasValidCache = false;
+            let hasRenderedFromCache = false;
 
-            if (cachedData && cachedTime && (now - parseInt(cachedTime, 10) < CACHE_EXPIRY_MS)) {
+            // 1. FAST PATH: Display cached books immediately (0ms delay)
+            if (cachedData) {
                 try {
                     const parsed = JSON.parse(cachedData);
                     if (Array.isArray(parsed) && parsed.length > 0) {
                         allBooks = parsed;
                         renderBooks(allBooks);
-                        hasValidCache = true;
+                        hasRenderedFromCache = true;
                     }
                 } catch (e) {}
             }
 
+            // Skip background network re-fetch if cache is fresh (less than 15 mins)
+            if (hasRenderedFromCache && cachedTime && (now - parseInt(cachedTime, 10) < 15 * 60 * 1000)) {
+                return;
+            }
+
+            // 2. BACKGROUND REVALIDATION: Silently update from Google Sheets
             fetch(GOOGLE_SHEET_CATALOG_URL)
                 .then(res => res.json())
                 .then(freshData => {
                     if (Array.isArray(freshData) && freshData.length > 0) {
-                        const isIdentical = hasValidCache && (JSON.stringify(freshData) === cachedData);
-                        localStorage.setItem(CACHE_KEY, JSON.stringify(freshData));
+                        const stringifiedFresh = JSON.stringify(freshData);
+                        const isIdentical = (stringifiedFresh === cachedData);
+
+                        localStorage.setItem(CACHE_KEY, stringifiedFresh);
                         localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
 
-                        if (!isIdentical) {
+                        // Update view only if book data or stock changed
+                        if (!isIdentical || !hasRenderedFromCache) {
                             allBooks = freshData;
                             renderBooks(allBooks);
                         }
-                    } else if (!hasValidCache) {
-                        grid.innerHTML = `<div class="loading-catalog">No books currently available in catalog.</div>`;
+                    } else if (!hasRenderedFromCache) {
+                        document.getElementById('book-grid-container').innerHTML = `<div class="loading-catalog">No books currently available in catalog.</div>`;
                     }
                 })
                 .catch(err => {
-                    console.error("Error loading catalog:", err);
-                    if (!hasValidCache) {
-                        grid.innerHTML = `<div class="loading-catalog" style="color: #dc2626;">Unable to load catalog from Google Sheets.</div>`;
+                    console.warn("Background catalog refresh failed:", err);
+                    if (!hasRenderedFromCache) {
+                        document.getElementById('book-grid-container').innerHTML = `<div class="loading-catalog" style="color: #dc2626;">Unable to load catalog from Google Sheets.</div>`;
                     }
                 });
         }
 
-        // Formats raw numbers like '10' or '25' into '10% OFF'
         function formatDiscountLabel(val) {
             if (!val || val === 'None' || val === 'N/A' || val === '') return null;
             const str = val.toString().trim();
@@ -1318,15 +1360,16 @@
             return str;
         }
 
-        // 2. Render Cards with Clean Alignment
+        // Optimized batch render using DocumentFragment
         function renderBooks(books) {
             const grid = document.getElementById('book-grid-container');
-            grid.innerHTML = '';
 
-            if (books.length === 0) {
+            if (!books || books.length === 0) {
                 grid.innerHTML = `<div class="loading-catalog">No books match your criteria.</div>`;
                 return;
             }
+
+            const fragment = document.createDocumentFragment();
 
             books.forEach((book, index) => {
                 const title = book.title || 'Untitled Book';
@@ -1354,7 +1397,7 @@
                     <div class="book-cover-wrap">
                         ${discountText ? `<span class="discount-badge">${discountText}</span>` : ''}
                         <button class="fav-btn" title="Add to Favourites"><i class="fa-regular fa-heart"></i></button>
-                        <img src="${image}" alt="${title}" class="book-cover" onerror="this.src='https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Cover'">
+                        <img src="${image}" alt="${title}" class="book-cover" loading="lazy" decoding="async" onerror="this.src='https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Cover'">
                     </div>
                     
                     <div class="book-details">
@@ -1373,11 +1416,14 @@
                         </button>
                     </div>
                 `;
-                grid.appendChild(card);
+                fragment.appendChild(card);
             });
+
+            grid.innerHTML = '';
+            grid.appendChild(fragment);
         }
 
-        // 3. Cart Logic: Add, Modify Quantity, Remove
+        // Cart Actions
         function addToCart(bookIndex) {
             const book = allBooks[bookIndex];
             if (!book) return;
@@ -1488,22 +1534,15 @@
             document.getElementById('cart-drawer-overlay').classList.remove('active');
         }
 
-        // ========================================================
-        // SAFE REDIRECT (PREVENTS 414 URI TOO LONG)
-        // ========================================================
         function proceedToCheckout() {
             if (userCart.length === 0) return;
-
-            // Save clean cart array directly to localStorage
             localStorage.setItem('thrika_checkout_cart', JSON.stringify(userCart));
-
-            // Navigate cleanly to order-confirmation.html without massive Base64 query strings
             window.location.href = "order-confirmation.html";
         }
 
-        // 4. Search Filter
+        // Search Filter
         function filterBooks() {
-            const query = document.getElementById('search-input').value.toLowerCase();
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
             const filtered = allBooks.filter(book => 
                 (book.title && book.title.toLowerCase().includes(query)) ||
                 (book.author && book.author.toLowerCase().includes(query)) ||
@@ -1512,7 +1551,7 @@
             renderBooks(filtered);
         }
 
-        // 5. Category Filter
+        // Category Filter
         function filterByCategory(category, element) {
             document.querySelectorAll('.tag-pill').forEach(pill => pill.classList.remove('active'));
             if (element) element.classList.add('active');
@@ -1527,7 +1566,7 @@
             }
         }
 
-        // 6. Track Order Functions
+        // Track Order
         function openTrackModal() {
             document.getElementById('track-modal').classList.add('active');
             document.getElementById('track-results-container').innerHTML = '';
@@ -1601,7 +1640,7 @@
                 });
         }
 
-        // 7. Policy Modals
+        // Policy Modals
         const POLICIES_CONTENT = {
             terms: {
                 title: "Terms & Conditions",
@@ -1637,7 +1676,7 @@
             document.getElementById('policy-modal').classList.remove('active');
         }
 
-        // Initialize on load
+        // Initialize immediately
         window.addEventListener('DOMContentLoaded', () => {
             updateCartBadge();
             fetchStoreCatalog();
