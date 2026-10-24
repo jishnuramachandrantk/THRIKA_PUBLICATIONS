@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thrika Publications | The Full Emerald Workflow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Prata&family=Plus+Jakarta+Sans:wght@300;500;700&display=swap');
+
+        :root {
+            --emerald: #062c26;
+            --surface: #0a1f1c;
+            --gold: #d4af37;
+            --gold-muted: rgba(212, 175, 55, 0.2);
+        }
+
+        body { 
+            background-color: var(--emerald); 
+            color: #d1d5db;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 { font-family: 'Prata', serif; color: white; }
+        
+        .gold-text { color: var(--gold); }
+        .emerald-gradient { background: linear-gradient(180deg, var(--emerald) 0%, var(--surface) 100%); }
+
+        .step-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 100%;
+            position: relative;
+        }
+
+        .step-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: var(--gold);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .phase-header {
+            border-left: 2px solid var(--gold);
+            padding-left: 1.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        @media (max-width: 768px) {
+            .phase-header {
+                border-left: none;
+                border-top: 1px solid var(--gold-muted);
+                padding-left: 0;
+                padding-top: 2rem;
+                text-align: center;
+            }
+            .accent-line { margin: 1.5rem auto !important; }
+        }
+
+        .phase-number {
+            position: absolute;
+            right: 0;
+            top: -20px;
+            font-size: 5rem;
+            font-family: 'Prata', serif;
+            opacity: 0.05;
+            color: white;
+            pointer-events: none;
+        }
+
+        .accent-line {
+            width: 40px;
+            height: 1px;
+            background: var(--gold);
+            margin: 1.5rem 0;
+        }
+
+        .cta-button {
+            background: var(--gold);
+            color: var(--emerald);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+        }
+
+        .cta-button:hover {
+            background: white;
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
+        }
+
+        .floating-order {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 100;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* Logo Styling */
+        .nav-logo {
+            height: 50px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        @media (max-width: 768px) {
+            .nav-logo { height: 40px; }
+        }
+    </style>
+</head>
+<body class="emerald-gradient min-h-screen">
+
+    <a href="Catalog.html" class="floating-order cta-button px-6 py-4 rounded-full text-[10px] items-center gap-2 flex md:hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        Order Book
+    </a>
+
+    <nav class="p-4 md:p-6 flex justify-between items-center border-b border-white/5 backdrop-blur-xl sticky top-0 z-50">
+        <div class="flex items-center gap-4">
+            <img src="THRIKA white.png" alt="Thrika Logo" class="nav-logo">
+            <div class="hidden sm:block text-xl md:text-2xl font-bold tracking-tighter text-white">Thrika Publications<span class="gold-text">.</span></div>
+        </div>
+        <div class="flex items-center space-x-6 md:space-x-12 text-[10px] uppercase tracking-[0.4em] font-bold">
+            <a href="#workflow" class="hover:text-gold transition text-white hidden md:block">Full Workflow</a>
+            <a href="Catalog.html" class="gold-text hover:text-white transition flex items-center gap-2">
+                <span class="w-2 h-2 bg-gold rounded-full animate-pulse"></span>
+                Order Book
+            </a>
+        </div>
+    </nav>
+
+    <header class="py-20 md:py-32 px-6 text-center" data-aos="fade">
+        <h1 class="text-4xl md:text-8xl mb-6">Your Voice Matters</h1>
+        <p class="max-w-2xl mx-auto opacity-60 text-xs md:text-base leading-relaxed tracking-wide">
+            " We believe every great book begins with a partnership. At Thrika Publication, we help bring your vision to life, support your growth, and introduce new writers to the world. Our mission is to turn your ideas and dreams into published stories."
+        </p>
+    </header>
+
+    <main id="workflow" class="max-w-7xl mx-auto px-6 pb-32">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            
+            <div class="phase-header mt-12 col-span-full" data-aos="fade-right">
+                <span class="phase-number hidden md:block">01</span>
+                <h2 class="text-2xl md:text-3xl uppercase tracking-widest">Phase I: Acquisition</h2>
+                <p class="text-[10px] md:text-xs gold-text mt-2 tracking-[0.2em]">The Foundation of the Story</p>
+            </div>
+
+            <div class="step-card p-8 md:p-10 rounded-2xl" data-aos="fade-up">
+                <span class="gold-text text-[10px] font-bold tracking-widest uppercase">01 LOGGING</span>
+                <h3 class="text-xl mt-2">Manuscript Received</h3>
+                <div class="accent-line"></div>
+                <p class="text-xs opacity-60 leading-relaxed">Your journey begins the moment your story is logged into our submission tracker with the official date, author name, and working title for full traceability.</p>
+            </div>
+
+            <div class="step-card p-8 md:p-10 rounded-2xl" data-aos="fade-up" data-aos-delay="100">
+                <span class="gold-text text-[10px] font-bold tracking-widest uppercase">02 APPRAISAL</span>
+                <h3 class="text-xl mt-2">Initial Evaluation</h3>
+                <div class="accent-line"></div>
+                <p class="text-xs opacity-60 leading-relaxed">Our editorial team conducts a thorough review of your manuscript, evaluating it for quality, originality, and alignment with our publishing goals.</p>
+            </div>
+
+            <div class="step-card p-8 md:p-10 rounded-2xl" data-aos="fade-up" data-aos-delay="200">
+                <span class="gold-text text-[10px] font-bold tracking-widest uppercase">03 CONTRACT</span>
+                <h3 class="text-xl mt-2">The Acceptance</h3>
+                <div class="accent-line"></div>
+                <p class="text-xs opacity-60 leading-relaxed">Upon approval, we issue a formal acceptance letter or email to the author, clearly outlining the agreed-upon terms, expectations, and project timelines.</p>
+            </div>
+
+            <div class="phase-header mt-16 col-span-full" data-aos="fade-right">
+                <span class="phase-number hidden md:block">02</span>
+                <h2 class="text-2xl md:text-3xl uppercase tracking-widest">Phase II: Editorial</h2>
+                <p class="text-[10px] md:text-xs gold-text mt-2 tracking-[0.2em]">Refining the Diamond</p>
+            </div>
+
+            <div class="step-card p-8 md:p-10 rounded-2xl" data-aos="fade-up">
+                <span class="gold-text text-[10px] font-bold tracking-widest uppercase">04 ITERATION</span>
+                <h3 class="text-xl mt-2">Author Revision</h3>
+                <div class="accent-line"></div>
+                <p class="text-xs opacity-60 leading-relaxed">We return the manuscript with constructive editorial feedback, allowing the author to refine the narrative and resubmit the polished version.</p>
+            </div>
+
+            <div class="step-card p-8 md:p-10 rounded-2xl" data-aos="fade-up" data-aos-delay="100">
+                <span class="gold-text text-[10px] font-bold tracking-widest uppercase">05 EXECUTIVE</span>
+                <h3 class="text-xl mt-2">Final Review</h3>
+                <div class="accent-line"></div>
+                <p class="text-xs opacity-60 leading-relaxed">Our editors perform a secondary check on the revised story to ensure accuracy, narrative flow, and total readiness for the professional editing phase.</p>
+            </div>
+
+            <div class="step-card p-8 md:p-10 rounded-2xl" data-aos="fade-up" data-aos-delay="200">
+                <span class="gold-text text-[10px] font-bold tracking-widest uppercase">06 PRECISION</span>
+                <h3 class="text-xl mt-2">Proofreading</h3>
+                <div class="accent-line"></div>
+                <p class="text-xs opacity-60 leading-relaxed">Our in-house editorial experts perform meticulous line edits, copyediting, and a final rigorous proofread to eliminate any remaining errors.</p>
+            </div>
+
+            <div class="phase-header mt-16 col-span-full" data-aos="fade-right">
+                <span class="phase-number hidden md:block">03</span>
+                <h2 class="text-2xl md:text-3xl uppercase tracking-widest">Phase III: Production</h2>
+                <p class="text-[10px] md:text-xs gold-text mt-2 tracking-[0.2em]">Visual & Digital Craft</p>
+            </div>
+
+            <div class="step-card p-8 md:p-10 rounded-2xl" data-aos="fade-up">
+                <span class="gold-text text-[10px] font-bold tracking-widest uppercase">07 DESIGN</span>
+                <h3 class="text-xl mt-2">Cover Artistry</h3>
+                <div class="accent-line"></div>
+                <p class="text-xs opacity-60 leading-relaxed">Our design team crafts bespoke cover art and promotional posters, collaborating with the author to ensure the visual identity matches the story's soul.</p>
+            </div>
+
+            <div class="step-card p-8 md:p-10 rounded-2xl" data-aos="fade-up" data-aos-delay="100">
+                <span class="gold-text text-[10px] font-bold tracking-widest uppercase">08 FORMATTING</span>
+                <h3 class="text-xl mt-2">Technical Master</h3>
+                <div class="accent-line"></div>
+                <p class="text-xs opacity-60 leading-relaxed">We turn your manuscript into a masterpiece. By managing everything from ISBNs to premium finishes, we guarantee your book meets the highest international standards.</p>
+            </div>
+
+            <div class="step-card p-8 md:p-10 rounded-2xl" data-aos="fade-up" data-aos-delay="200">
+                <span class="gold-text text-[10px] font-bold tracking-widest uppercase">09 MARKET</span>
+                <h3 class="text-xl mt-2">The Launch</h3>
+                <div class="accent-line"></div>
+                <p class="text-xs opacity-60 leading-relaxed">We officially launch your story across agreed channels, including physical bookstores and online platforms, backed by targeted marketing and promotional campaigns.</p>
+            </div>
+
+            <div class="phase-header mt-16 col-span-full" data-aos="fade-right">
+                <span class="phase-number hidden md:block">04</span>
+                <h2 class="text-2xl md:text-3xl uppercase tracking-widest">Phase IV: Prosperity</h2>
+                <p class="text-[10px] md:text-xs gold-text mt-2 tracking-[0.2em]">The Reward of Authorship</p>
+            </div>
+
+            <div class="step-card p-8 md:p-10 rounded-2xl" data-aos="fade-up">
+                <span class="gold-text text-[10px] font-bold tracking-widest uppercase">10 MONITOR</span>
+                <h3 class="text-xl mt-2">Sales Analytics</h3>
+                <div class="accent-line"></div>
+                <p class="text-xs opacity-60 leading-relaxed">We provide real-time monitoring of global sales performance and market reception across all territories to track your book’s growing impact.</p>
+            </div>
+
+            <div class="step-card p-8 md:p-10 rounded-2xl border-gold/40" data-aos="fade-up" data-aos-delay="100">
+                <span class="gold-text text-[10px] font-bold tracking-widest uppercase">11 INSIGHT</span>
+                <h3 class="text-xl mt-2">Monthly Audit</h3>
+                <div class="accent-line"></div>
+                <p class="text-xs opacity-60 text-white leading-relaxed">Every month, we generate comprehensive reports detailing sales trends, total copies sold, and reader demographics to help you understand your audience.</p>
+            </div>
+
+            <div class="step-card p-8 md:p-10 rounded-2xl bg-gold/5 border-gold/60" data-aos="fade-up" data-aos-delay="200">
+                <span class="gold-text text-[10px] font-bold tracking-widest uppercase">12 LEGACY</span>
+                <h3 class="text-xl mt-2">Royalty Fulfillment</h3>
+                <div class="accent-line"></div>
+                <p class="text-xs opacity-60 text-white leading-relaxed font-medium">We ensure transparent royalty disbursement, offering up to 10% financial or 20% book , accompanied by verified and detailed financial statements</p>
+            </div>
+
+            <div class="mt-24 col-span-full text-center py-20 bg-white/5 border-y border-white/5" data-aos="zoom-in">
+                <h2 class="text-3xl md:text-5xl mb-6">Own a Piece of Literature</h2>
+                <p class="text-xs md:text-sm opacity-50 mb-10 tracking-widest uppercase">Directly support our authors by ordering official copies</p>
+                <a href="Catalog.html" class="cta-button px-12 py-5 rounded-full text-xs">
+                    Order Your book
+                </a>
+            </div>
+
+            <div class="mt-16 col-span-full">
+                <div class="phase-header" data-aos="fade-right">
+                    <h2 class="text-2xl md:text-3xl uppercase tracking-widest">Legal & Transparency</h2>
+                    <p class="text-[10px] md:text-xs gold-text mt-2 tracking-[0.2em]">Our Commitment to Authors</p>
+                </div>
+
+                <div class="step-card p-8 md:p-10 rounded-2xl border-gold/30 bg-white/5 flex flex-col md:flex-row items-center justify-between gap-8" data-aos="fade-up">
+                    <div class="max-w-xl text-center md:text-left">
+                        <h3 class="text-2xl mb-4 text-white">Publication Agreement</h3>
+                        <p class="text-xs md:text-sm opacity-60 leading-relaxed">
+                            To finalize our partnership, please download the formal contract below and review the terms regarding your upcoming publications.
+                        </p>
+                    </div>
+                    <a href="thrika_publications.pdf" download="Thrika_Publication_Agreement" class="cta-button px-8 py-4 md:px-10 md:py-5 rounded-full text-[10px] md:text-xs flex items-center gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Download Agreement
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-40">
+            <div class="phase-header" data-aos="fade-right">
+                <h2 class="text-2xl md:text-3xl uppercase tracking-widest">Contact Us</h2>
+                <p class="text-[10px] md:text-xs gold-text mt-2 tracking-[0.2em]">Start Your Story Today</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+                <div class="step-card p-8 rounded-2xl flex flex-col items-center text-center group">
+                    <div class="mb-4 text-gold opacity-50 group-hover:opacity-100 transition-all duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                    </div>
+                    <span class="gold-text text-[10px] tracking-[0.3em] uppercase mb-2">Connect</span>
+                    <h3 class="text-lg">WhatsApp</h3>
+                    <div class="flex flex-col space-y-2 mt-4">
+                        <a href="https://wa.me/918943650356" target="_blank" class="text-xs opacity-50 hover:opacity-100 transition">+91 89436 50356</a>
+                        <a href="https://wa.me/918138033530" target="_blank" class="text-xs opacity-50 hover:opacity-100 transition">+91 81380 33530</a>
+                    </div>
+                </div>
+
+                <a href="https://instagram.com/thrikapublications" target="_blank" class="step-card p-8 rounded-2xl flex flex-col items-center text-center group">
+                    <div class="mb-4 text-gold opacity-50 group-hover:opacity-100 transition-all duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                    </div>
+                    <span class="gold-text text-[10px] tracking-[0.3em] uppercase mb-2">Portfolio</span>
+                    <h3 class="text-lg">Instagram</h3>
+                    <p class="text-xs opacity-50 mt-2">@thrikapublications</p>
+                </a>
+
+                <div class="step-card p-8 rounded-2xl flex flex-col items-center text-center group">
+                    <div class="mb-4 text-gold opacity-50 group-hover:opacity-100 transition-all duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                    </div>
+                    <span class="gold-text text-[10px] tracking-[0.3em] uppercase mb-2">Enquiry</span>
+                    <h3 class="text-lg">Mobile</h3>
+                    <div class="flex flex-col space-y-2 mt-4">
+                        <a href="tel:+918943650356" class="text-xs opacity-50 hover:opacity-100 transition">+91 89436 50356</a>
+                        <a href="tel:+8138033530" class="text-xs opacity-50 hover:opacity-100 transition">+91 81380 33530</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-20 text-center opacity-30 border-t border-white/5 px-6">
+        <p class="text-[8px] md:text-[10px] uppercase tracking-[0.5em] md:tracking-[1em]">Thrika Publications &middot; Luxury Portfolio 2026</p>
+    </footer>
+
+    <script>
+        AOS.init({ 
+            duration: 1000, 
+            once: true,
+            easing: 'ease-out-cubic',
+        });
+    </script>
+</body>
+</html>

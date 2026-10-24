@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout & Payment | Thrika Publications</title>
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Official Razorpay Checkout Library -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <style>
+        :root {
+            --emerald-deep: #062c22;
+            --emerald-main: #0b3c2f;
+            --emerald-mid: #145343;
+            --emerald-soft: #f1f8f5;
+            --emerald-tint: #e3efe9;
+            --gold-accent: #d4af37;
+            --gold-light: #fef3c7;
+            --gold-hover: #b89428;
+            
+            --text-dark: #0a221b;
+            --text-muted: #526f65;
+            --border-light: #d0e1d9;
+            --card-bg: #ffffff;
+            --shadow-soft: 0 10px 30px rgba(6, 44, 34, 0.06);
+            --shadow-hover: 0 18px 40px rgba(6, 44, 34, 0.12);
+            --whatsapp-green: #25D366;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--emerald-soft);
+            color: var(--text-dark);
+            line-height: 1.5;
+            padding-bottom: 60px;
+        }
+
+        header {
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-light);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+
+        .nav-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+        }
+
+        .brand-logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--emerald-main);
+            text-decoration: none;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-logo span {
+            color: var(--gold-accent);
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+        }
+
+        .back-link {
+            color: var(--emerald-mid);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--gold-accent);
+        }
+
+        .checkout-container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 28px;
+        }
+
+        .checkout-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--emerald-deep);
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid var(--emerald-soft);
+            padding-bottom: 10px;
+        }
+
+        .card-title i {
+            color: var(--gold-accent);
+        }
+
+        /* Multi-Item Order Summary List */
+        .order-items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 380px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .order-item-row {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            background: var(--emerald-soft);
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+            transition: transform 0.2s;
+        }
+
+        .order-item-row:hover {
+            transform: translateX(2px);
+        }
+
+        .book-thumb {
+            width: 55px;
+            height: 75px;
+            object-fit: contain;
+            background: #ffffff;
+            border-radius: 6px;
+            border: 1px solid var(--border-light);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            flex-shrink: 0;
+            padding: 3px;
+        }
+
+        .book-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .book-info h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--emerald-deep);
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .book-info p {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .book-info .qty-pill {
+            display: inline-block;
+            background: #e2e8f0;
+            color: var(--emerald-deep);
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .item-price-calc {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .item-price-calc .total-item-val {
+            font-weight: 800;
+            font-size: 1rem;
+            color: var(--emerald-main);
+            display: block;
+        }
+
+        .item-price-calc .unit-item-val {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Form Grid */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        .form-group label {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--emerald-deep);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+            outline: none;
+            font-size: 0.88rem;
+            background: #ffffff;
+            transition: all 0.25s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--emerald-mid);
+            box-shadow: 0 0 0 3px rgba(20, 83, 67, 0.12);
+        }
+
+        .error-message {
+            font-size: 0.75rem;
+            color: #dc2626;
+            font-weight: 600;
+            display: none;
+            margin-top: 2px;
+        }
+
+        .form-group.has-error input {
+            border-color: #dc2626 !important;
+            background-color: #fef2f2 !important;
+        }
+
+        .form-group.has-error .error-message {
+            display: block;
+        }
+
+        .payment-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .payment-option-card {
+            border: 1px solid var(--gold-accent);
+            background: var(--gold-light);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .option-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .option-details h5 {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--emerald-deep);
+        }
+
+        .option-details p {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .policy-links-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .policy-btn {
+            background: var(--emerald-soft);
+            border: 1px solid var(--border-light);
+            padding: 10px 8px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--emerald-main);
+            text-align: center;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .policy-btn:hover {
+            background: var(--emerald-main);
+            color: #ffffff;
+            border-color: var(--emerald-main);
+        }
+
+        .policy-btn i {
+            font-size: 1rem;
+            color: var(--gold-accent);
+        }
+
+        /* Order Summary Sidebar */
+        .order-summary-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-soft);
+            position: sticky;
+            top: 90px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .summary-row.total {
+            border-top: 2px solid var(--emerald-soft);
+            padding-top: 12px;
+            margin-top: 12px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--emerald-deep);
+        }
+
+        .summary-row.total .price {
+            color: var(--emerald-main);
+        }
+
+        .free-tag {
+            color: #16a34a;
+            font-weight: 700;
+        }
+
+        .btn-pay-now {
+            width: 100%;
+            background: var(--gold-accent);
+            color: var(--emerald-deep);
+            border: none;
+            padding: 14px;
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+            margin-top: 20px;
+        }
+
+        .btn-pay-now:hover {
+            background: #e6bf3c;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .trust-badges {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-light);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .trust-badges div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .trust-badges i {
+            color: var(--emerald-mid);
+            font-size: 1.1rem;
+        }
+
+        /* Success Receipt Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(6, 44, 34, 0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            text-align: left;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            border: 2px solid var(--gold-accent);
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal-card.center-text {
+            text-align: center;
+        }
+
+        .modal-card h3 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--emerald-deep);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-card p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .success-icon {
+            width: 70px;
+            height: 70px;
+            background: var(--emerald-soft);
+            color: var(--emerald-main);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 16px;
+            border: 2px solid var(--emerald-mid);
+        }
+
+        .order-details-box {
+            background: var(--emerald-soft);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: left;
+            font-size: 0.84rem;
+            margin-bottom: 16px;
+            border: 1px solid var(--border-light);
+        }
+
+        .order-details-box p {
+            margin-bottom: 6px;
+            color: var(--text-dark);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .order-details-box p strong {
+            color: var(--emerald-deep);
+        }
+
+        .badge-txn-id {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-weight: 700;
+            font-size: 0.8rem;
+            word-break: break-all;
+        }
+
+        .btn-whatsapp-receipt {
+            background: #ecfdf5;
+            color: #047857;
+            border: 1px solid #a7f3d0;
+            padding: 12px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-whatsapp-receipt:hover {
+            background: var(--whatsapp-green);
+            color: #ffffff;
+            border-color: var(--whatsapp-green);
+        }
+
+        .btn-close-modal {
+            background: var(--emerald-main);
+            color: #ffffff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-top: 10px;
+            display: block;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+            .policy-links-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="nav-container">
+            <a href="Catalog.html" class="brand-logo">
+                THRIKA <span>Publications</span>
+            </a>
+            <a href="Catalog.html" class="back-link">
+                <i class="fa-solid fa-arrow-left"></i> Back to Store
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Checkout View -->
+    <div class="checkout-container">
+        
+        <!-- Left Column: Items & Form -->
+        <div class="checkout-main">
+            
+            <!-- Book Summary Card (Unpacks Multi-Item Cart) -->
+            <div class="checkout-card">
+                <h3 class="card-title">
+                    <span><i class="fa-solid fa-bag-shopping"></i> Order Items</span>
+                    <span id="items-badge-count" style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-left: auto;"></span>
+                </h3>
+                <div class="order-items-list" id="order-items-list-container">
+                    <!-- Dynamic Cart Items Rendered Here -->
+                </div>
+            </div>
+
+            <!-- Delivery Address Form -->
+            <div class="checkout-card">
+                <h3 class="card-title"><i class="fa-solid fa-truck"></i> Delivery Address</h3>
+                <form id="checkout-form" novalidate>
+                    <div class="form-grid">
+                        
+                        <!-- Full Name -->
+                        <div class="form-group" id="group-fullName">
+                            <label for="fullName">Full Name *</label>
+                            <input type="text" id="fullName" placeholder="Enter your full name">
+                            <span class="error-message">Please enter your full name</span>
+                        </div>
+
+                        <!-- Phone Number -->
+                        <div class="form-group" id="group-phone">
+                            <label for="phone">Phone Number *</label>
+                            <input type="tel" id="phone" placeholder="10-digit mobile number" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                            <span class="error-message">Enter valid 10-digit mobile number starting with 6-9</span>
+                        </div>
+
+                        <!-- Street Address -->
+                        <div class="form-group full-width" id="group-street">
+                            <label for="street">Street Address / House Name / Flat *</label>
+                            <input type="text" id="street" placeholder="House name, street, locality">
+                            <span class="error-message">Please enter street address or house name</span>
+                        </div>
+
+                        <!-- City -->
+                        <div class="form-group" id="group-city">
+                            <label for="city">City / District *</label>
+                            <input type="text" id="city" placeholder="e.g. Thrissur, Kochi, Malappuram">
+                            <span class="error-message">Please enter city or district</span>
+                        </div>
+
+                        <!-- PIN Code -->
+                        <div class="form-group" id="group-pincode">
+                            <label for="pincode">Pincode *</label>
+                            <input type="text" id="pincode" placeholder="6-digit PIN code" maxlength="6" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                            <span class="error-message">Enter valid 6-digit PIN code (e.g. 680001)</span>
+                        </div>
+
+                        <!-- State (Triggers State-wise Rate Update) -->
+                        <div class="form-group full-width">
+                            <label for="state">State / Region *</label>
+                            <select id="state" onchange="updateDeliveryRate()">
+                                <option value="Kerala" selected>Kerala</option>
+                                <option value="Tamil Nadu">Tamil Nadu</option>
+                                <option value="Karnataka">Karnataka</option>
+                                <option value="Other">Other States in India</option>
+                            </select>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+
+            <!-- Payment Method Card -->
+            <div class="checkout-card">
+                <h3 class="card-title"><i class="fa-solid fa-credit-card"></i> Payment Method</h3>
+                
+                <div class="payment-options">
+                    <div class="payment-option-card">
+                        <div class="option-left">
+                            <i class="fa-solid fa-shield-halved" style="color: var(--emerald-mid); font-size: 1.5rem;"></i>
+                            <div class="option-details">
+                                <h5>Razorpay Instant Checkout</h5>
+                                <p>Pay via UPI (GPay, PhonePe, Paytm, BHIM), Cards, or Net Banking</p>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-lock" style="color: var(--gold-hover); font-size: 1.1rem;"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Store Policies Section -->
+            <div class="checkout-card">
+                <h3 class="card-title"><i class="fa-solid fa-file-contract"></i> Store Policies & Terms</h3>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">By placing an order with Thrika Publications, you agree to our standard store policies:</p>
+                <div class="policy-links-grid">
+                    <button class="policy-btn" onclick="openPolicyModal('refund')">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span>Refund & Cancellation</span>
+                    </button>
+                    <button class="policy-btn" onclick="openPolicyModal('shipping')">
+                        <i class="fa-solid fa-truck-ramp-box"></i>
+                        <span>Shipping & Delivery</span>
+                    </button>
+                    <button class="policy-btn" onclick="openPolicyModal('privacy')">
+                        <i class="fa-solid fa-user-shield"></i>
+                        <span>Privacy Policy</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Summary Sidebar -->
+        <div class="checkout-sidebar">
+            <div class="order-summary-card">
+                <h3 class="card-title" style="border-bottom: none; padding-bottom: 0; margin-bottom: 14px;">Order Summary</h3>
+                
+                <div class="summary-row">
+                    <span>Books Subtotal</span>
+                    <span id="summary-book-price">₹0</span>
+                </div>
+                <div class="summary-row">
+                    <span>Delivery Charges</span>
+                    <span id="summary-delivery-fee" class="free-tag">₹0</span>
+                </div>
+                <div class="summary-row">
+                    <span>GST / Taxes</span>
+                    <span>Included</span>
+                </div>
+
+                <div class="summary-row total">
+                    <span>Total Amount Payable</span>
+                    <span class="price" id="summary-total-price">₹0</span>
+                </div>
+
+                <button type="button" class="btn-pay-now" onclick="processOrder()">
+                    Pay & Confirm Order <i class="fa-solid fa-arrow-right"></i>
+                </button>
+
+                <div class="trust-badges">
+                    <div>
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>Secure Razorpay</span>
+                    </div>
+                    <div>
+                        <i class="fa-solid fa-truck-fast"></i>
+                        <span>Fast Delivery</span>
+                    </div>
+                    <div>
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span>Easy Returns</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Order Receipt Modal -->
+    <div class="modal-overlay" id="success-modal">
+        <div class="modal-card center-text">
+            <div class="success-icon">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h3>Order Confirmed!</h3>
+            <p>Thank you for shopping with Thrika Publications. Your payment has been received and order logged.</p>
+            
+            <div class="order-details-box">
+                <p><span>Order ID:</span> <strong id="modal-order-id">#THK-0000</strong></p>
+                <p><span>Txn ID (Razorpay):</span> <span class="badge-txn-id" id="modal-payment-id">pay_xxxxxxxxx</span></p>
+                <p><span>Items Ordered:</span> <strong id="modal-book-title">--</strong></p>
+                <p><span>Delivery to:</span> <strong id="modal-delivery-state">Kerala</strong></p>
+                <p><span>Total Paid:</span> <strong id="modal-amount">--</strong></p>
+                <p><span>Order Status:</span> <span style="color: #15803d; font-weight: 800;">Payment Received</span></p>
+            </div>
+
+            <a href="#" target="_blank" class="btn-whatsapp-receipt" id="btn-user-whatsapp">
+                <i class="fa-brands fa-whatsapp"></i> Get Order Details on WhatsApp
+            </a>
+
+            <a href="Catalog.html" class="btn-pay-now" style="text-decoration: none; margin-top: 5px;">Return to Store</a>
+        </div>
+    </div>
+
+    <!-- Interactive Policy View Modal -->
+    <div class="modal-overlay" id="policy-modal">
+        <div class="modal-card">
+            <h3 id="policy-title">Store Policy</h3>
+            <div id="policy-content">
+                <p>Loading policy content...</p>
+            </div>
+            <button class="btn-close-modal" onclick="closePolicyModal()">Close & Return</button>
+        </div>
+    </div>
+
+    <script>
+        const GOOGLE_SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzswEvEe8UQRRTIXKmAukCrOLINLtPaMnTHv8tcaHOnYNs8RCaL3yGajFMY_00164Tm/exec";
+        const RAZORPAY_KEY_ID = "rzp_test_TrI5N3Ez3NLnBv"; 
+        const MERCHANT_NAME = "Thrika Publications";
+
+        // Multi-Item Cart State
+        let checkoutCart = [];
+        let itemsSubtotal = 0;
+
+        let deliveryRates = {
+            "Kerala": 30,
+            "Tamil Nadu": 50,
+            "Karnataka": 50,
+            "Other": 70
+        };
+
+        let currentDeliveryCharge = 30;
+        let grandTotal = 0;
+
+        // Fetch Live Delivery Settings from Google Sheet
+        function fetchLiveDeliveryRates() {
+            fetch(`${GOOGLE_SHEET_WEBHOOK_URL}?type=settings`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+                        deliveryRates = Object.assign(deliveryRates, data);
+                        updateDeliveryRate();
+                    }
+                })
+                .catch(() => {
+                    updateDeliveryRate();
+                });
+        }
+
+        // Recalculate price when state selection changes
+        function updateDeliveryRate() {
+            const selectedState = document.getElementById('state').value;
+            currentDeliveryCharge = deliveryRates[selectedState] !== undefined ? deliveryRates[selectedState] : (deliveryRates["Other"] || 70);
+
+            const feeElement = document.getElementById('summary-delivery-fee');
+            if (currentDeliveryCharge === 0) {
+                feeElement.textContent = "FREE";
+                feeElement.className = "free-tag";
+            } else {
+                feeElement.textContent = `₹${currentDeliveryCharge}`;
+                feeElement.className = "";
+            }
+
+            grandTotal = itemsSubtotal + currentDeliveryCharge;
+            document.getElementById('summary-total-price').textContent = `₹${grandTotal}`;
+        }
+
+        // Unpack Cart from Storage & Render All Selected Books
+        function loadOrderItems() {
+            const container = document.getElementById('order-items-list-container');
+            const storedCart = localStorage.getItem('thrika_checkout_cart') || localStorage.getItem('thrika_user_cart');
+
+            try {
+                if (storedCart) {
+                    const parsed = JSON.parse(storedCart);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        checkoutCart = parsed;
+                    }
+                }
+            } catch (e) {
+                console.warn("Could not parse storage cart:", e);
+            }
+
+            // Fallback to URL params if localStorage is empty
+            if (checkoutCart.length === 0) {
+                const urlParams = new URLSearchParams(window.location.search);
+                checkoutCart = [{
+                    title: urlParams.get('title') || "Selected Book",
+                    author: urlParams.get('author') || "Thrika Author",
+                    price: parseFloat(urlParams.get('price')) || 150,
+                    image: urlParams.get('image') || "https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Book+Cover",
+                    quantity: 1
+                }];
+            }
+
+            // Calculate Subtotal and build items markup
+            itemsSubtotal = 0;
+            let totalItemQuantity = 0;
+
+            container.innerHTML = checkoutCart.map(item => {
+                const qty = item.quantity || 1;
+                const price = parseFloat(item.price) || 0;
+                const rowTotal = price * qty;
+                
+                itemsSubtotal += rowTotal;
+                totalItemQuantity += qty;
+
+                return `
+                    <div class="order-item-row">
+                        <img src="${item.image || 'https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Cover'}" alt="${item.title}" class="book-thumb" onerror="this.src='https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Cover'">
+                        <div class="book-info">
+                            <h4 title="${item.title}">${item.title}</h4>
+                            <p>By ${item.author || 'Author'}</p>
+                            <span class="qty-pill">Qty: ${qty}</span>
+                        </div>
+                        <div class="item-price-calc">
+                            <span class="total-item-val">₹${rowTotal}</span>
+                            <span class="unit-item-val">₹${price} each</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('items-badge-count').textContent = `${totalItemQuantity} ${totalItemQuantity === 1 ? 'item' : 'items'}`;
+            document.getElementById('summary-book-price').textContent = `₹${itemsSubtotal}`;
+
+            updateDeliveryRate();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadOrderItems();
+            fetchLiveDeliveryRates();
+
+            ['fullName', 'phone', 'street', 'city', 'pincode'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('blur', () => validateField(id));
+            });
+        });
+
+        // Form Validation
+        function validateField(fieldId) {
+            const el = document.getElementById(fieldId);
+            const group = document.getElementById('group-' + fieldId);
+            const val = el.value.trim();
+            let isValid = true;
+
+            if (fieldId === 'fullName') isValid = val.length >= 2;
+            else if (fieldId === 'phone') isValid = /^[6-9]\d{9}$/.test(val);
+            else if (fieldId === 'street') isValid = val.length >= 3;
+            else if (fieldId === 'city') isValid = val.length >= 2;
+            else if (fieldId === 'pincode') isValid = /^[1-9][0-9]{5}$/.test(val);
+
+            if (!isValid) group.classList.add('has-error');
+            else group.classList.remove('has-error');
+
+            return isValid;
+        }
+
+        function validateAddressForm() {
+            const fields = ['fullName', 'phone', 'street', 'city', 'pincode'];
+            let isFormValid = true;
+
+            fields.forEach(fieldId => {
+                if (!validateField(fieldId)) isFormValid = false;
+            });
+
+            if (!isFormValid) {
+                const firstInvalid = document.querySelector('.form-group.has-error input');
+                if (firstInvalid) firstInvalid.focus();
+            }
+
+            return isFormValid;
+        }
+
+        function sendOrderToGoogleSheet(orderData) {
+            return fetch(GOOGLE_SHEET_WEBHOOK_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(orderData)
+            }).catch(err => console.error("Error logging order:", err));
+        }
+
+        // Process Multi-Item Checkout via Razorpay
+        function processOrder() {
+            if (!validateAddressForm()) return;
+
+            const generatedOrderId = '#THK-' + Math.floor(100000 + Math.random() * 900000);
+            const fullName = document.getElementById('fullName').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const street = document.getElementById('street').value.trim();
+            const city = document.getElementById('city').value.trim();
+            const pincode = document.getElementById('pincode').value.trim();
+            const selectedState = document.getElementById('state').value;
+
+            // Build detailed books representation for sheet and messages
+            const booksDescription = checkoutCart.map(i => `${i.title} (${i.quantity || 1})`).join(', ');
+
+            const razorpayOptions = {
+                "key": RAZORPAY_KEY_ID,
+                "amount": Math.round(grandTotal * 100), // (Total in paise)
+                "currency": "INR",
+                "name": MERCHANT_NAME,
+                "description": `Order: ${booksDescription.substring(0, 200)}`,
+                "image": checkoutCart[0].image || "https://via.placeholder.com/150/0b3c2f/ffffff?text=Thrika",
+                
+                "handler": function (response) {
+                    const capturedTxnId = response.razorpay_payment_id;
+
+                    const orderPayload = {
+                        action: "placeOrder",
+                        orderId: generatedOrderId,
+                        txnId: capturedTxnId,
+                        paymentId: capturedTxnId,
+                        status: "payment_received",
+                        fullName: fullName,
+                        phone: phone,
+                        street: street,
+                        city: city,
+                        pincode: pincode,
+                        state: selectedState,
+                        bookTitle: booksDescription, // Saves full multi-item list to sheet
+                        deliveryCharge: currentDeliveryCharge,
+                        amount: grandTotal,
+                        paymentMode: "Razorpay (Online)"
+                    };
+
+                    sendOrderToGoogleSheet(orderPayload);
+                    
+                    // Clear the user's cart after successful placement
+                    localStorage.removeItem('thrika_user_cart');
+                    localStorage.removeItem('thrika_checkout_cart');
+
+                    showOrderSuccess(generatedOrderId, capturedTxnId, fullName, phone, selectedState, booksDescription);
+                },
+                "prefill": {
+                    "name": fullName,
+                    "contact": phone
+                },
+                "theme": {
+                    "color": "#0b3c2f"
+                }
+            };
+
+            const rzp = new Razorpay(razorpayOptions);
+
+            rzp.on('payment.failed', function (response) {
+                const errorDesc = response.error.description || "Transaction declined or failed.";
+                alert(`Payment Unsuccessful!\nReason: ${errorDesc}\n\nPlease try again.`);
+            });
+
+            rzp.open();
+        }
+
+        // Show Success Confirmation Modal with Multi-Book Receipt
+        function showOrderSuccess(orderId, txnId, name, phone, state, booksList) {
+            document.getElementById('modal-order-id').textContent = orderId;
+            document.getElementById('modal-payment-id').textContent = txnId || "N/A";
+            document.getElementById('modal-book-title').textContent = booksList;
+            document.getElementById('modal-delivery-state').textContent = state;
+            document.getElementById('modal-amount').textContent = `₹${grandTotal} (Incl. ₹${currentDeliveryCharge} Delivery)`;
+
+            let cleanPhone = phone.replace(/[^0-9]/g, '');
+            if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
+
+            const waMsg = `Namaskaram ${name},\n\nYour order with *Thrika Publications* has been placed successfully! 📚\n\n*Order ID:* ${orderId}\n*Transaction ID:* ${txnId}\n*Books:* ${booksList}\n*Total Paid:* ₹${grandTotal} (Delivery: ₹${currentDeliveryCharge})\n*Destination:* ${state}\n\nWe will update tracking details once dispatched. Thank you!`;
+            document.getElementById('btn-user-whatsapp').href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(waMsg)}`;
+
+            document.getElementById('success-modal').classList.add('active');
+        }
+
+        // Policy Modal Handlers
+        function openPolicyModal(type) {
+            const titleEl = document.getElementById('policy-title');
+            const contentEl = document.getElementById('policy-content');
+
+            if (type === 'refund') {
+                titleEl.textContent = "Refund & Cancellation Policy";
+                contentEl.innerHTML = `
+                    <p><strong>Cancellations:</strong> Orders can be cancelled within 12 hours of placement or prior to dispatch by contacting support.</p>
+                    <p><strong>Returns & Replacement:</strong> Damaged or incorrect books can be returned within 7 days of delivery for a free replacement.</p>
+                    <p><strong>Refund Timeline:</strong> Eligible refunds are processed back to the original payment mode (Razorpay / UPI) within 5–7 business days.</p>
+                `;
+            } else if (type === 'shipping') {
+                titleEl.textContent = "Shipping & Delivery Policy";
+                contentEl.innerHTML = `
+                    <p><strong>Processing Time:</strong> Orders are dispatched within 24–48 hours of order confirmation.</p>
+                    <p><strong>Delivery Duration:</strong> Standard delivery within Kerala takes 2–4 business days. Other Indian states take 4–7 business days.</p>
+                    <p><strong>Shipping Rates:</strong> Delivery charges are computed based on destination region (Kerala, Neighboring States, or Rest of India) and clearly itemized at checkout.</p>
+                `;
+            } else if (type === 'privacy') {
+                titleEl.textContent = "Privacy Policy";
+                contentEl.innerHTML = `
+                    <p><strong>Data Security:</strong> Your contact details and delivery addresses are encrypted and used strictly for shipping orders.</p>
+                    <p><strong>Payment Safety:</strong> We do not store financial credentials or card details. All transactions are securely processed via Razorpay.</p>
+                    <p><strong>No Third-Party Sharing:</strong> Your personal information is never sold or shared with third-party advertisers.</p>
+                `;
+            }
+
+            document.getElementById('policy-modal').classList.add('active');
+        }
+
+        function closePolicyModal() {
+            document.getElementById('policy-modal').classList.remove('active');
+        }
+    </script>
+</body>
+</html>

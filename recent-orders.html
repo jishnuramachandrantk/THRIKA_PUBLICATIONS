@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recent Orders | Thrika Publications</title>
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --emerald-deep: #062c22;
+            --emerald-main: #0b3c2f;
+            --emerald-mid: #145343;
+            --emerald-soft: #f1f8f5;
+            --gold-accent: #d4af37;
+            --border-light: #d0e1d9;
+            --text-dark: #0a221b;
+            --text-muted: #526f65;
+            --shadow-soft: 0 10px 30px rgba(6, 44, 34, 0.06);
+            --whatsapp-green: #25D366;
+            --whatsapp-dark: #128C7E;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background: var(--emerald-soft);
+            color: var(--text-dark);
+            padding: 20px;
+        }
+
+        .admin-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-soft);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Toolbar */
+        .table-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 14px 10px 38px;
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+            outline: none;
+            font-size: 0.88rem;
+        }
+
+        .search-box input:focus {
+            border-color: var(--emerald-mid);
+            box-shadow: 0 0 0 3px rgba(20, 83, 67, 0.12);
+        }
+
+        .toolbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-add-whatsapp {
+            background: var(--whatsapp-green);
+            color: #ffffff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.25);
+        }
+
+        .btn-add-whatsapp:hover {
+            background: var(--whatsapp-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-refresh {
+            background: var(--emerald-soft);
+            color: var(--emerald-main);
+            border: 1px solid var(--border-light);
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-refresh:hover {
+            background: var(--emerald-main);
+            color: #ffffff;
+        }
+
+        /* Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.84rem;
+            text-align: left;
+        }
+
+        .data-table th {
+            background: var(--emerald-soft);
+            color: var(--emerald-deep);
+            padding: 12px 10px;
+            font-weight: 700;
+            border-bottom: 2px solid var(--border-light);
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--border-light);
+            vertical-align: middle;
+        }
+
+        .data-table tr:hover {
+            background: rgba(241, 248, 245, 0.5);
+        }
+
+        /* Status Dropdown */
+        .status-select {
+            padding: 5px 8px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.76rem;
+            border: 1px solid var(--border-light);
+            outline: none;
+            cursor: pointer;
+        }
+
+        .status-select.pending { background: #fef9c3; color: #a16207; border-color: #fde047; }
+        .status-select.payment_received { background: #e0e7ff; color: #4338ca; border-color: #a5b4fc; }
+        .status-select.shipped { background: #e0f2fe; color: #0369a1; border-color: #7dd3fc; }
+        .status-select.delivered { background: #dcfce7; color: #15803d; border-color: #86efac; }
+
+        /* Input Fields */
+        .row-input {
+            width: 110px;
+            padding: 6px 8px;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            font-size: 0.78rem;
+            outline: none;
+            color: var(--text-dark);
+            background: #ffffff;
+        }
+
+        .row-input:focus {
+            border-color: var(--emerald-mid);
+        }
+
+        /* Action Buttons */
+        .btn-action {
+            background: transparent;
+            border: 1px solid var(--border-light);
+            padding: 6px 9px;
+            border-radius: 6px;
+            color: var(--emerald-deep);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.76rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            background: var(--emerald-soft);
+            border-color: var(--emerald-mid);
+        }
+
+        .btn-save-row {
+            background: #dcfce7;
+            color: #15803d;
+            border-color: #86efac;
+        }
+
+        .btn-save-row:hover {
+            background: #bbf7d0;
+        }
+
+        .btn-whatsapp {
+            background: #ecfdf5;
+            color: #047857;
+            border-color: #a7f3d0;
+        }
+
+        .btn-whatsapp:hover {
+            background: var(--whatsapp-green);
+            color: #ffffff;
+            border-color: var(--whatsapp-green);
+        }
+
+        .btn-print {
+            background: #f8fafc;
+            color: #334155;
+            border-color: #cbd5e1;
+        }
+
+        .btn-print:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(6, 44, 34, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 16px;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 440px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            border: 1px solid var(--border-light);
+        }
+
+        .modal-card.wide-modal {
+            max-width: 640px;
+            width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-card h3 {
+            font-size: 1.15rem;
+            color: var(--emerald-deep);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-card p {
+            font-size: 0.85rem;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        /* Form Controls inside Modal */
+        .form-grid-modal {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .form-group-modal {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            position: relative;
+        }
+
+        .form-group-modal.full {
+            grid-column: span 2;
+        }
+
+        .form-group-modal label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--emerald-deep);
+        }
+
+        .form-group-modal input, .form-group-modal select, .form-group-modal textarea {
+            padding: 8px 10px;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            outline: none;
+            background: #ffffff;
+            color: var(--text-dark);
+        }
+
+        .form-group-modal input:focus, .form-group-modal select:focus, .form-group-modal textarea:focus {
+            border-color: var(--emerald-mid);
+            box-shadow: 0 0 0 2px rgba(20, 83, 67, 0.12);
+        }
+
+        .form-group-modal input:read-only {
+            background: #f8faf9;
+            color: var(--emerald-deep);
+            font-weight: 700;
+            cursor: not-allowed;
+        }
+
+        /* ========================================================
+           SEARCHABLE BOOK DROPDOWN STYLES
+           ======================================================== */
+        .searchable-select-wrap {
+            position: relative;
+            width: 100%;
+        }
+
+        .select-search-input {
+            width: 100%;
+            padding: 8px 30px 8px 10px !important;
+            cursor: pointer;
+        }
+
+        .select-arrow {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+            font-size: 0.75rem;
+        }
+
+        .select-options-panel {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            max-height: 180px;
+            overflow-y: auto;
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            z-index: 2500;
+            display: none;
+            margin-top: 4px;
+        }
+
+        .select-options-panel.active {
+            display: block;
+        }
+
+        .select-option-item {
+            padding: 8px 12px;
+            font-size: 0.82rem;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .select-option-item:hover {
+            background: var(--emerald-soft);
+            color: var(--emerald-main);
+            font-weight: 600;
+        }
+
+        .select-option-item .opt-price {
+            font-weight: 800;
+            color: var(--emerald-main);
+        }
+
+        .select-no-results {
+            padding: 10px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .btn-modal-submit {
+            background: var(--whatsapp-green);
+            color: #ffffff;
+            border: none;
+            padding: 11px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-modal-submit:hover {
+            background: var(--whatsapp-dark);
+        }
+
+        .btn-close-modal {
+            background: var(--emerald-main);
+            color: #ffffff;
+            border: none;
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 700;
+            margin-top: 16px;
+            cursor: pointer;
+        }
+
+        /* Print Container */
+        #shipping-label-wrapper { display: none; }
+
+        @media print {
+            @page { size: auto; margin: 0; }
+            html, body {
+                width: 100% !important;
+                height: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #ffffff !important;
+                display: block !important;
+            }
+            .admin-card, .modal-overlay { display: none !important; }
+            #shipping-label-wrapper {
+                display: block !important;
+                position: absolute !important;
+                top: 15px !important;
+                left: 15px !important;
+                width: 105mm !important;
+                padding: 12px 14px;
+                border: 2px dashed #000;
+                background: #ffffff !important;
+                color: #000 !important;
+                font-family: Arial, sans-serif;
+                box-sizing: border-box;
+            }
+            .label-main-header {
+                text-align: center;
+                border-bottom: 1.5px solid #000;
+                padding-bottom: 6px;
+                margin-bottom: 8px;
+            }
+            .label-main-title {
+                font-size: 12.5px;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+                display: block;
+            }
+            .label-timestamp {
+                font-size: 10px;
+                font-weight: 600;
+                color: #222;
+                margin-top: 2px;
+                display: block;
+            }
+            .label-sub-header {
+                display: flex;
+                justify-content: space-between;
+                font-weight: bold;
+                font-size: 11px;
+                padding-bottom: 6px;
+                border-bottom: 1px dashed #666;
+                margin-bottom: 8px;
+            }
+            .label-to-section {
+                padding-bottom: 8px;
+                border-bottom: 1.5px solid #000;
+                margin-bottom: 8px;
+                font-size: 11.5px;
+                line-height: 1.4;
+                text-align: left;
+            }
+            .label-to-title {
+                font-size: 13px;
+                font-weight: 900;
+                text-decoration: underline;
+                margin-bottom: 3px;
+                display: block;
+            }
+            .label-name { font-size: 13px; font-weight: bold; }
+            .label-from-section {
+                font-size: 10.5px;
+                color: #111;
+                line-height: 1.35;
+                text-align: left;
+            }
+            .label-from-title {
+                font-weight: bold;
+                text-decoration: underline;
+                display: inline-block;
+                margin-bottom: 2px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="admin-card">
+        
+        <!-- Search and Action Toolbar -->
+        <div class="table-toolbar">
+            <div class="toolbar-left">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="search-input" placeholder="Search by Order ID, Name, Book, Txn ID, POD..." onkeyup="filterOrders()">
+                </div>
+            </div>
+
+            <div class="toolbar-actions">
+                <button class="btn-add-whatsapp" onclick="openAddOrderModal()">
+                    <i class="fa-brands fa-whatsapp"></i> + Add WhatsApp Order
+                </button>
+                <button class="btn-refresh" onclick="fetchLiveOrders(true)">
+                    <i class="fa-solid fa-rotate-right" id="refresh-icon"></i> Refresh Orders
+                </button>
+            </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div style="overflow-x: auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Book Title</th>
+                        <th>Amount</th>
+                        <th>Payment</th>
+                        <th>Txn ID / UTR</th>
+                        <th>Status</th>
+                        <th>POD / Tracking</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="orders-list">
+                    <tr><td colspan="9" style="text-align: center; padding: 20px; color: var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Loading orders from Google Sheets...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Manual WhatsApp Customer Entry Modal with Searchable Book Dropdown -->
+    <div class="modal-overlay" id="add-order-modal">
+        <div class="modal-card wide-modal">
+            <h3>
+                <span><i class="fa-brands fa-whatsapp" style="color: var(--whatsapp-green);"></i> Log New WhatsApp Order</span>
+                <i class="fa-solid fa-xmark" style="cursor: pointer; color: var(--text-muted);" onclick="closeAddOrderModal()"></i>
+            </h3>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">Search and select a book title. The unit price automatically locks into the Order Amount field.</p>
+
+            <form id="whatsapp-order-form" onsubmit="handleManualOrderSubmit(event)">
+                <div class="form-grid-modal">
+                    <!-- Sequential Order ID (Auto-incremented from latest sheet ID) -->
+                    <div class="form-group-modal">
+                        <label for="wa-order-id">Order ID (Auto-Generated)</label>
+                        <input type="text" id="wa-order-id" readonly>
+                    </div>
+
+                    <div class="form-group-modal">
+                        <label for="wa-cust-name">Full Name *</label>
+                        <input type="text" id="wa-cust-name" placeholder="Customer name" required>
+                    </div>
+
+                    <div class="form-group-modal">
+                        <label for="wa-cust-phone">WhatsApp Mobile Number *</label>
+                        <input type="tel" id="wa-cust-phone" placeholder="10-digit mobile number" maxlength="10" required oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    </div>
+
+                    <!-- Searchable Book Dropdown Component -->
+                    <div class="form-group-modal">
+                        <label for="wa-book-search-input">Select Book Title *</label>
+                        <div class="searchable-select-wrap">
+                            <input type="text" id="wa-book-search-input" class="select-search-input" placeholder="Click or type to search book..." autocomplete="off" onfocus="openBookOptions()" oninput="filterBookOptions()">
+                            <i class="fa-solid fa-chevron-down select-arrow"></i>
+                            <div class="select-options-panel" id="wa-book-options-list">
+                                <!-- Populated dynamically from catalog -->
+                            </div>
+                        </div>
+                        <!-- Hidden form field holding the finalized selected book title -->
+                        <input type="hidden" id="wa-book-selected-val" required>
+                    </div>
+
+                    <div class="form-group-modal full">
+                        <label for="wa-address">Street / House / Delivery Address *</label>
+                        <textarea id="wa-address" rows="2" placeholder="House name, street, place..." required></textarea>
+                    </div>
+
+                    <div class="form-group-modal">
+                        <label for="wa-city">City / District *</label>
+                        <input type="text" id="wa-city" placeholder="e.g. Malappuram, Kozhikode" required>
+                    </div>
+
+                    <div class="form-group-modal">
+                        <label for="wa-pincode">Pincode *</label>
+                        <input type="text" id="wa-pincode" placeholder="6-digit PIN code" maxlength="6" required oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    </div>
+
+                    <div class="form-group-modal">
+                        <label for="wa-state">State *</label>
+                        <select id="wa-state">
+                            <option value="Kerala" selected>Kerala</option>
+                            <option value="Tamil Nadu">Tamil Nadu</option>
+                            <option value="Karnataka">Karnataka</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <!-- Non-Editable Order Amount (Locked to Catalog Unit Price) -->
+                    <div class="form-group-modal">
+                        <label for="wa-amount">Order Amount (₹) *</label>
+                        <input type="number" id="wa-amount" readonly placeholder="Select book first" required>
+                    </div>
+
+                    <div class="form-group-modal">
+                        <label for="wa-pay-mode">Payment Mode</label>
+                        <select id="wa-pay-mode">
+                            <option value="WhatsApp UPI (GPay)">WhatsApp UPI (GPay)</option>
+                            <option value="WhatsApp UPI (PhonePe)">WhatsApp UPI (PhonePe)</option>
+                            <option value="WhatsApp UPI (Paytm)">WhatsApp UPI (Paytm)</option>
+                            <option value="Bank Transfer (NEFT/IMPS)">Bank Transfer (NEFT/IMPS)</option>
+                            <option value="Cash on Delivery (COD)">Cash on Delivery (COD)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group-modal">
+                        <label for="wa-txn-id">Txn ID / UTR / Reference</label>
+                        <input type="text" id="wa-txn-id" placeholder="e.g. 429381749281">
+                    </div>
+
+                    <div class="form-group-modal">
+                        <label for="wa-status">Initial Status</label>
+                        <select id="wa-status">
+                            <option value="payment_received" selected>Payment Received</option>
+                            <option value="pending">Pending</option>
+                            <option value="shipped">Shipped</option>
+                            <option value="delivered">Delivered</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group-modal">
+                        <label for="wa-pod">POD / Courier Tracking #</label>
+                        <input type="text" id="wa-pod" placeholder="Optional Tracking ID">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-modal-submit" id="btn-save-manual-order">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Save Order to Sheet
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Address Details Popup Modal -->
+    <div class="modal-overlay" id="address-modal">
+        <div class="modal-card">
+            <h3><span>Customer Delivery Details</span> <i class="fa-solid fa-truck-ramp-box" style="color: var(--gold-accent);"></i></h3>
+            <hr style="margin-bottom: 14px; border: none; border-top: 1px solid var(--border-light);">
+            <p><strong>Customer Name:</strong> <span id="modal-cust-name">--</span></p>
+            <p><strong>Phone Number:</strong> <span id="modal-cust-phone">--</span></p>
+            <p><strong>Address:</strong> <span id="modal-cust-address">--</span></p>
+            <p><strong>Book Title:</strong> <span id="modal-cust-book">--</span></p>
+            <p><strong>Txn ID:</strong> <span id="modal-cust-txnid">--</span></p>
+            <p><strong>POD Number:</strong> <span id="modal-cust-pod">--</span></p>
+            <button class="btn-close-modal" onclick="closeModal()">Close Details</button>
+        </div>
+    </div>
+
+    <!-- Left-aligned Printable Label Container -->
+    <div id="shipping-label-wrapper">
+        <div class="label-main-header">
+            <span class="label-main-title">Recent Orders | Thrika Publications</span>
+            <span class="label-timestamp" id="lbl-print-date">10/24/2026, 11:34 AM</span>
+        </div>
+
+        <div class="label-sub-header">
+            <span>BOOK POST / PARCEL</span>
+            <span id="lbl-order-id">#THK-000000</span>
+        </div>
+
+        <div class="label-to-section">
+            <span class="label-to-title">TO:</span>
+            <div class="label-name" id="lbl-to-name">Customer Name</div>
+            <div class="label-address" id="lbl-to-address">Full Address</div>
+            <div style="font-weight: bold; margin-top: 4px;">Ph: <span id="lbl-to-phone">9999999999</span></div>
+            <div style="font-size: 10px; margin-top: 3px; color: #333;">Book: <span id="lbl-to-book">Book Name</span></div>
+        </div>
+
+        <div class="label-from-section">
+            <span class="label-from-title">FROM (Sender):</span><br>
+            <strong>Thrika Publication</strong><br>
+            Irattamuzhi, Edavannappara,<br>
+            Cheruvayoor PO, Malappuram - 673645<br>
+            Mob: 8943650356, 8138033530
+        </div>
+    </div>
+
+    <script>
+        const GOOGLE_SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzswEvEe8UQRRTIXKmAukCrOLINLtPaMnTHv8tcaHOnYNs8RCaL3yGajFMY_00164Tm/exec";
+
+        const CACHE_KEY = "thrika_orders_cache";
+        const CACHE_TIME_KEY = "thrika_orders_cache_time";
+        const CACHE_EXPIRATION_MS = 5 * 60 * 1000;
+
+        let ordersData = [];
+        let catalogBooks = [];
+
+        function setLocalCache(data) {
+            try {
+                localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+                localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+            } catch(e) {}
+        }
+
+        function getLocalCache() {
+            try {
+                const data = localStorage.getItem(CACHE_KEY);
+                const time = localStorage.getItem(CACHE_TIME_KEY);
+                if (!data || !time) return null;
+                if (Date.now() - parseInt(time, 10) > CACHE_EXPIRATION_MS) return null;
+                return JSON.parse(data);
+            } catch(e) {
+                return null;
+            }
+        }
+
+        // ========================================================
+        // 1. CALCULATE NEXT SEQUENTIAL ORDER ID (LATEST + 1)
+        // ========================================================
+        function generateNextSequentialOrderId() {
+            let highestNum = 0;
+
+            ordersData.forEach(order => {
+                if (order.id) {
+                    // Extract numeric digits from IDs like #THK-000001 or #THK-000003
+                    const match = order.id.match(/\d+/g);
+                    if (match) {
+                        const num = parseInt(match.join(''), 10);
+                        if (!isNaN(num) && num > highestNum) {
+                            highestNum = num;
+                        }
+                    }
+                }
+            });
+
+            const nextNum = highestNum + 1;
+            // Format with 6 digits padding: e.g. #THK-000004
+            return `#THK-${String(nextNum).padStart(6, '0')}`;
+        }
+
+        // ========================================================
+        // 2. SEARCHABLE BOOK DROPDOWN LOGIC
+        // ========================================================
+        function loadCatalogBooks() {
+            fetch(`${GOOGLE_SHEET_WEBHOOK_URL}?type=catalog`)
+                .then(r => r.json())
+                .then(books => {
+                    if (Array.isArray(books) && books.length > 0) {
+                        catalogBooks = books;
+                        renderBookOptions(catalogBooks);
+                    }
+                })
+                .catch(e => console.warn("Could not load catalog books:", e));
+        }
+
+        function renderBookOptions(books) {
+            const panel = document.getElementById('wa-book-options-list');
+            if (!books || books.length === 0) {
+                panel.innerHTML = '<div class="select-no-results">No matching titles found</div>';
+                return;
+            }
+
+            panel.innerHTML = books.map(b => `
+                <div class="select-option-item" onclick="selectBook('${b.title.replace(/'/g, "\\'")}', ${b.price})">
+                    <span>${b.title}</span>
+                    <span class="opt-price">₹${b.price}</span>
+                </div>
+            `).join('');
+        }
+
+        function openBookOptions() {
+            document.getElementById('wa-book-options-list').classList.add('active');
+            renderBookOptions(catalogBooks);
+        }
+
+        function filterBookOptions() {
+            const query = document.getElementById('wa-book-search-input').value.toLowerCase().trim();
+            const filtered = catalogBooks.filter(b => b.title.toLowerCase().includes(query));
+            renderBookOptions(filtered);
+            document.getElementById('wa-book-options-list').classList.add('active');
+        }
+
+        function selectBook(title, price) {
+            document.getElementById('wa-book-search-input').value = title;
+            document.getElementById('wa-book-selected-val').value = title;
+            document.getElementById('wa-amount').value = price;
+            document.getElementById('wa-book-options-list').classList.remove('active');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const wrap = document.querySelector('.searchable-select-wrap');
+            if (wrap && !wrap.contains(e.target)) {
+                const panel = document.getElementById('wa-book-options-list');
+                if (panel) panel.classList.remove('active');
+            }
+        });
+
+        // ========================================================
+        // 3. FETCH ORDERS FROM GOOGLE SHEETS
+        // ========================================================
+        function fetchLiveOrders(forceRefresh = false) {
+            const tbody = document.getElementById('orders-list');
+            const icon = document.getElementById('refresh-icon');
+            if (icon) icon.classList.add('fa-spin');
+
+            if (!forceRefresh) {
+                const cached = getLocalCache();
+                if (cached && Array.isArray(cached) && cached.length > 0) {
+                    ordersData = cached;
+                    renderOrdersTable(ordersData);
+                    if (icon) icon.classList.remove('fa-spin');
+                    return;
+                }
+            }
+
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 20px; color: var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Loading orders from Google Sheets...</td></tr>`;
+
+            fetch(`${GOOGLE_SHEET_WEBHOOK_URL}?type=orders`)
+                .then(res => res.json())
+                .then(data => {
+                    if (Array.isArray(data) && data.length > 0) {
+                        ordersData = data;
+                        setLocalCache(data);
+                        renderOrdersTable(ordersData);
+                    } else {
+                        tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 20px;">No orders found in Google Sheet.</td></tr>`;
+                    }
+                })
+                .catch(err => {
+                    console.error("Error fetching orders:", err);
+                    const fallback = localStorage.getItem(CACHE_KEY);
+                    if (fallback) {
+                        ordersData = JSON.parse(fallback);
+                        renderOrdersTable(ordersData);
+                    } else {
+                        tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: #dc2626; padding: 20px;">Could not connect to Google Sheets. Verify Web App deployment.</td></tr>`;
+                    }
+                })
+                .finally(() => {
+                    if (icon) icon.classList.remove('fa-spin');
+                });
+        }
+
+        // 4. Render Table
+        function renderOrdersTable(data) {
+            const tbody = document.getElementById('orders-list');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 20px;">No matching orders found.</td></tr>`;
+                return;
+            }
+
+            data.forEach((order, index) => {
+                const status = (order.status || 'pending').toLowerCase();
+                const pod = order.pod || '';
+                const txnId = order.txnId || '';
+
+                const tr = document.createElement('tr');
+                tr.id = `order-row-${index}`;
+                tr.innerHTML = `
+                    <td><strong>${order.id}</strong></td>
+                    <td>
+                        <div style="font-weight: 600;">${order.name}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">${order.phone}</div>
+                    </td>
+                    <td>${order.book}</td>
+                    <td>₹${order.amount}</td>
+                    <td><span style="font-size:0.75rem; color: var(--text-muted);">${order.mode}</span></td>
+                    <td>
+                        <input type="text" class="row-input" id="txnid-input-${index}" placeholder="Txn / UTR" value="${txnId}">
+                    </td>
+                    <td>
+                        <select class="status-select ${status}" id="status-select-${index}" onchange="onStatusStyleChange(${index})">
+                            <option value="pending" ${status === 'pending' ? 'selected' : ''}>Pending</option>
+                            <option value="payment_received" ${status === 'payment_received' ? 'selected' : ''}>Payment Received</option>
+                            <option value="shipped" ${status === 'shipped' ? 'selected' : ''}>Shipped</option>
+                            <option value="delivered" ${status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" class="row-input" id="pod-input-${index}" placeholder="Tracking #" value="${pod}">
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 4px;">
+                            <button class="btn-action btn-save-row" onclick="saveOrder(${index})" title="Save Updates">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                            </button>
+                            <button class="btn-action btn-whatsapp" onclick="sendWhatsAppMessage(${index})" title="Send WhatsApp Update">
+                                <i class="fa-brands fa-whatsapp"></i>
+                            </button>
+                            <button class="btn-action btn-print" onclick="printShippingLabel(${index})" title="Print Label">
+                                <i class="fa-solid fa-print"></i>
+                            </button>
+                            <button class="btn-action" onclick="viewAddress(${index})" title="View Details">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function onStatusStyleChange(index) {
+            const select = document.getElementById(`status-select-${index}`);
+            select.className = `status-select ${select.value}`;
+        }
+
+        // Save Inline Row Changes to Sheet
+        function saveOrder(index) {
+            const targetOrder = ordersData[index];
+            const newStatus = document.getElementById(`status-select-${index}`).value;
+            const newPod = document.getElementById(`pod-input-${index}`).value.trim();
+            const newTxnId = document.getElementById(`txnid-input-${index}`).value.trim();
+
+            const payload = {
+                action: "updateOrder",
+                orderId: targetOrder.id,
+                status: newStatus,
+                pod: newPod,
+                txnId: newTxnId
+            };
+
+            targetOrder.status = newStatus;
+            targetOrder.pod = newPod;
+            targetOrder.txnId = newTxnId;
+            setLocalCache(ordersData);
+
+            fetch(GOOGLE_SHEET_WEBHOOK_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                alert(`Order ${targetOrder.id} updated successfully!`);
+            }).catch(err => {
+                console.error("Save error:", err);
+                alert("Saved locally, but failed to sync to Google Sheets.");
+            });
+        }
+
+        // ========================================================
+        // 5. MANUAL WHATSAPP ORDER MODAL HANDLERS
+        // ========================================================
+        function openAddOrderModal() {
+            // Generate next sequential ID based on current orders (Latest + 1)
+            const nextOrderId = generateNextSequentialOrderId();
+
+            document.getElementById('whatsapp-order-form').reset();
+            document.getElementById('wa-order-id').value = nextOrderId;
+            document.getElementById('wa-book-search-input').value = '';
+            document.getElementById('wa-book-selected-val').value = '';
+            document.getElementById('wa-amount').value = '';
+            document.getElementById('wa-status').value = 'payment_received';
+            document.getElementById('wa-pay-mode').value = 'WhatsApp UPI (GPay)';
+            document.getElementById('wa-state').value = 'Kerala';
+            document.getElementById('add-order-modal').classList.add('active');
+
+            if (catalogBooks.length === 0) {
+                loadCatalogBooks();
+            } else {
+                renderBookOptions(catalogBooks);
+            }
+        }
+
+        function closeAddOrderModal() {
+            document.getElementById('add-order-modal').classList.remove('active');
+        }
+
+        function handleManualOrderSubmit(e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('btn-save-manual-order');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving to Google Sheet...`;
+
+            const orderId = document.getElementById('wa-order-id').value.trim();
+            const fullName = document.getElementById('wa-cust-name').value.trim();
+            const phone = document.getElementById('wa-cust-phone').value.trim();
+            const bookTitle = document.getElementById('wa-book-selected-val').value.trim();
+            const street = document.getElementById('wa-address').value.trim();
+            const city = document.getElementById('wa-city').value.trim();
+            const pincode = document.getElementById('wa-pincode').value.trim();
+            const state = document.getElementById('wa-state').value;
+            const amount = parseFloat(document.getElementById('wa-amount').value) || 0;
+            const paymentMode = document.getElementById('wa-pay-mode').value;
+            const txnId = document.getElementById('wa-txn-id').value.trim();
+            const status = document.getElementById('wa-status').value;
+            const pod = document.getElementById('wa-pod').value.trim();
+
+            if (!bookTitle) {
+                alert("Please search and select a book title from the list.");
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Save Order to Sheet`;
+                return;
+            }
+
+            const newOrderObj = {
+                action: "placeOrder",
+                orderId: orderId,
+                fullName: fullName,
+                phone: phone,
+                street: street,
+                city: city,
+                pincode: pincode,
+                state: state,
+                bookTitle: bookTitle,
+                amount: amount,
+                paymentMode: paymentMode,
+                status: status,
+                pod: pod,
+                txnId: txnId
+            };
+
+            fetch(GOOGLE_SHEET_WEBHOOK_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(newOrderObj)
+            }).then(() => {
+                const fullAddress = [street, city, pincode, state].filter(Boolean).join(", ");
+                ordersData.unshift({
+                    date: new Date().toString(),
+                    id: orderId,
+                    name: fullName,
+                    phone: phone,
+                    address: fullAddress,
+                    book: bookTitle,
+                    amount: amount,
+                    mode: paymentMode,
+                    status: status,
+                    pod: pod,
+                    txnId: txnId
+                });
+
+                setLocalCache(ordersData);
+                renderOrdersTable(ordersData);
+                closeAddOrderModal();
+
+                if (confirm(`Order ${orderId} saved successfully!\n\nDo you want to send a WhatsApp confirmation message to ${fullName}?`)) {
+                    sendWhatsAppMessage(0);
+                }
+            }).catch(err => {
+                console.error("Manual order save error:", err);
+                alert("Failed to connect to Google Sheets.");
+            }).finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Save Order to Sheet`;
+            });
+        }
+
+        // 6. WhatsApp Message
+        function sendWhatsAppMessage(index) {
+            const order = ordersData[index];
+            if (!order) return;
+
+            const currentStatus = document.getElementById(`status-select-${index}`) 
+                ? document.getElementById(`status-select-${index}`).value 
+                : (order.status || 'payment_received');
+
+            const currentPod = document.getElementById(`pod-input-${index}`) 
+                ? document.getElementById(`pod-input-${index}`).value.trim() 
+                : (order.pod || '');
+
+            const currentTxn = document.getElementById(`txnid-input-${index}`) 
+                ? document.getElementById(`txnid-input-${index}`).value.trim() 
+                : (order.txnId || '');
+
+            let rawPhone = (order.phone || "").replace(/[^0-9]/g, '');
+            if (rawPhone.length === 10) rawPhone = "91" + rawPhone;
+
+            if (!rawPhone || rawPhone.length < 10) {
+                alert("Valid mobile number not available.");
+                return;
+            }
+
+            let message = "";
+            if (currentStatus === "payment_received") {
+                message = `Namaskaram ${order.name},\n\nThank you for ordering with *Thrika Publications*! 📚\n\nWe have received your payment for the book *"${order.book}"* (Order ID: ${order.id}).${currentTxn ? `\nTransaction Ref: ${currentTxn}` : ''}\n\nYour order is currently being packed and will be dispatched shortly.\n\nWarm regards,\nThrika Publications`;
+            } else if (currentStatus === "shipped") {
+                message = `Namaskaram ${order.name},\n\nGreat news! Your book *"${order.book}"* (Order ID: ${order.id}) from *Thrika Publications* has been dispatched. 🚚\n\n${currentPod ? `📦 *Tracking / POD Number:* ${currentPod}\nYou can track your parcel on India Post or the courier portal.` : 'It is on its way via registered post / courier.'}\n\nThank you for reading with us!`;
+            } else if (currentStatus === "delivered") {
+                message = `Namaskaram ${order.name},\n\nYour order *"${order.book}"* (Order ID: ${order.id}) has been delivered! 📖✨\n\nWe hope you enjoy reading it. Feel free to share your review with us.\n\nWarm regards,\nThrika Publications`;
+            } else {
+                message = `Namaskaram ${order.name},\n\nThank you for your interest in *"${order.book}"* from *Thrika Publications* (Order ID: ${order.id}).\n\nYour order is currently pending payment / confirmation. Please let us know if you need any assistance in completing your purchase.\n\nContact: +91 8943650356`;
+            }
+
+            window.open(`https://wa.me/${rawPhone}?text=${encodeURIComponent(message)}`, '_blank');
+        }
+
+        // 7. Print Shipping Label
+        function printShippingLabel(index) {
+            const order = ordersData[index];
+            if (!order) return;
+
+            const now = new Date();
+            const formattedDate = now.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
+            const formattedTime = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+
+            document.getElementById('lbl-print-date').textContent = `${formattedDate}, ${formattedTime}`;
+            document.getElementById('lbl-order-id').textContent = order.id || "";
+            document.getElementById('lbl-to-name').textContent = order.name || "";
+            document.getElementById('lbl-to-address').textContent = order.address || "Address Not Available";
+            document.getElementById('lbl-to-phone').textContent = order.phone || "N/A";
+            document.getElementById('lbl-to-book').textContent = order.book || "";
+
+            window.print();
+        }
+
+        // 8. Search Filter
+        function filterOrders() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = ordersData.filter(item => 
+                (item.id && item.id.toLowerCase().includes(query)) ||
+                (item.name && item.name.toLowerCase().includes(query)) ||
+                (item.book && item.book.toLowerCase().includes(query)) ||
+                (item.pod && item.pod.toLowerCase().includes(query)) ||
+                (item.txnId && item.txnId.toLowerCase().includes(query))
+            );
+            renderOrdersTable(filtered);
+        }
+
+        // 9. Details Modal
+        function viewAddress(index) {
+            const item = ordersData[index];
+            document.getElementById('modal-cust-name').textContent = item.name || "--";
+            document.getElementById('modal-cust-phone').textContent = item.phone || "Not Provided";
+            document.getElementById('modal-cust-address').textContent = item.address || "Not Provided";
+            document.getElementById('modal-cust-book').textContent = item.book || "--";
+            document.getElementById('modal-cust-txnid').textContent = item.txnId || "Not Available";
+            document.getElementById('modal-cust-pod').textContent = item.pod || "Not Assigned Yet";
+            document.getElementById('address-modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('address-modal').classList.remove('active');
+        }
+
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-overlay')) {
+                e.target.classList.remove('active');
+            }
+        });
+
+        // Initialize on load
+        loadCatalogBooks();
+        fetchLiveOrders();
+    </script>
+</body>
+</html>

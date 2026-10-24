@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Managed Inventory | Thrika Publications</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --emerald-deep: #062c22;
+            --emerald-main: #0b3c2f;
+            --emerald-mid: #145343;
+            --emerald-soft: #f1f8f5;
+            --border-light: #d0e1d9;
+            --text-dark: #0a221b;
+            --text-muted: #526f65;
+            --shadow-soft: 0 10px 30px rgba(6, 44, 34, 0.06);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body { 
+            background: var(--emerald-soft); 
+            padding: 20px; 
+            color: var(--text-dark);
+        }
+
+        .admin-card { 
+            background: #ffffff; 
+            border: 1px solid var(--border-light); 
+            border-radius: 16px; 
+            padding: 24px; 
+            box-shadow: var(--shadow-soft); 
+        }
+
+        /* Toolbar */
+        .table-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 16px;
+        }
+
+        .btn-refresh {
+            background: var(--emerald-soft);
+            color: var(--emerald-main);
+            border: 1px solid var(--border-light);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-refresh:hover {
+            background: var(--emerald-main);
+            color: #ffffff;
+        }
+
+        /* Data Table */
+        .data-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            font-size: 0.86rem; 
+            text-align: left; 
+        }
+
+        .data-table th { 
+            background: var(--emerald-soft); 
+            color: var(--emerald-deep); 
+            padding: 12px 14px; 
+            font-weight: 700; 
+            border-bottom: 2px solid var(--border-light); 
+            white-space: nowrap;
+        }
+
+        .data-table td { 
+            padding: 12px 14px; 
+            border-bottom: 1px solid var(--border-light); 
+            vertical-align: middle;
+        }
+
+        .book-item-thumb { 
+            width: 40px; 
+            height: 55px; 
+            object-fit: cover; 
+            border-radius: 4px; 
+        }
+
+        /* Stock Badge Styles */
+        .stock-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 0.78rem;
+            display: inline-block;
+        }
+
+        .stock-badge.in-stock { background: #dcfce7; color: #15803d; }
+        .stock-badge.low-stock { background: #fef9c3; color: #a16207; }
+        .stock-badge.out-of-stock { background: #fef2f2; color: #dc2626; }
+
+        /* Editable Inputs */
+        .editable-input {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid var(--emerald-mid);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            outline: none;
+            background: #ffffff;
+        }
+
+        .btn-action {
+            background: transparent;
+            border: 1px solid var(--border-light);
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-edit { color: var(--emerald-mid); border-color: var(--border-light); }
+        .btn-edit:hover { background: var(--emerald-soft); }
+
+        .btn-save { background: #dcfce7; color: #15803d; border-color: #86efac; }
+        .btn-save:hover { background: #bbf7d0; }
+
+        .loading-text {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="admin-card">
+        
+        <!-- Action Toolbar -->
+        <div class="table-toolbar">
+            <h3 style="font-size: 1.1rem; color: var(--emerald-deep);"><i class="fa-solid fa-file-excel" style="color: #16a34a; margin-right: 8px;"></i> Live Google Sheet Inventory</h3>
+            <button class="btn-refresh" onclick="fetchLiveCatalog(true)">
+                <i class="fa-solid fa-rotate-right"></i> Refresh Sheet
+            </button>
+        </div>
+
+        <!-- Inventory Data Table -->
+        <div style="overflow-x: auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Cover</th>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Category</th>
+                        <th>Price (₹)</th>
+                        <th>Book Count (Stock)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="inventory-list">
+                    <tr><td colspan="7" class="loading-text"><i class="fa-solid fa-spinner fa-spin"></i> Fetching live inventory from Google Sheets...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
+        const GOOGLE_SHEET_CATALOG_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzswEvEe8UQRRTIXKmAukCrOLINLtPaMnTHv8tcaHOnYNs8RCaL3yGajFMY_00164Tm/exec";
+
+        // CACHE CONFIGURATION
+        const CACHE_KEY = "thrika_inventory_catalog";
+        const CACHE_TIME_KEY = "thrika_inventory_catalog_timestamp";
+        const CACHE_EXPIRATION_MS = 10 * 60 * 1000; // 10 minutes
+
+        let catalogItems = [];
+
+        // Save data to localStorage
+        function setLocalCache(data) {
+            try {
+                localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+                localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+            } catch (err) {
+                console.warn("Could not save to localStorage:", err);
+            }
+        }
+
+        // Read data from localStorage if valid
+        function getLocalCache() {
+            try {
+                const cachedData = localStorage.getItem(CACHE_KEY);
+                const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
+
+                if (!cachedData || !cachedTime) return null;
+
+                const isExpired = Date.now() - parseInt(cachedTime, 10) > CACHE_EXPIRATION_MS;
+                if (isExpired) return null;
+
+                return JSON.parse(cachedData);
+            } catch (err) {
+                console.warn("Could not read localStorage cache:", err);
+                return null;
+            }
+        }
+
+        // 1. Fetch Live Catalog Data (with Caching Support)
+        function fetchLiveCatalog(forceRefresh = false) {
+            const tbody = document.getElementById('inventory-list');
+
+            // Check Cache first unless forceRefresh is explicitly true
+            if (!forceRefresh) {
+                const cachedData = getLocalCache();
+                if (cachedData && Array.isArray(cachedData) && cachedData.length > 0) {
+                    catalogItems = cachedData;
+                    renderInventory();
+                    return;
+                }
+            }
+
+            tbody.innerHTML = '<tr><td colspan="7" class="loading-text"><i class="fa-solid fa-spinner fa-spin"></i> Loading Google Sheet Catalog...</td></tr>';
+
+            fetch(GOOGLE_SHEET_CATALOG_WEBHOOK_URL)
+                .then(res => res.json())
+                .then(data => {
+                    if (Array.isArray(data) && data.length > 0) {
+                        catalogItems = data;
+                        setLocalCache(data); // Store fresh data in cache
+                        renderInventory();
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px; color: var(--text-muted);">No books found in Google Sheet.</td></tr>';
+                    }
+                })
+                .catch(err => {
+                    console.error("Error fetching Google Sheet:", err);
+                    // Fallback to expired cache if available during network/server error
+                    const fallbackData = localStorage.getItem(CACHE_KEY);
+                    if (fallbackData) {
+                        catalogItems = JSON.parse(fallbackData);
+                        renderInventory();
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color: #dc2626; padding: 20px;">Failed to connect to Google Sheets. Verify Webhook URL.</td></tr>';
+                    }
+                });
+        }
+
+        // 2. Render Table View
+        function renderInventory() {
+            const tbody = document.getElementById('inventory-list');
+            tbody.innerHTML = '';
+
+            catalogItems.forEach((item, index) => {
+                const stockVal = parseInt(item.stock, 10) || 0;
+                let stockClass = "in-stock";
+                if (stockVal === 0) stockClass = "out-of-stock";
+                else if (stockVal <= 5) stockClass = "low-stock";
+
+                const tr = document.createElement('tr');
+                tr.id = `row-${index}`;
+                tr.innerHTML = `
+                    <td><img src="${item.image || 'https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Cover'}" class="book-item-thumb"></td>
+                    <td class="cell-title"><strong>${item.title}</strong></td>
+                    <td class="cell-author">${item.author}</td>
+                    <td class="cell-category">${item.category}</td>
+                    <td class="cell-price">₹${item.price}</td>
+                    <td class="cell-stock"><span class="stock-badge ${stockClass}">${stockVal} Copies</span></td>
+                    <td>
+                        <button class="btn-action btn-edit" id="btn-edit-${index}" onclick="enableEdit(${index})">
+                            <i class="fa-solid fa-pen"></i> Edit
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 3. Enable Inline Cell Editing
+        function enableEdit(index) {
+            const item = catalogItems[index];
+            const row = document.getElementById(`row-${index}`);
+
+            row.querySelector('.cell-title').innerHTML = `<input type="text" class="editable-input" id="edit-title-${index}" value="${item.title}">`;
+            row.querySelector('.cell-author').innerHTML = `<input type="text" class="editable-input" id="edit-author-${index}" value="${item.author}">`;
+            row.querySelector('.cell-category').innerHTML = `
+                <select class="editable-input" id="edit-category-${index}">
+                    <option value="Novels" ${item.category === 'Novels' ? 'selected' : ''}>Novels</option>
+                    <option value="Short Stories" ${item.category === 'Short Stories' ? 'selected' : ''}>Short Stories</option>
+                    <option value="Poetry" ${item.category === 'Poetry' ? 'selected' : ''}>Poetry</option>
+                    <option value="Biographies" ${item.category === 'Biographies' ? 'selected' : ''}>Biographies</option>
+                    <option value="Classics" ${item.category === 'Classics' ? 'selected' : ''}>Classics</option>
+                </select>
+            `;
+            row.querySelector('.cell-price').innerHTML = `<input type="number" class="editable-input" id="edit-price-${index}" value="${item.price}">`;
+            row.querySelector('.cell-stock').innerHTML = `<input type="number" class="editable-input" id="edit-stock-${index}" value="${item.stock || 0}">`;
+
+            // Change Edit Button to Save Button
+            const actionTd = row.querySelectorAll('td')[6];
+            actionTd.innerHTML = `
+                <button class="btn-action btn-save" onclick="saveEdit(${index})">
+                    <i class="fa-solid fa-check"></i> Save
+                </button>
+            `;
+        }
+
+        // 4. Save Updates to Google Sheets Webhook
+        function saveEdit(index) {
+            const updatedTitle = document.getElementById(`edit-title-${index}`).value.trim();
+            const updatedAuthor = document.getElementById(`edit-author-${index}`).value.trim();
+            const updatedCategory = document.getElementById(`edit-category-${index}`).value;
+            const updatedPrice = parseFloat(document.getElementById(`edit-price-${index}`).value);
+            const updatedStock = parseInt(document.getElementById(`edit-stock-${index}`).value, 10);
+
+            const updatedBook = {
+                action: "update",
+                id: catalogItems[index].id,
+                title: updatedTitle,
+                author: updatedAuthor,
+                category: updatedCategory,
+                price: updatedPrice,
+                stock: updatedStock
+            };
+
+            // Update local state
+            catalogItems[index].title = updatedTitle;
+            catalogItems[index].author = updatedAuthor;
+            catalogItems[index].category = updatedCategory;
+            catalogItems[index].price = updatedPrice;
+            catalogItems[index].stock = updatedStock;
+
+            // Synchronize updated array directly into local cache
+            setLocalCache(catalogItems);
+
+            // Re-render table row
+            renderInventory();
+
+            // Send payload to Google Sheets Webhook
+            fetch(GOOGLE_SHEET_CATALOG_WEBHOOK_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(updatedBook)
+            }).then(() => {
+                alert(`"${updatedTitle}" inventory stock updated in Google Sheets!`);
+            }).catch(err => console.error("Error saving to sheet:", err));
+        }
+
+        // Initialize fetch on page load
+        fetchLiveCatalog();
+    </script>
+</body>
+</html>

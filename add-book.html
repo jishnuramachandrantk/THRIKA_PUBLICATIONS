@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Book | Thrika Publications</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --emerald-deep: #062c22;
+            --emerald-main: #0b3c2f;
+            --emerald-mid: #145343;
+            --emerald-soft: #f1f8f5;
+            --gold-accent: #d4af37;
+            --border-light: #d0e1d9;
+            --text-dark: #0a221b;
+            --text-muted: #526f65;
+            --shadow-soft: 0 10px 30px rgba(6, 44, 34, 0.06);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: var(--emerald-soft); 
+            padding: 20px; 
+            color: var(--text-dark);
+        }
+
+        .admin-card { 
+            background: #ffffff; 
+            border: 1px solid var(--border-light); 
+            border-radius: 16px; 
+            padding: 28px; 
+            box-shadow: var(--shadow-soft); 
+            max-width: 800px; 
+            margin: 0 auto;
+        }
+
+        .card-header {
+            margin-bottom: 22px;
+            border-bottom: 2px solid var(--emerald-soft);
+            padding-bottom: 12px;
+        }
+
+        .card-header h2 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--emerald-deep);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header h2 i {
+            color: var(--gold-accent);
+        }
+
+        .form-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 16px; 
+        }
+
+        .form-group { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 6px; 
+        }
+
+        .form-group.full-width { 
+            grid-column: span 2; 
+        }
+
+        .form-group label { 
+            font-size: 0.82rem; 
+            font-weight: 700; 
+            color: var(--emerald-deep); 
+        }
+
+        .form-group input, .form-group select { 
+            width: 100%; 
+            padding: 10px 14px; 
+            border-radius: 8px; 
+            border: 1px solid var(--border-light); 
+            outline: none; 
+            font-size: 0.88rem; 
+            background: #ffffff;
+            color: var(--text-dark);
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus, .form-group select:focus { 
+            border-color: var(--emerald-mid); 
+            box-shadow: 0 0 0 3px rgba(20, 83, 67, 0.12); 
+        }
+
+        /* Image Upload Box Styling */
+        .image-upload-wrapper {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .cover-preview {
+            width: 70px;
+            height: 95px;
+            border-radius: 6px;
+            border: 1px dashed var(--border-light);
+            background: var(--emerald-soft);
+            object-fit: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            padding: 2px;
+        }
+
+        .btn-submit { 
+            background: var(--emerald-main); 
+            color: #ffffff; 
+            border: none; 
+            padding: 13px 24px; 
+            border-radius: 30px; 
+            font-weight: 700; 
+            font-size: 0.92rem; 
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+            margin-top: 10px; 
+            width: 100%; 
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(11, 60, 47, 0.25);
+        }
+
+        .btn-submit:hover { 
+            background: var(--emerald-deep); 
+            transform: translateY(-1px);
+        }
+
+        .btn-submit:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Modal Popup Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(6, 44, 34, 0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 32px 28px;
+            max-width: 440px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+            border: 2px solid var(--gold-accent);
+            animation: modalPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes modalPop {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .success-icon {
+            width: 70px;
+            height: 70px;
+            background: var(--emerald-soft);
+            color: var(--emerald-main);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 16px;
+            border: 2px solid var(--emerald-mid);
+        }
+
+        .modal-card h3 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--emerald-deep);
+            margin-bottom: 8px;
+        }
+
+        .modal-card p {
+            font-size: 0.86rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .modal-book-box {
+            background: var(--emerald-soft);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 20px;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        .modal-book-box p {
+            margin-bottom: 4px;
+            color: var(--text-dark);
+        }
+
+        .modal-book-box strong {
+            color: var(--emerald-deep);
+        }
+
+        .btn-modal-close {
+            background: var(--emerald-main);
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .btn-modal-close:hover {
+            background: var(--emerald-deep);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="admin-card">
+        <div class="card-header">
+            <h2><i class="fa-solid fa-plus-circle"></i> Add New Book Title</h2>
+        </div>
+
+        <form id="add-book-form">
+            <div class="form-grid">
+                <!-- Book Title -->
+                <div class="form-group full-width">
+                    <label for="bookTitle">Book Title *</label>
+                    <input type="text" id="bookTitle" placeholder="e.g. Aatujeevitham" required>
+                </div>
+
+                <!-- Author Name -->
+                <div class="form-group full-width">
+                    <label for="bookAuthor">Author Name *</label>
+                    <input type="text" id="bookAuthor" placeholder="e.g. Benyamin" required>
+                </div>
+
+                <!-- Selling Price -->
+                <div class="form-group">
+                    <label for="sellingPrice">Selling Price (₹) *</label>
+                    <input type="number" id="sellingPrice" placeholder="150" min="1" required>
+                </div>
+
+                <!-- Original Price -->
+                <div class="form-group">
+                    <label for="originalPrice">Original Price (₹)</label>
+                    <input type="number" id="originalPrice" placeholder="200" min="1">
+                </div>
+
+                <!-- Category -->
+                <div class="form-group">
+                    <label for="category">Category *</label>
+                    <select id="category" required>
+                        <option value="Novels">Novels</option>
+                        <option value="Short Stories">Short Stories</option>
+                        <option value="Poetry">Poetry</option>
+                        <option value="Biographies">Biographies</option>
+                        <option value="Classics">Classics</option>
+                        <option value="History & Culture">History & Culture</option>
+                        <option value="Children's Literature">Children's Literature</option>
+                        <option value="Self-Help">Self-Help</option>
+                    </select>
+                </div>
+
+                <!-- Book Count / Stock Quantity -->
+                <div class="form-group">
+                    <label for="bookStock">Total Copies in Stock (Book Count) *</label>
+                    <input type="number" id="bookStock" placeholder="e.g. 50" min="1" value="10" required>
+                </div>
+
+                <!-- Discount Badge (Auto-Calculated, Still Editable) -->
+                <div class="form-group full-width">
+                    <label for="discountBadge">Discount Badge Text (Auto-Calculated)</label>
+                    <input type="text" id="discountBadge" placeholder="e.g. 25% OFF">
+                </div>
+
+                <!-- Cover Image Upload -->
+                <div class="form-group full-width">
+                    <label for="coverImageFile">Upload Cover Image File</label>
+                    <div class="image-upload-wrapper">
+                        <input type="file" id="coverImageFile" accept="image/*" onchange="previewUploadedImage(event)">
+                        <img id="image-preview" class="cover-preview" src="" alt="Preview" style="display: none;">
+                    </div>
+                </div>
+
+                <!-- Cover Image Web URL -->
+                <div class="form-group full-width">
+                    <label for="coverImage">OR Cover Image Web URL</label>
+                    <input type="url" id="coverImage" placeholder="https://domain.com/image.jpg">
+                </div>
+
+                <!-- Submit Button -->
+                <div class="form-group full-width">
+                    <button type="submit" class="btn-submit" id="submit-btn">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Save & Sync Book to Google Sheets
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Success Popup Modal -->
+    <div class="modal-overlay" id="save-success-modal">
+        <div class="modal-card">
+            <div class="success-icon">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h3>Book Saved Successfully!</h3>
+            <p>Your new title and stock quantity have been recorded and synced to your live Google Sheet Catalog.</p>
+
+            <div class="modal-book-box">
+                <p><strong>Title:</strong> <span id="pop-title">--</span></p>
+                <p><strong>Author:</strong> <span id="pop-author">--</span></p>
+                <p><strong>Price:</strong> ₹<span id="pop-price">0</span></p>
+                <p><strong>Stock Added:</strong> <span id="pop-stock">0</span> copies</p>
+            </div>
+
+            <button type="button" class="btn-modal-close" onclick="closeSuccessModal()">
+                Add Another Book
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const GOOGLE_SHEET_CATALOG_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzswEvEe8UQRRTIXKmAukCrOLINLtPaMnTHv8tcaHOnYNs8RCaL3yGajFMY_00164Tm/exec";
+
+        let uploadedBase64Image = "";
+
+        // Preview selected local image file
+        function previewUploadedImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedBase64Image = e.target.result;
+                    const previewImg = document.getElementById('image-preview');
+                    previewImg.src = uploadedBase64Image;
+                    previewImg.style.display = "block";
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Auto-calculate discount percentage
+        function autoCalculateDiscount() {
+            const sellingPrice = parseFloat(document.getElementById('sellingPrice').value);
+            const originalPrice = parseFloat(document.getElementById('originalPrice').value);
+            const discountInput = document.getElementById('discountBadge');
+
+            if (!isNaN(sellingPrice) && !isNaN(originalPrice) && originalPrice > sellingPrice && sellingPrice > 0) {
+                const percent = Math.round(((originalPrice - sellingPrice) / originalPrice) * 100);
+                discountInput.value = `${percent}% OFF`;
+            } else {
+                if (!isNaN(sellingPrice) && (!originalPrice || sellingPrice >= originalPrice)) {
+                    discountInput.value = '';
+                }
+            }
+        }
+
+        document.getElementById('sellingPrice').addEventListener('input', autoCalculateDiscount);
+        document.getElementById('originalPrice').addEventListener('input', autoCalculateDiscount);
+
+        // Show Success Popup Modal
+        function showSuccessModal(title, author, price, stock) {
+            document.getElementById('pop-title').textContent = title;
+            document.getElementById('pop-author').textContent = author;
+            document.getElementById('pop-price').textContent = price;
+            document.getElementById('pop-stock').textContent = stock;
+            document.getElementById('save-success-modal').classList.add('active');
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('save-success-modal').classList.remove('active');
+            document.getElementById('bookTitle').focus();
+        }
+
+        // Handle Add Book Submission
+        document.getElementById('add-book-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving to Google Sheets...`;
+
+            const title = document.getElementById('bookTitle').value.trim();
+            const author = document.getElementById('bookAuthor').value.trim();
+            const price = parseFloat(document.getElementById('sellingPrice').value);
+            const originalPrice = document.getElementById('originalPrice').value ? parseFloat(document.getElementById('originalPrice').value) : null;
+            const category = document.getElementById('category').value;
+            const stock = parseInt(document.getElementById('bookStock').value, 10);
+            const discount = document.getElementById('discountBadge').value.trim() || null;
+            let imageUrl = document.getElementById('coverImage').value.trim();
+
+            let finalImage = uploadedBase64Image || imageUrl;
+            if (!finalImage) {
+                const encodedTitle = encodeURIComponent(title.substring(0, 12));
+                finalImage = `https://via.placeholder.com/200x280/0b3c2f/ffffff?text=${encodedTitle}`;
+            }
+
+            const newBook = {
+                id: Date.now(),
+                title: title,
+                author: author,
+                price: price,
+                originalPrice: originalPrice,
+                category: category,
+                stock: stock,
+                discount: discount,
+                image: finalImage
+            };
+
+            fetch(GOOGLE_SHEET_CATALOG_WEBHOOK_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(newBook)
+            })
+            .then(() => {
+                localStorage.removeItem('thrika_catalog_cache');
+                localStorage.removeItem('thrika_catalog_timestamp');
+
+                showSuccessModal(title, author, price, stock);
+
+                document.getElementById('add-book-form').reset();
+                uploadedBase64Image = "";
+                document.getElementById('image-preview').style.display = "none";
+            })
+            .catch(err => {
+                console.error("Error posting to sheet:", err);
+                alert("Failed to connect to Google Sheets. Please verify your connection.");
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Save & Sync Book to Google Sheets`;
+            });
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-overlay')) {
+                closeSuccessModal();
+            }
+        });
+    </script>
+</body>
+</html>

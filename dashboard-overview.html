@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Overview | Thrika Publications</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --emerald-deep: #062c22;
+            --emerald-main: #0b3c2f;
+            --emerald-soft: #f1f8f5;
+            --gold-accent: #d4af37;
+            --gold-light: #fef3c7;
+            --gold-hover: #b89428;
+            --border-light: #d0e1d9;
+            --text-dark: #0a221b;
+            --text-muted: #526f65;
+            --shadow-soft: 0 10px 30px rgba(6, 44, 34, 0.06);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background: var(--emerald-soft);
+            color: var(--text-dark);
+            padding: 20px;
+        }
+
+        .dashboard-container {
+            max-width: 1250px;
+            margin: 0 auto;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .dashboard-header h2 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--emerald-deep);
+        }
+
+        .btn-refresh {
+            background: #ffffff;
+            color: var(--emerald-main);
+            border: 1px solid var(--border-light);
+            padding: 9px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+
+        .btn-refresh:hover {
+            background: var(--emerald-main);
+            color: #ffffff;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .metric-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: var(--shadow-soft);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .metric-info p {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .metric-info h3 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--emerald-deep);
+            margin: 0;
+        }
+
+        .metric-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: var(--emerald-soft);
+            color: var(--emerald-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            border: 1px solid var(--border-light);
+        }
+
+        .metric-icon.gold {
+            background: var(--gold-light);
+            color: var(--gold-hover);
+            border-color: rgba(212, 175, 55, 0.4);
+        }
+
+        .admin-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--emerald-deep);
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-title span {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title i {
+            color: var(--gold-accent);
+        }
+
+        .sync-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: var(--emerald-soft);
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid var(--border-light);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div>
+                <h2>Overview Dashboard</h2>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">Real-time performance synchronized with Google Sheets</p>
+            </div>
+            <button class="btn-refresh" onclick="fetchLiveDashboard(true)">
+                <i class="fa-solid fa-rotate-right" id="refresh-icon"></i> Sync Sheet Data
+            </button>
+        </div>
+
+        <!-- Metric Cards -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-info">
+                    <p>Total Revenue</p>
+                    <h3 id="stat-revenue">₹0</h3>
+                </div>
+                <div class="metric-icon gold"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-info">
+                    <p>Books Sold</p>
+                    <h3 id="stat-books-sold">0</h3>
+                </div>
+                <div class="metric-icon"><i class="fa-solid fa-book-open"></i></div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-info">
+                    <p>Active Orders</p>
+                    <h3 id="stat-active-orders">0</h3>
+                </div>
+                <div class="metric-icon"><i class="fa-solid fa-box-archive"></i></div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-info">
+                    <p>Catalog Titles</p>
+                    <h3 id="stat-catalog-count">0</h3>
+                </div>
+                <div class="metric-icon"><i class="fa-solid fa-layer-group"></i></div>
+            </div>
+        </div>
+
+        <!-- Sales Chart Card -->
+        <div class="admin-card">
+            <div class="card-title">
+                <span><i class="fa-solid fa-chart-line"></i> Revenue Performance Graph</span>
+                <span class="sync-badge" id="chart-sync-indicator">Auto-calculated from sheet</span>
+            </div>
+            <div style="height: 340px; position: relative;">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
+        const GOOGLE_SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzswEvEe8UQRRTIXKmAukCrOLINLtPaMnTHv8tcaHOnYNs8RCaL3yGajFMY_00164Tm/exec";
+
+        let salesChartInstance = null;
+
+        // 1. Initialize empty Chart
+        function initChart(labels = [], dataPoints = []) {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            
+            if (salesChartInstance) {
+                salesChartInstance.destroy();
+            }
+
+            salesChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels.length ? labels : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Revenue (₹)',
+                        data: dataPoints.length ? dataPoints : [0, 0, 0, 0, 0, 0],
+                        borderColor: '#0b3c2f',
+                        backgroundColor: 'rgba(11, 60, 47, 0.08)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.35,
+                        pointBackgroundColor: '#d4af37',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => ` Revenue: ₹${Number(context.raw).toLocaleString('en-IN')}`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#e7f0ec' },
+                            ticks: {
+                                callback: (val) => '₹' + Number(val).toLocaleString('en-IN')
+                            }
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        // 2. Compute Metrics & Dynamic Graph from Live Data
+        function processDashboardData(orders = [], catalog = []) {
+            // A. Catalog Count
+            document.getElementById('stat-catalog-count').textContent = catalog.length;
+
+            // B. Books Sold & Active Orders
+            let totalRevenue = 0;
+            let activeCount = 0;
+            let booksSoldCount = 0;
+
+            const monthlyRevenueMap = {};
+
+            orders.forEach(order => {
+                const amt = parseFloat(order.amount) || 0;
+                totalRevenue += amt;
+                booksSoldCount += 1;
+
+                const status = (order.status || 'pending').toLowerCase();
+                if (status === 'pending' || status === 'shipped') {
+                    activeCount += 1;
+                }
+
+                // Group by Month for the Performance Graph
+                if (order.date) {
+                    const parsedDate = new Date(order.date);
+                    if (!isNaN(parsedDate.getTime())) {
+                        const monthLabel = parsedDate.toLocaleString('default', { month: 'short' });
+                        monthlyRevenueMap[monthLabel] = (monthlyRevenueMap[monthLabel] || 0) + amt;
+                    }
+                }
+            });
+
+            // Update DOM metrics
+            document.getElementById('stat-revenue').textContent = `₹${totalRevenue.toLocaleString('en-IN')}`;
+            document.getElementById('stat-books-sold').textContent = booksSoldCount.toLocaleString('en-IN');
+            document.getElementById('stat-active-orders').textContent = activeCount.toLocaleString('en-IN');
+
+            // Build chronological monthly chart data
+            const monthOrder = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const recordedMonths = Object.keys(monthlyRevenueMap);
+
+            if (recordedMonths.length > 0) {
+                // Sort months by order in year
+                recordedMonths.sort((a, b) => monthOrder.indexOf(a) - monthOrder.indexOf(b));
+                const chartLabels = recordedMonths;
+                const chartValues = chartLabels.map(m => monthlyRevenueMap[m]);
+                initChart(chartLabels, chartValues);
+            } else {
+                initChart(['Recent'], [totalRevenue]);
+            }
+        }
+
+        // 3. Fetch from Google Sheets API
+        async function fetchLiveDashboard(forceRefresh = false) {
+            const refreshIcon = document.getElementById('refresh-icon');
+            refreshIcon.classList.add('fa-spin');
+
+            try {
+                // Check local caches first for instant loading
+                const cachedOrders = localStorage.getItem('thrika_orders_cache');
+                const cachedCatalog = localStorage.getItem('thrika_inventory_catalog');
+
+                if (!forceRefresh && cachedOrders && cachedCatalog) {
+                    processDashboardData(JSON.parse(cachedOrders), JSON.parse(cachedCatalog));
+                }
+
+                // Fetch live Orders and Catalog in parallel
+                const [ordersRes, catalogRes] = await Promise.all([
+                    fetch(`${GOOGLE_SHEET_WEBHOOK_URL}?type=orders`).then(r => r.json()),
+                    fetch(`${GOOGLE_SHEET_WEBHOOK_URL}?type=catalog`).then(r => r.json())
+                ]);
+
+                const validOrders = Array.isArray(ordersRes) ? ordersRes : [];
+                const validCatalog = Array.isArray(catalogRes) ? catalogRes : [];
+
+                // Store fresh data in cache
+                localStorage.setItem('thrika_orders_cache', JSON.stringify(validOrders));
+                localStorage.setItem('thrika_inventory_catalog', JSON.stringify(validCatalog));
+
+                processDashboardData(validOrders, validCatalog);
+            } catch (err) {
+                console.error("Error loading live dashboard data:", err);
+            } finally {
+                refreshIcon.classList.remove('fa-spin');
+            }
+        }
+
+        // Initialize on load
+        initChart();
+        fetchLiveDashboard();
+    </script>
+</body>
+</html>

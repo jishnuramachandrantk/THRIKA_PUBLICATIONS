@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Delivery Charges | Thrika Publications</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --emerald-deep: #062c22;
+            --emerald-main: #0b3c2f;
+            --emerald-mid: #145343;
+            --emerald-soft: #f1f8f5;
+            --emerald-tint: #e3efe9;
+            --gold-accent: #d4af37;
+            --gold-light: #fef3c7;
+            --gold-hover: #b89428;
+            --border-light: #d0e1d9;
+            --text-dark: #0a221b;
+            --text-muted: #526f65;
+            --shadow-soft: 0 10px 30px rgba(6, 44, 34, 0.06);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background: var(--emerald-soft);
+            color: var(--text-dark);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .admin-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--emerald-soft);
+            padding-bottom: 14px;
+        }
+
+        .card-header h2 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--emerald-deep);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header h2 i {
+            color: var(--gold-accent);
+        }
+
+        .btn-refresh {
+            background: var(--emerald-soft);
+            color: var(--emerald-main);
+            border: 1px solid var(--border-light);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-refresh:hover {
+            background: var(--emerald-main);
+            color: #ffffff;
+        }
+
+        .info-note {
+            background: var(--gold-light);
+            border-left: 4px solid var(--gold-accent);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #78350f;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .charges-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+        }
+
+        .charges-table th {
+            background: var(--emerald-soft);
+            color: var(--emerald-deep);
+            padding: 12px 16px;
+            font-weight: 700;
+            border-bottom: 2px solid var(--border-light);
+            text-align: left;
+        }
+
+        .charges-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-light);
+            vertical-align: middle;
+        }
+
+        .region-badge {
+            font-weight: 700;
+            color: var(--emerald-deep);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .region-badge i {
+            color: var(--emerald-mid);
+        }
+
+        .charge-input-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            max-width: 160px;
+        }
+
+        .currency-symbol {
+            font-weight: 700;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .charge-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--emerald-deep);
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        .charge-input:focus {
+            border-color: var(--emerald-mid);
+            box-shadow: 0 0 0 3px rgba(20, 83, 67, 0.1);
+        }
+
+        .btn-save-all {
+            background: var(--emerald-main);
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 0.92rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(11, 60, 47, 0.2);
+        }
+
+        .btn-save-all:hover {
+            background: var(--emerald-deep);
+            transform: translateY(-2px);
+        }
+
+        .loading-placeholder {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="admin-card">
+            
+            <div class="card-header">
+                <h2><i class="fa-solid fa-truck-fast"></i> State-Wise Delivery Charges</h2>
+                <button class="btn-refresh" onclick="loadDeliverySettings(true)">
+                    <i class="fa-solid fa-rotate-right" id="refresh-icon"></i> Refresh Rates
+                </button>
+            </div>
+
+            <div class="info-note">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>These rates sync directly with the <strong>Settings</strong> tab in your Google Sheet. Customers will see the calculated delivery fee at checkout based on their selected delivery state.</span>
+            </div>
+
+            <div id="table-container">
+                <div class="loading-placeholder">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 1.5rem; margin-bottom: 8px;"></i>
+                    <p>Loading delivery rates from Google Sheets...</p>
+                </div>
+            </div>
+
+            <button class="btn-save-all" id="btn-save-all" onclick="saveAllRates()" style="display: none;">
+                <i class="fa-solid fa-floppy-disk"></i> Save Delivery Charges
+            </button>
+
+        </div>
+    </div>
+
+    <script>
+        const GOOGLE_SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzswEvEe8UQRRTIXKmAukCrOLINLtPaMnTHv8tcaHOnYNs8RCaL3yGajFMY_00164Tm/exec";
+
+        // CACHE CONFIGURATION
+        const CACHE_KEY = "thrika_delivery_rates_cache";
+        const CACHE_TIME_KEY = "thrika_delivery_rates_timestamp";
+        const CACHE_EXPIRATION_MS = 10 * 60 * 1000; // 10 minutes
+
+        let currentSettings = {
+            "Kerala": 30,
+            "Tamil Nadu": 50,
+            "Karnataka": 50,
+            "Other": 70
+        };
+
+        function setLocalCache(rates) {
+            try {
+                localStorage.setItem(CACHE_KEY, JSON.stringify(rates));
+                localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+            } catch (err) {
+                console.warn("Could not save delivery rates to localStorage:", err);
+            }
+        }
+
+        function getLocalCache() {
+            try {
+                const cachedData = localStorage.getItem(CACHE_KEY);
+                const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
+
+                if (!cachedData || !cachedTime) return null;
+
+                const isExpired = Date.now() - parseInt(cachedTime, 10) > CACHE_EXPIRATION_MS;
+                if (isExpired) return null;
+
+                return JSON.parse(cachedData);
+            } catch (err) {
+                console.warn("Could not read delivery rates from localStorage:", err);
+                return null;
+            }
+        }
+
+        function loadDeliverySettings(forceRefresh = false) {
+            const container = document.getElementById('table-container');
+            const saveBtn = document.getElementById('btn-save-all');
+            const refreshIcon = document.getElementById('refresh-icon');
+
+            // 1. Check local cache first unless forced
+            if (!forceRefresh) {
+                const cachedRates = getLocalCache();
+                if (cachedRates && typeof cachedRates === 'object' && Object.keys(cachedRates).length > 0) {
+                    currentSettings = Object.assign(currentSettings, cachedRates);
+                    renderRatesTable();
+                    return;
+                }
+            }
+
+            refreshIcon.classList.add('fa-spin');
+            container.innerHTML = `
+                <div class="loading-placeholder">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 1.5rem; margin-bottom: 8px;"></i>
+                    <p>Loading rates from Google Sheet...</p>
+                </div>
+            `;
+            saveBtn.style.display = 'none';
+
+            fetch(`${GOOGLE_SHEET_WEBHOOK_URL}?type=settings`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+                        currentSettings = Object.assign(currentSettings, data);
+                        setLocalCache(currentSettings); // Update local cache
+                    }
+                    renderRatesTable();
+                })
+                .catch(err => {
+                    console.warn("Could not fetch remote settings, using fallback:", err);
+                    const fallback = localStorage.getItem(CACHE_KEY);
+                    if (fallback) {
+                        try {
+                            currentSettings = Object.assign(currentSettings, JSON.parse(fallback));
+                        } catch (e) {}
+                    }
+                    renderRatesTable();
+                })
+                .finally(() => {
+                    refreshIcon.classList.remove('fa-spin');
+                });
+        }
+
+        function renderRatesTable() {
+            const container = document.getElementById('table-container');
+            const saveBtn = document.getElementById('btn-save-all');
+
+            let html = `
+                <table class="charges-table">
+                    <thead>
+                        <tr>
+                            <th>Destination Region / State</th>
+                            <th>Delivery Charge (₹)</th>
+                            <th>Applicable Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            const regions = [
+                { key: "Kerala", icon: "fa-map-pin", note: "Local State (Fast Delivery)" },
+                { key: "Tamil Nadu", icon: "fa-location-dot", note: "Neighboring Zone" },
+                { key: "Karnataka", icon: "fa-location-dot", note: "Neighboring Zone" },
+                { key: "Other", icon: "fa-earth-asia", note: "Rest of India (Speed Post / Parcel)" }
+            ];
+
+            regions.forEach(reg => {
+                const amount = currentSettings[reg.key] !== undefined ? currentSettings[reg.key] : 0;
+                html += `
+                    <tr>
+                        <td>
+                            <div class="region-badge">
+                                <i class="fa-solid ${reg.icon}"></i>
+                                <span>${reg.key}</span>
+                            </div>
+                            <span style="font-size: 0.75rem; color: var(--text-muted); margin-left: 22px;">${reg.note}</span>
+                        </td>
+                        <td>
+                            <div class="charge-input-wrap">
+                                <span class="currency-symbol">₹</span>
+                                <input type="number" min="0" class="charge-input" id="input-${reg.key.replace(/\s+/g, '_')}" value="${amount}">
+                            </div>
+                        </td>
+                        <td>
+                            <span style="font-size: 0.82rem; font-weight: 600; color: ${amount === 0 ? '#15803d' : 'var(--text-dark)'};">
+                                ${amount === 0 ? 'FREE Delivery' : 'Standard Charge Applied'}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+            saveBtn.style.display = 'inline-flex';
+        }
+
+        function saveAllRates() {
+            const kerala = parseFloat(document.getElementById('input-Kerala').value) || 0;
+            const tamilNadu = parseFloat(document.getElementById('input-Tamil_Nadu').value) || 0;
+            const karnataka = parseFloat(document.getElementById('input-Karnataka').value) || 0;
+            const other = parseFloat(document.getElementById('input-Other').value) || 0;
+
+            const updatedRates = {
+                "Kerala": kerala,
+                "Tamil Nadu": tamilNadu,
+                "Karnataka": karnataka,
+                "Other": other
+            };
+
+            const payload = {
+                action: "updateSettings",
+                rates: updatedRates
+            };
+
+            // Post to Google Apps Script webhook
+            fetch(GOOGLE_SHEET_WEBHOOK_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                currentSettings = updatedRates;
+                setLocalCache(updatedRates); // Synchronize local cache immediately
+                alert("Delivery charges updated successfully in Google Sheets!");
+                renderRatesTable();
+            }).catch(err => {
+                console.error("Save error:", err);
+                alert("Saved locally, but failed to connect to Google Sheets.");
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => loadDeliverySettings(false));
+    </script>
+</body>
+</html>

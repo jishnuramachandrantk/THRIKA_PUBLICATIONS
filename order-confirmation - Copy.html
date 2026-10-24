@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout & Payment | Thrika Publications</title>
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --emerald-deep: #062c22;
+            --emerald-main: #0b3c2f;
+            --emerald-mid: #145343;
+            --emerald-soft: #f1f8f5;
+            --emerald-tint: #e3efe9;
+            --gold-accent: #d4af37;
+            --gold-light: #fef3c7;
+            --gold-hover: #b89428;
+            
+            --text-dark: #0a221b;
+            --text-muted: #526f65;
+            --border-light: #d0e1d9;
+            --card-bg: #ffffff;
+            --shadow-soft: 0 10px 30px rgba(6, 44, 34, 0.06);
+            --shadow-hover: 0 18px 40px rgba(6, 44, 34, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--emerald-soft);
+            color: var(--text-dark);
+            line-height: 1.5;
+            padding-bottom: 60px;
+        }
+
+        header {
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-light);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+
+        .nav-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+        }
+
+        .brand-logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--emerald-main);
+            text-decoration: none;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-logo span {
+            color: var(--gold-accent);
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+        }
+
+        .back-link {
+            color: var(--emerald-mid);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--gold-accent);
+        }
+
+        .checkout-container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 28px;
+        }
+
+        .checkout-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--emerald-deep);
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid var(--emerald-soft);
+            padding-bottom: 10px;
+        }
+
+        .card-title i {
+            color: var(--gold-accent);
+        }
+
+        .selected-book-summary {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            background: var(--emerald-soft);
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+        }
+
+        .book-thumb {
+            width: 70px;
+            height: 95px;
+            object-fit: cover;
+            border-radius: 6px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .book-info h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--emerald-deep);
+            margin-bottom: 4px;
+        }
+
+        .book-info p {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .book-info .price {
+            font-weight: 800;
+            font-size: 1.05rem;
+            color: var(--emerald-main);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        .form-group label {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--emerald-deep);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+            outline: none;
+            font-size: 0.88rem;
+            background: #ffffff;
+            transition: all 0.25s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--emerald-mid);
+            box-shadow: 0 0 0 3px rgba(20, 83, 67, 0.12);
+        }
+
+        .error-message {
+            font-size: 0.75rem;
+            color: #dc2626;
+            font-weight: 600;
+            display: none;
+            margin-top: 2px;
+        }
+
+        .form-group.has-error input {
+            border-color: #dc2626 !important;
+            background-color: #fef2f2 !important;
+        }
+
+        .form-group.has-error .error-message {
+            display: block;
+        }
+
+        .payment-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .payment-option-card {
+            border: 1px solid var(--gold-accent);
+            background: var(--gold-light);
+            border-radius: 12px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .option-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .option-left input[type="radio"] {
+            accent-color: var(--emerald-main);
+            width: 18px;
+            height: 18px;
+        }
+
+        .option-details h5 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--emerald-deep);
+        }
+
+        .option-details p {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .upi-apps-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--border-light);
+        }
+
+        .upi-app-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 5px;
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            background: #ffffff;
+            text-decoration: none;
+            color: var(--text-dark);
+            font-size: 0.75rem;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .upi-app-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--emerald-mid);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .upi-app-btn i {
+            font-size: 1.4rem;
+        }
+
+        .gpay { color: #4285F4; }
+        .phonepe { color: #5f259f; }
+        .paytm { color: #00baf2; }
+        .bhim { color: #f26522; }
+
+        .order-summary-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-soft);
+            position: sticky;
+            top: 90px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .summary-row.total {
+            border-top: 2px solid var(--emerald-soft);
+            padding-top: 12px;
+            margin-top: 12px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--emerald-deep);
+        }
+
+        .summary-row.total .price {
+            color: var(--emerald-main);
+        }
+
+        .free-tag {
+            color: #16a34a;
+            font-weight: 700;
+        }
+
+        .btn-pay-now {
+            width: 100%;
+            background: var(--gold-accent);
+            color: var(--emerald-deep);
+            border: none;
+            padding: 14px;
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+            margin-top: 20px;
+        }
+
+        .btn-pay-now:hover {
+            background: #e6bf3c;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .trust-badges {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-light);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .trust-badges div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .trust-badges i {
+            color: var(--emerald-mid);
+            font-size: 1.1rem;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(6, 44, 34, 0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 35px 30px;
+            max-width: 440px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            border: 2px solid var(--gold-accent);
+        }
+
+        .success-icon {
+            width: 70px;
+            height: 70px;
+            background: var(--emerald-soft);
+            color: var(--emerald-main);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 16px;
+            border: 2px solid var(--emerald-mid);
+        }
+
+        .modal-card h3 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--emerald-deep);
+            margin-bottom: 8px;
+        }
+
+        .modal-card p {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .order-details-box {
+            background: var(--emerald-soft);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: left;
+            font-size: 0.82rem;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-light);
+        }
+
+        .order-details-box p {
+            margin-bottom: 4px;
+            color: var(--text-dark);
+        }
+
+        @media (max-width: 768px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+
+            .upi-apps-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="nav-container">
+            <a href="index.html" class="brand-logo">
+                THRIKA <span>Publications</span>
+            </a>
+            <a href="index.html" class="back-link">
+                <i class="fa-solid fa-arrow-left"></i> Back to Store
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Checkout View -->
+    <div class="checkout-container">
+        
+        <!-- Left Column: Form & Payment -->
+        <div class="checkout-main">
+            
+            <!-- Book Summary Card -->
+            <div class="checkout-card">
+                <h3 class="card-title"><i class="fa-solid fa-book"></i> Order Item Summary</h3>
+                <div class="selected-book-summary">
+                    <img id="book-cover-img" src="https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Book+Cover" alt="Selected Book" class="book-thumb">
+                    <div class="book-info">
+                        <h4 id="book-title-display">Book Title</h4>
+                        <p id="book-author-display">By Author Name</p>
+                        <div class="price" id="book-price-display">₹0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delivery Address Form -->
+            <div class="checkout-card">
+                <h3 class="card-title"><i class="fa-solid fa-truck"></i> Delivery Address</h3>
+                <form id="checkout-form" novalidate>
+                    <div class="form-grid">
+                        
+                        <!-- Full Name -->
+                        <div class="form-group" id="group-fullName">
+                            <label for="fullName">Full Name *</label>
+                            <input type="text" id="fullName" placeholder="Enter your full name">
+                            <span class="error-message">Please enter your full name</span>
+                        </div>
+
+                        <!-- Phone Number -->
+                        <div class="form-group" id="group-phone">
+                            <label for="phone">Phone Number *</label>
+                            <input type="tel" id="phone" placeholder="10-digit mobile number" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                            <span class="error-message">Enter valid 10-digit mobile number starting with 6-9</span>
+                        </div>
+
+                        <!-- Street Address -->
+                        <div class="form-group full-width" id="group-street">
+                            <label for="street">Street Address / House Name / Flat *</label>
+                            <input type="text" id="street" placeholder="House name, street, locality">
+                            <span class="error-message">Please enter street address or house name</span>
+                        </div>
+
+                        <!-- City -->
+                        <div class="form-group" id="group-city">
+                            <label for="city">City / District *</label>
+                            <input type="text" id="city" placeholder="e.g. Thrissur, Kochi">
+                            <span class="error-message">Please enter city or district</span>
+                        </div>
+
+                        <!-- PIN Code -->
+                        <div class="form-group" id="group-pincode">
+                            <label for="pincode">Pincode *</label>
+                            <input type="text" id="pincode" placeholder="6-digit PIN code" maxlength="6" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                            <span class="error-message">Enter valid 6-digit PIN code (e.g. 680001)</span>
+                        </div>
+
+                        <!-- State -->
+                        <div class="form-group full-width">
+                            <label for="state">State *</label>
+                            <select id="state">
+                                <option value="Kerala" selected>Kerala</option>
+                                <option value="Tamil Nadu">Tamil Nadu</option>
+                                <option value="Karnataka">Karnataka</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+
+            <!-- Payment Methods Section -->
+            <div class="checkout-card">
+                <h3 class="card-title"><i class="fa-solid fa-credit-card"></i> Payment Method</h3>
+                
+                <div class="payment-options">
+                    <div class="payment-option-card">
+                        <div class="option-left">
+                            <input type="radio" name="paymentMethod" value="UPI" checked disabled>
+                            <div class="option-details">
+                                <h5>UPI / Instant Mobile Payment</h5>
+                                <p>Pay directly using Google Pay, PhonePe, Paytm, or BHIM</p>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-qrcode" style="color: var(--emerald-mid); font-size: 1.2rem;"></i>
+                    </div>
+
+                    <!-- Instant App Launcher Grid -->
+                    <div class="upi-apps-grid">
+                        <button type="button" class="upi-app-btn" onclick="payViaUPI('gpay')">
+                            <i class="fa-brands fa-google-pay gpay"></i>
+                            Google Pay
+                        </button>
+                        <button type="button" class="upi-app-btn" onclick="payViaUPI('phonepe')">
+                            <i class="fa-solid fa-wallet phonepe"></i>
+                            PhonePe
+                        </button>
+                        <button type="button" class="upi-app-btn" onclick="payViaUPI('paytm')">
+                            <i class="fa-solid fa-mobile-screen paytm"></i>
+                            Paytm
+                        </button>
+                        <button type="button" class="upi-app-btn" onclick="payViaUPI('bhim')">
+                            <i class="fa-solid fa-building-columns bhim"></i>
+                            BHIM UPI
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Summary Sidebar -->
+        <div class="checkout-sidebar">
+            <div class="order-summary-card">
+                <h3 class="card-title" style="border-bottom: none; padding-bottom: 0; margin-bottom: 14px;">Order Summary</h3>
+                
+                <div class="summary-row">
+                    <span>Book Price</span>
+                    <span id="summary-book-price">₹0</span>
+                </div>
+                <div class="summary-row">
+                    <span>Delivery Charges</span>
+                    <span class="free-tag">FREE</span>
+                </div>
+                <div class="summary-row">
+                    <span>GST / Taxes</span>
+                    <span>Included</span>
+                </div>
+
+                <div class="summary-row total">
+                    <span>Total Amount Payable</span>
+                    <span class="price" id="summary-total-price">₹0</span>
+                </div>
+
+                <button type="button" class="btn-pay-now" onclick="processOrder()">
+                    Pay & Confirm Order <i class="fa-solid fa-arrow-right"></i>
+                </button>
+
+                <div class="trust-badges">
+                    <div>
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>Secure UPI</span>
+                    </div>
+                    <div>
+                        <i class="fa-solid fa-truck-fast"></i>
+                        <span>Fast Delivery</span>
+                    </div>
+                    <div>
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span>Easy Returns</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Order Receipt Modal -->
+    <div class="modal-overlay" id="success-modal">
+        <div class="modal-card">
+            <div class="success-icon">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h3>Order Confirmed!</h3>
+            <p>Thank you for shopping with Thrika Publications. Your order has been placed successfully.</p>
+            
+            <div class="order-details-box">
+                <p><strong>Order ID:</strong> <span id="modal-order-id">#THK-0000</span></p>
+                <p><strong>Book:</strong> <span id="modal-book-title">--</span></p>
+                <p><strong>Amount Paid:</strong> <span id="modal-amount">--</span></p>
+                <p><strong>Payment Mode:</strong> <span id="modal-payment-mode">UPI Transfer</span></p>
+            </div>
+
+            <a href="index.html" class="btn-pay-now" style="text-decoration: none;">Return to Store</a>
+        </div>
+    </div>
+
+    <script>
+        // TARGET DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
+        const GOOGLE_SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzswEvEe8UQRRTIXKmAukCrOLINLtPaMnTHv8tcaHOnYNs8RCaL3yGajFMY_00164Tm/exec";
+
+        // Official UPI VPA Details
+        const MERCHANT_UPI_ID = "thrika@upi"; 
+        const MERCHANT_NAME = "Thrika Publications";
+
+        let currentBook = {
+            title: "Selected Book Title",
+            author: "Author Name",
+            price: 150,
+            image: "https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Book+Cover"
+        };
+
+        // 1. Read URL Parameters
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            if (urlParams.has('title')) currentBook.title = urlParams.get('title');
+            if (urlParams.has('author')) currentBook.author = urlParams.get('author');
+            if (urlParams.has('price')) currentBook.price = parseFloat(urlParams.get('price'));
+            if (urlParams.has('image')) currentBook.image = urlParams.get('image');
+
+            // Render UI
+            document.getElementById('book-title-display').textContent = currentBook.title;
+            document.getElementById('book-author-display').textContent = 'By ' + currentBook.author;
+            document.getElementById('book-price-display').textContent = `₹${currentBook.price}`;
+            document.getElementById('book-cover-img').src = currentBook.image;
+
+            document.getElementById('summary-book-price').textContent = `₹${currentBook.price}`;
+            document.getElementById('summary-total-price').textContent = `₹${currentBook.price}`;
+
+            // Attach blur validation events
+            ['fullName', 'phone', 'street', 'city', 'pincode'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('blur', () => validateField(id));
+            });
+        });
+
+        // 2. Individual Field Validator
+        function validateField(fieldId) {
+            const el = document.getElementById(fieldId);
+            const group = document.getElementById('group-' + fieldId);
+            const val = el.value.trim();
+            let isValid = true;
+
+            if (fieldId === 'fullName') {
+                isValid = val.length >= 2;
+            } else if (fieldId === 'phone') {
+                isValid = /^[6-9]\d{9}$/.test(val);
+            } else if (fieldId === 'street') {
+                isValid = val.length >= 3;
+            } else if (fieldId === 'city') {
+                isValid = val.length >= 2;
+            } else if (fieldId === 'pincode') {
+                isValid = /^[1-9][0-9]{5}$/.test(val);
+            }
+
+            if (!isValid) {
+                group.classList.add('has-error');
+            } else {
+                group.classList.remove('has-error');
+            }
+
+            return isValid;
+        }
+
+        // 3. Full Form Validation
+        function validateAddressForm() {
+            const fields = ['fullName', 'phone', 'street', 'city', 'pincode'];
+            let isFormValid = true;
+
+            fields.forEach(fieldId => {
+                const isSingleValid = validateField(fieldId);
+                if (!isSingleValid) isFormValid = false;
+            });
+
+            if (!isFormValid) {
+                const firstInvalid = document.querySelector('.form-group.has-error input');
+                if (firstInvalid) firstInvalid.focus();
+            }
+
+            return isFormValid;
+        }
+
+        // 4. Send Order Payload to Google Sheet (Saves Order & Decrements Stock)
+        function sendOrderToGoogleSheet(orderData) {
+            fetch(GOOGLE_SHEET_WEBHOOK_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(orderData)
+            }).catch(err => console.error("Error logging order:", err));
+        }
+
+        // 5. UPI Application Launcher
+        function payViaUPI(appName) {
+            if (!validateAddressForm()) return;
+
+            const generatedOrderId = '#THK-' + Math.floor(100000 + Math.random() * 900000);
+            const appUsedUpper = appName.toUpperCase();
+
+            // Construct Order Data
+            const orderPayload = {
+                action: "placeOrder",
+                orderId: generatedOrderId,
+                fullName: document.getElementById('fullName').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                street: document.getElementById('street').value.trim(),
+                city: document.getElementById('city').value.trim(),
+                pincode: document.getElementById('pincode').value.trim(),
+                state: document.getElementById('state').value,
+                bookTitle: currentBook.title,
+                amount: currentBook.price,
+                paymentMode: `UPI (${appUsedUpper})`
+            };
+
+            // Post order details to Google Sheets Webhook
+            sendOrderToGoogleSheet(orderPayload);
+
+            const amount = currentBook.price;
+            const transactionNote = encodeURIComponent(`Order ${generatedOrderId} - ${currentBook.title}`);
+            const name = encodeURIComponent(MERCHANT_NAME);
+
+            let upiUri = `upi://pay?pa=${MERCHANT_UPI_ID}&pn=${name}&am=${amount}&cu=INR&tn=${transactionNote}`;
+
+            if (appName === 'gpay') {
+                upiUri = `intent://pay?pa=${MERCHANT_UPI_ID}&pn=${name}&am=${amount}&cu=INR&tn=${transactionNote}#Intent;scheme=upi;package=com.google.android.apps.n2p;end`;
+            } else if (appName === 'phonepe') {
+                upiUri = `intent://pay?pa=${MERCHANT_UPI_ID}&pn=${name}&am=${amount}&cu=INR&tn=${transactionNote}#Intent;scheme=upi;package=com.phonepe.app;end`;
+            } else if (appName === 'paytm') {
+                upiUri = `intent://pay?pa=${MERCHANT_UPI_ID}&pn=${name}&am=${amount}&cu=INR&tn=${transactionNote}#Intent;scheme=upi;package=net.one97.paytm;end`;
+            }
+
+            window.location.href = upiUri;
+
+            setTimeout(() => {
+                if (confirm("Did you complete the payment inside your UPI app?")) {
+                    showOrderSuccess(generatedOrderId, appUsedUpper);
+                }
+            }, 3000);
+        }
+
+        // 6. Submit Action
+        function processOrder() {
+            if (!validateAddressForm()) return;
+            payViaUPI('bhim');
+        }
+
+        // 7. Confirmation Receipt Modal
+        function showOrderSuccess(orderId, appUsed) {
+            document.getElementById('modal-order-id').textContent = orderId;
+            document.getElementById('modal-book-title').textContent = currentBook.title;
+            document.getElementById('modal-amount').textContent = `₹${currentBook.price}`;
+            document.getElementById('modal-payment-mode').textContent = `UPI (${appUsed})`;
+
+            document.getElementById('success-modal').classList.add('active');
+        }
+    </script>
+</body>
+</html>

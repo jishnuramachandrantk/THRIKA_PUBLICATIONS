@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thrika Publications | Buy Malayalam Books Online</title>
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            /* Official Thrika Publications Emerald & Gold Color Palette */
+            --emerald-deep: #062c22;
+            --emerald-main: #0b3c2f;
+            --emerald-mid: #145343;
+            --emerald-soft: #f1f8f5;
+            --emerald-tint: #e3efe9;
+            --gold-accent: #d4af37;
+            --gold-light: #fef3c7;
+            --gold-hover: #b89428;
+            
+            --text-dark: #0a221b;
+            --text-muted: #526f65;
+            --border-light: #d0e1d9;
+            --card-bg: #ffffff;
+            --shadow-soft: 0 10px 30px rgba(6, 44, 34, 0.06);
+            --shadow-hover: 0 18px 40px rgba(6, 44, 34, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--emerald-soft);
+            color: var(--text-dark);
+            line-height: 1.5;
+        }
+
+        /* Top Bar Announcement */
+        .top-bar {
+            background-color: var(--emerald-deep);
+            color: #ffffff;
+            font-size: 0.82rem;
+            text-align: center;
+            padding: 9px 15px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .top-bar i {
+            color: var(--gold-accent);
+        }
+
+        /* Navigation Header */
+        header {
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-light);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+
+        .nav-container {
+            max-width: 1240px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+        }
+
+        .brand-logo {
+            font-size: 1.55rem;
+            font-weight: 800;
+            color: var(--emerald-main);
+            text-decoration: none;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-logo span {
+            color: var(--gold-accent);
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+        }
+
+        .search-box {
+            display: flex;
+            flex: 1;
+            max-width: 480px;
+            margin: 0 30px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 18px 10px 42px;
+            border-radius: 50px;
+            border: 1px solid var(--border-light);
+            outline: none;
+            font-size: 0.88rem;
+            background: var(--emerald-soft);
+            color: var(--text-dark);
+            transition: all 0.25s ease;
+        }
+
+        .search-box input:focus {
+            background: #ffffff;
+            border-color: var(--emerald-mid);
+            box-shadow: 0 0 0 3px rgba(20, 83, 67, 0.12);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-link {
+            color: var(--emerald-main);
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: color 0.2s;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        .nav-link:hover {
+            color: var(--gold-accent);
+        }
+
+        .nav-track-btn {
+            background: var(--emerald-soft);
+            color: var(--emerald-main);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--border-light);
+            font-weight: 700;
+        }
+
+        .nav-track-btn:hover {
+            background: var(--emerald-main);
+            color: #ffffff;
+            border-color: var(--emerald-main);
+        }
+
+        .cart-trigger-btn {
+            position: relative;
+            background: var(--emerald-deep);
+            color: #ffffff;
+            border: 1px solid var(--gold-accent);
+            padding: 9px 18px;
+            border-radius: 30px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cart-trigger-btn:hover {
+            background: var(--emerald-main);
+            transform: translateY(-1px);
+        }
+
+        .cart-badge {
+            background: var(--gold-accent);
+            color: var(--emerald-deep);
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 12px;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        /* Category Scroll Bar */
+        .category-scroll {
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-light);
+            padding: 12px 0;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .category-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-scroll-inner {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            gap: 10px;
+            white-space: nowrap;
+        }
+
+        .tag-pill {
+            display: inline-block;
+            padding: 7px 18px;
+            background: var(--emerald-soft);
+            border: 1px solid var(--border-light);
+            border-radius: 30px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--emerald-main);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .tag-pill:hover, .tag-pill.active {
+            background: var(--emerald-main);
+            color: #ffffff;
+            border-color: var(--emerald-main);
+        }
+
+        /* Hero Spotlight Banner */
+        .hero-banner {
+            max-width: 1240px;
+            margin: 28px auto 10px;
+            padding: 0 20px;
+        }
+
+        .hero-card {
+            background: linear-gradient(135deg, var(--emerald-deep) 0%, var(--emerald-main) 100%);
+            border-radius: 20px;
+            color: #ffffff;
+            padding: 45px 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 30px;
+            box-shadow: var(--shadow-soft);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(212, 175, 55, 0.25);
+        }
+
+        .hero-card::after {
+            content: '';
+            position: absolute;
+            right: -50px;
+            bottom: -50px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(212,175,55,0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-text {
+            max-width: 650px;
+            z-index: 2;
+        }
+
+        .badge-pill {
+            background: var(--gold-accent);
+            color: var(--emerald-deep);
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 5px 14px;
+            border-radius: 30px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            margin-bottom: 14px;
+        }
+
+        .hero-text h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.3rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.25;
+            color: #ffffff;
+        }
+
+        .hero-text p {
+            color: var(--emerald-tint);
+            font-size: 0.98rem;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .btn-gold {
+            background: var(--gold-accent);
+            color: var(--emerald-deep);
+            padding: 12px 28px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-gold:hover {
+            background: #e6bf3c;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        /* Section Containers */
+        .section-container {
+            max-width: 1240px;
+            margin: 42px auto;
+            padding: 0 20px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+            border-bottom: 2px solid var(--border-light);
+            padding-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--emerald-deep);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--gold-accent);
+            font-size: 1.1rem;
+        }
+
+        /* ========================================================
+           CORRECTED CARD & ADD-TO-CART ALIGNMENT
+           ======================================================== */
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
+            gap: 24px;
+        }
+
+        .book-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 14px;
+            position: relative;
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--gold-accent);
+        }
+
+        /* Scoped image frame keeping badges inside without blocking covers */
+        .book-cover-wrap {
+            position: relative;
+            width: 100%;
+            height: 260px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 12px;
+            background: #fafcfb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-light);
+        }
+
+        .book-cover {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 6px;
+            transition: transform 0.3s ease;
+        }
+
+        .book-card:hover .book-cover {
+            transform: scale(1.02);
+        }
+
+        /* Clean % OFF discount ribbon */
+        .discount-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: var(--emerald-deep);
+            color: var(--gold-accent);
+            font-size: 0.70rem;
+            font-weight: 800;
+            padding: 4px 8px;
+            border-radius: 6px;
+            z-index: 2;
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        .fav-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            z-index: 2;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        .fav-btn:hover {
+            color: #dc2626;
+            background: #fef2f2;
+            border-color: #fca5a5;
+        }
+
+        /* Stock Status Indicator */
+        .stock-indicator {
+            font-size: 0.74rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stock-indicator.in-stock { color: #15803d; }
+        .stock-indicator.low-stock { color: #b45309; }
+        .stock-indicator.out-of-stock { color: #dc2626; }
+
+        .stock-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .stock-indicator.in-stock .stock-dot { background: #22c55e; }
+        .stock-indicator.low-stock .stock-dot { background: #f59e0b; }
+        .stock-indicator.out-of-stock .stock-dot { background: #ef4444; }
+
+        .book-details {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .book-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--emerald-deep);
+            margin-bottom: 4px;
+            line-height: 1.35;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-height: 2.7em;
+        }
+
+        .book-author {
+            font-size: 0.80rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .verified-icon {
+            color: #2563eb;
+            font-size: 0.75rem;
+        }
+
+        /* Perfectly aligned & non-overlapping price + Add to Cart footer */
+        .price-row {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border-light);
+            gap: 8px;
+        }
+
+        .price-group {
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+            white-space: nowrap;
+        }
+
+        .current-price {
+            font-weight: 800;
+            font-size: 1.15rem;
+            color: var(--emerald-deep);
+        }
+
+        .original-price {
+            font-size: 0.80rem;
+            color: var(--text-muted);
+            text-decoration: line-through;
+        }
+
+        .btn-card-action {
+            background: var(--emerald-soft);
+            color: var(--emerald-main);
+            border: 1px solid var(--border-light);
+            padding: 7px 14px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .btn-card-action:hover {
+            background: var(--emerald-main);
+            color: #ffffff;
+            border-color: var(--emerald-main);
+        }
+
+        .btn-card-action.disabled {
+            background: #f1f5f9;
+            color: #94a3b8;
+            border-color: #e2e8f0;
+            pointer-events: none;
+            cursor: not-allowed;
+        }
+
+        .loading-catalog {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        /* Slide-over Cart Drawer */
+        .cart-drawer-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(6, 44, 34, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            z-index: 2100;
+        }
+
+        .cart-drawer-overlay.active { display: block; }
+
+        .cart-drawer {
+            position: fixed;
+            top: 0; right: -420px;
+            width: 100%; max-width: 400px;
+            height: 100%;
+            background: #ffffff;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.2);
+            z-index: 2200;
+            display: flex;
+            flex-direction: column;
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .cart-drawer.active { right: 0; }
+
+        .cart-drawer-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--emerald-soft);
+        }
+
+        .cart-drawer-header h3 {
+            font-size: 1.15rem;
+            color: var(--emerald-deep);
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-close-drawer {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .btn-close-drawer:hover { color: #dc2626; }
+
+        .cart-items-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .cart-item {
+            display: flex;
+            gap: 14px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border-light);
+            position: relative;
+        }
+
+        .cart-item-img {
+            width: 55px;
+            height: 75px;
+            object-fit: contain;
+            background: #f8faf9;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+        }
+
+        .cart-item-details { flex: 1; }
+
+        .cart-item-details h4 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--emerald-deep);
+            margin-bottom: 3px;
+            line-height: 1.3;
+        }
+
+        .cart-item-details p {
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .cart-item-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .qty-controls {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            background: var(--emerald-soft);
+        }
+
+        .qty-btn {
+            background: none;
+            border: none;
+            width: 26px;
+            height: 26px;
+            cursor: pointer;
+            font-weight: 800;
+            color: var(--emerald-deep);
+        }
+
+        .qty-count {
+            font-size: 0.85rem;
+            font-weight: 800;
+            padding: 0 8px;
+        }
+
+        .cart-drawer-footer {
+            padding: 20px;
+            border-top: 1px solid var(--border-light);
+            background: #ffffff;
+        }
+
+        .cart-subtotal-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--emerald-deep);
+            margin-bottom: 16px;
+        }
+
+        .btn-checkout-cart {
+            width: 100%;
+            background: var(--gold-accent);
+            color: var(--emerald-deep);
+            border: none;
+            padding: 14px;
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+            text-decoration: none;
+        }
+
+        .btn-checkout-cart:hover {
+            background: #e6bf3c;
+            transform: translateY(-2px);
+        }
+
+        .empty-cart-msg {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-cart-msg i {
+            font-size: 3rem;
+            color: var(--border-light);
+            margin-bottom: 12px;
+        }
+
+        /* Sell CTA */
+        .sell-banner {
+            max-width: 1240px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .sell-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            padding: 35px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 30px;
+            box-shadow: var(--shadow-soft);
+            border-left: 6px solid var(--emerald-main);
+        }
+
+        .sell-text h3 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--emerald-deep);
+            margin-bottom: 6px;
+        }
+
+        .sell-text p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--emerald-main);
+            border: 2px solid var(--emerald-main);
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-outline:hover {
+            background: var(--emerald-main);
+            color: #ffffff;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--emerald-deep);
+            color: var(--emerald-tint);
+            padding: 60px 0 25px;
+            margin-top: 70px;
+            border-top: 3px solid var(--gold-accent);
+        }
+
+        .footer-grid {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-col h3 {
+            color: #ffffff;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            margin-bottom: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-col h3::after {
+            content: '';
+            display: block;
+            width: 25px;
+            height: 2px;
+            background: var(--gold-accent);
+            margin-left: 6px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 11px;
+        }
+
+        .footer-links a {
+            color: var(--emerald-tint);
+            text-decoration: none;
+            font-size: 0.88rem;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+
+        .footer-links a:hover {
+            color: var(--gold-accent);
+        }
+
+        .contact-info {
+            font-size: 0.88rem;
+            line-height: 1.7;
+        }
+
+        .contact-info p {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .contact-info i {
+            color: var(--gold-accent);
+            margin-top: 4px;
+        }
+
+        .copyright-bar {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 22px 20px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            font-size: 0.82rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .copyright-bar span strong {
+            color: var(--gold-accent);
+        }
+
+        /* Order Tracking Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(6, 44, 34, 0.65);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2500;
+            padding: 20px;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-container {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 520px;
+            width: 100%;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+            border: 1px solid var(--border-light);
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 12px;
+        }
+
+        .modal-header h3 {
+            font-size: 1.25rem;
+            color: var(--emerald-deep);
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-close-x {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .btn-close-x:hover { color: #dc2626; }
+
+        .modal-body {
+            font-size: 0.88rem;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .modal-body p { margin-bottom: 12px; }
+
+        .modal-body h4 {
+            color: var(--emerald-deep);
+            margin: 14px 0 6px;
+            font-size: 0.98rem;
+        }
+
+        .track-search-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .track-search-group input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .track-search-group input:focus { border-color: var(--emerald-mid); }
+
+        .btn-track-submit {
+            background: var(--emerald-main);
+            color: #ffffff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .order-result-card {
+            background: var(--emerald-soft);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 14px;
+            margin-top: 12px;
+        }
+
+        .order-result-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 0.86rem;
+        }
+
+        .badge-status {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+        }
+
+        .badge-status.pending { background: #fef9c3; color: #a16207; }
+        .badge-status.payment_received { background: #e0e7ff; color: #4338ca; }
+        .badge-status.shipped { background: #e0f2fe; color: #0369a1; }
+        .badge-status.delivered { background: #dcfce7; color: #15803d; }
+
+        .pod-box {
+            background: #ffffff;
+            border: 1px dashed var(--emerald-mid);
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--emerald-deep);
+        }
+
+        @media (max-width: 768px) {
+            .nav-container { flex-wrap: wrap; gap: 12px; }
+            .search-box { order: 3; max-width: 100%; margin: 0; }
+            .hero-card { padding: 30px 25px; }
+            .hero-text h2 { font-size: 1.8rem; }
+            .sell-card { flex-direction: column; align-items: flex-start; padding: 25px; }
+            .copyright-bar { flex-direction: column; text-align: center; }
+            .cart-drawer { max-width: 100%; }
+            .book-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+            .book-cover-wrap { height: 200px; }
+            .price-row { flex-direction: column; align-items: stretch; gap: 8px; }
+            .btn-card-action { justify-content: center; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Announcement Bar -->
+    <div class="top-bar">
+        <i class="fa-solid fa-star"></i>
+        <span>Pre-Book Exclusive Titles from Thrika Publications • Special Release Offers Available!</span>
+    </div>
+
+    <!-- Main Navigation Header -->
+    <header>
+        <div class="nav-container">
+            <a href="index.html" class="brand-logo">
+                THRIKA <span>Publications</span>
+            </a>
+            
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="search-input" placeholder="Search by Title, Author, or Category..." onkeyup="filterBooks()">
+            </div>
+
+            <div class="nav-actions">
+                <button class="nav-link nav-track-btn" onclick="openTrackModal()">
+                    <i class="fa-solid fa-truck-fast"></i> Track Order
+                </button>
+                <button class="cart-trigger-btn" onclick="openCartDrawer()">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    <span>Cart</span>
+                    <span class="cart-badge" id="nav-cart-count">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Category Scroll Bar -->
+    <div class="category-scroll">
+        <div class="category-scroll-inner">
+            <span class="tag-pill active" onclick="filterByCategory('All', this)">All Categories</span>
+            <span class="tag-pill" onclick="filterByCategory('Novels', this)">Novels</span>
+            <span class="tag-pill" onclick="filterByCategory('Short Stories', this)">Short Stories</span>
+            <span class="tag-pill" onclick="filterByCategory('Poetry', this)">Poetry</span>
+            <span class="tag-pill" onclick="filterByCategory('Biographies', this)">Biographies</span>
+            <span class="tag-pill" onclick="filterByCategory('History & Culture', this)">History & Culture</span>
+            <span class="tag-pill" onclick="filterByCategory('Children\'s Literature', this)">Children's Literature</span>
+            <span class="tag-pill" onclick="filterByCategory('Self-Help', this)">Self-Help</span>
+            <span class="tag-pill" onclick="filterByCategory('Classics', this)">Classics</span>
+        </div>
+    </div>
+
+    <!-- Hero Spotlight Banner -->
+    <section class="hero-banner">
+        <div class="hero-card">
+            <div class="hero-text">
+                <span class="badge-pill">Exclusive Title</span>
+                <h2>Discover Modern Malayalam Literature</h2>
+                <p>Explore original works, curated novels, and literary masterpieces published directly by Thrika Publications.</p>
+                <a href="#store-catalog" class="btn-gold">Explore Catalog <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Available Titles Grid -->
+    <section class="section-container" id="store-catalog">
+        <div class="section-header">
+            <h2 class="section-title"><i class="fa-solid fa-fire"></i> Available Titles</h2>
+        </div>
+
+        <div class="book-grid" id="book-grid-container">
+            <div class="loading-catalog">
+                <i class="fa-solid fa-spinner fa-spin" style="font-size: 1.8rem; color: var(--emerald-main); margin-bottom: 10px; display: block;"></i>
+                Fetching books directly from Thrika Publications catalog...
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide-over Cart Drawer -->
+    <div class="cart-drawer-overlay" id="cart-drawer-overlay" onclick="closeCartDrawer()"></div>
+    <div class="cart-drawer" id="cart-drawer">
+        <div class="cart-drawer-header">
+            <h3><i class="fa-solid fa-bag-shopping" style="color: var(--gold-accent);"></i> Your Cart</h3>
+            <button class="btn-close-drawer" onclick="closeCartDrawer()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="cart-items-container" id="cart-items-list"></div>
+
+        <div class="cart-drawer-footer" id="cart-drawer-footer">
+            <div class="cart-subtotal-row">
+                <span>Subtotal</span>
+                <span id="cart-subtotal-price">₹0</span>
+            </div>
+            <button class="btn-checkout-cart" onclick="proceedToCheckout()">
+                Proceed to Checkout <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Sell/List Book CTA -->
+    <section class="sell-banner">
+        <div class="sell-card">
+            <div class="sell-text">
+                <h3>Are you an Author or Independent Publisher?</h3>
+                <p>Publish and list your books with Thrika Publications to reach readers across Kerala and India.</p>
+            </div>
+            <a href="#" class="btn-outline">List Your Book Now →</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h3>Thrika Publications</h3>
+                <p style="font-size: 0.88rem; line-height: 1.6; color: var(--emerald-tint);">Connecting passionate readers with contemporary Malayalam stories, poetry, and timeless literary classics across India.</p>
+            </div>
+            <div class="footer-col">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="index.html">About Us</a></li>
+                    <li><a href="#">List Your Book</a></li>
+                    <li><a onclick="openPolicyModal('contact')">Contact Us</a></li>
+                    <li><a onclick="openTrackModal()">Track Order</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Policies</h3>
+                <ul class="footer-links">
+                    <li><a onclick="openPolicyModal('terms')">Terms & Conditions</a></li>
+                    <li><a onclick="openPolicyModal('privacy')">Privacy Policy</a></li>
+                    <li><a onclick="openPolicyModal('shipping')">Shipping Policy</a></li>
+                    <li><a onclick="openPolicyModal('refund')">Return & Refund Policy</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Contact Info</h3>
+                <div class="contact-info">
+                    <p><i class="fa-solid fa-location-dot"></i> Irattamuzhi, Edavannappara, Cheruvayoor PO, Malappuram - 673645</p>
+                    <p><i class="fa-solid fa-envelope"></i> thrikapublications@gmail.com</p>
+                    <p><i class="fa-solid fa-phone"></i> +91 8943650356, +91 8138033530</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="copyright-bar">
+            <span>© 2026 <strong>Thrika Publications</strong>. All Rights Reserved.</span>
+            <span>Crafted for Book Lovers & Literary Enthusiasts</span>
+        </div>
+    </footer>
+
+    <!-- Track Order Modal -->
+    <div class="modal-overlay" id="track-modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-box-open" style="color: var(--gold-accent);"></i> Track Your Order</h3>
+                <button class="btn-close-x" onclick="closeTrackModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <p>Enter the <strong>Mobile Number</strong> used while placing the order to view shipping status and POD / tracking number.</p>
+                <div class="track-search-group">
+                    <input type="tel" id="track-phone-input" placeholder="Enter 10-digit Phone Number..." maxlength="12">
+                    <button class="btn-track-submit" onclick="trackOrderByPhone()">Search</button>
+                </div>
+                <div id="track-results-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Policy Modal -->
+    <div class="modal-overlay" id="policy-modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 id="policy-modal-title">Policy Title</h3>
+                <button class="btn-close-x" onclick="closePolicyModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body" id="policy-modal-content"></div>
+        </div>
+    </div>
+
+    <script>
+        const GOOGLE_SHEET_CATALOG_URL = "https://script.google.com/macros/s/AKfycbzswEvEe8UQRRTIXKmAukCrOLINLtPaMnTHv8tcaHOnYNs8RCaL3yGajFMY_00164Tm/exec";
+
+        const CACHE_KEY = "thrika_catalog_cache";
+        const CACHE_TIME_KEY = "thrika_catalog_timestamp";
+        const CACHE_EXPIRY_MS = 10 * 60 * 1000;
+        const CART_STORAGE_KEY = "thrika_user_cart";
+
+        let allBooks = [];
+        let userCart = JSON.parse(localStorage.getItem(CART_STORAGE_KEY)) || [];
+
+        function syncCart() {
+            localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(userCart));
+            updateCartBadge();
+            renderCartDrawer();
+        }
+
+        function updateCartBadge() {
+            const count = userCart.reduce((sum, item) => sum + item.quantity, 0);
+            const badge = document.getElementById('nav-cart-count');
+            if (badge) badge.textContent = count;
+        }
+
+        // 1. Fetch Store Catalog with Caching
+        function fetchStoreCatalog() {
+            const grid = document.getElementById('book-grid-container');
+            const cachedData = localStorage.getItem(CACHE_KEY);
+            const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
+            const now = Date.now();
+
+            let hasValidCache = false;
+
+            if (cachedData && cachedTime && (now - parseInt(cachedTime, 10) < CACHE_EXPIRY_MS)) {
+                try {
+                    const parsed = JSON.parse(cachedData);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        allBooks = parsed;
+                        renderBooks(allBooks);
+                        hasValidCache = true;
+                    }
+                } catch (e) {}
+            }
+
+            fetch(GOOGLE_SHEET_CATALOG_URL)
+                .then(res => res.json())
+                .then(freshData => {
+                    if (Array.isArray(freshData) && freshData.length > 0) {
+                        const isIdentical = hasValidCache && (JSON.stringify(freshData) === cachedData);
+                        localStorage.setItem(CACHE_KEY, JSON.stringify(freshData));
+                        localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+
+                        if (!isIdentical) {
+                            allBooks = freshData;
+                            renderBooks(allBooks);
+                        }
+                    } else if (!hasValidCache) {
+                        grid.innerHTML = `<div class="loading-catalog">No books currently available in catalog.</div>`;
+                    }
+                })
+                .catch(err => {
+                    console.error("Error loading catalog:", err);
+                    if (!hasValidCache) {
+                        grid.innerHTML = `<div class="loading-catalog" style="color: #dc2626;">Unable to load catalog from Google Sheets.</div>`;
+                    }
+                });
+        }
+
+        // Formats raw numbers like '10' or '25' into '10% OFF'
+        function formatDiscountLabel(val) {
+            if (!val || val === 'None' || val === 'N/A' || val === '') return null;
+            const str = val.toString().trim();
+            if (/^\d+$/.test(str)) return str + '% OFF';
+            return str;
+        }
+
+        // 2. Render Cards with Clean Alignment
+        function renderBooks(books) {
+            const grid = document.getElementById('book-grid-container');
+            grid.innerHTML = '';
+
+            if (books.length === 0) {
+                grid.innerHTML = `<div class="loading-catalog">No books match your criteria.</div>`;
+                return;
+            }
+
+            books.forEach((book, index) => {
+                const title = book.title || 'Untitled Book';
+                const author = book.author || 'Unknown Author';
+                const price = parseFloat(book.price) || 0;
+                const origPrice = book.originalPrice && book.originalPrice !== 'N/A' && book.originalPrice !== '' ? book.originalPrice : null;
+                const discountText = formatDiscountLabel(book.discount);
+                const image = book.image || 'https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Cover';
+                const stock = parseInt(book.stock, 10) || 0;
+
+                let stockHtml = '';
+                let isOutOfStock = false;
+                if (stock <= 0) {
+                    stockHtml = `<div class="stock-indicator out-of-stock"><span class="stock-dot"></span> Out of Stock</div>`;
+                    isOutOfStock = true;
+                } else if (stock <= 5) {
+                    stockHtml = `<div class="stock-indicator low-stock"><span class="stock-dot"></span> Only ${stock} left!</div>`;
+                } else {
+                    stockHtml = `<div class="stock-indicator in-stock"><span class="stock-dot"></span> In Stock (${stock} copies)</div>`;
+                }
+
+                const card = document.createElement('div');
+                card.className = 'book-card';
+                card.innerHTML = `
+                    <div class="book-cover-wrap">
+                        ${discountText ? `<span class="discount-badge">${discountText}</span>` : ''}
+                        <button class="fav-btn" title="Add to Favourites"><i class="fa-regular fa-heart"></i></button>
+                        <img src="${image}" alt="${title}" class="book-cover" onerror="this.src='https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Cover'">
+                    </div>
+                    
+                    <div class="book-details">
+                        ${stockHtml}
+                        <h3 class="book-title" title="${title}">${title}</h3>
+                        <p class="book-author"><i class="fa-solid fa-circle-check verified-icon"></i> ${author}</p>
+                    </div>
+
+                    <div class="price-row">
+                        <div class="price-group">
+                            <span class="current-price">₹${price}</span>
+                            ${origPrice ? `<span class="original-price">₹${origPrice}</span>` : ''}
+                        </div>
+                        <button class="btn-card-action ${isOutOfStock ? 'disabled' : ''}" onclick="addToCart(${index})">
+                            <i class="fa-solid fa-cart-plus"></i> ${isOutOfStock ? 'Sold Out' : 'Add to Cart'}
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // 3. Cart Logic: Add, Modify Quantity, Remove
+        function addToCart(bookIndex) {
+            const book = allBooks[bookIndex];
+            if (!book) return;
+
+            const existingIndex = userCart.findIndex(item => item.id == book.id || item.title === book.title);
+            const stock = parseInt(book.stock, 10) || 0;
+
+            if (existingIndex > -1) {
+                if (userCart[existingIndex].quantity < stock) {
+                    userCart[existingIndex].quantity += 1;
+                } else {
+                    alert(`Maximum available stock (${stock} copies) reached for this book.`);
+                    return;
+                }
+            } else {
+                userCart.push({
+                    id: book.id || 'book_' + Date.now(),
+                    title: book.title,
+                    author: book.author,
+                    price: parseFloat(book.price) || 0,
+                    image: book.image,
+                    maxStock: stock,
+                    quantity: 1
+                });
+            }
+
+            syncCart();
+            openCartDrawer();
+        }
+
+        function changeCartQty(cartIndex, change) {
+            const item = userCart[cartIndex];
+            if (!item) return;
+
+            const newQty = item.quantity + change;
+            if (newQty <= 0) {
+                userCart.splice(cartIndex, 1);
+            } else if (newQty > item.maxStock) {
+                alert(`Cannot add more than ${item.maxStock} copies of this book.`);
+                return;
+            } else {
+                item.quantity = newQty;
+            }
+
+            syncCart();
+        }
+
+        function removeCartItem(cartIndex) {
+            userCart.splice(cartIndex, 1);
+            syncCart();
+        }
+
+        function renderCartDrawer() {
+            const list = document.getElementById('cart-items-list');
+            const footer = document.getElementById('cart-drawer-footer');
+            const subtotalEl = document.getElementById('cart-subtotal-price');
+
+            if (userCart.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-cart-msg">
+                        <i class="fa-solid fa-basket-shopping"></i>
+                        <h4 style="color: var(--emerald-deep); margin-bottom: 6px;">Your cart is empty</h4>
+                        <p style="font-size: 0.85rem;">Discover our latest Malayalam titles and add them here!</p>
+                    </div>
+                `;
+                footer.style.display = 'none';
+                return;
+            }
+
+            footer.style.display = 'block';
+            let subtotal = 0;
+
+            list.innerHTML = userCart.map((item, idx) => {
+                const totalItemPrice = item.price * item.quantity;
+                subtotal += totalItemPrice;
+
+                return `
+                    <div class="cart-item">
+                        <img src="${item.image || 'https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Cover'}" class="cart-item-img">
+                        <div class="cart-item-details">
+                            <h4>${item.title}</h4>
+                            <p>${item.author} • ₹${item.price} each</p>
+                            <div class="cart-item-bottom">
+                                <div class="qty-controls">
+                                    <button class="qty-btn" onclick="changeCartQty(${idx}, -1)">-</button>
+                                    <span class="qty-count">${item.quantity}</span>
+                                    <button class="qty-btn" onclick="changeCartQty(${idx}, 1)">+</button>
+                                </div>
+                                <span style="font-weight: 800; color: var(--emerald-main);">₹${totalItemPrice}</span>
+                            </div>
+                        </div>
+                        <button onclick="removeCartItem(${idx})" style="background:none; border:none; color: #94a3b8; cursor:pointer; font-size:0.85rem;" title="Remove Item"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                `;
+            }).join('');
+
+            subtotalEl.textContent = `₹${subtotal}`;
+        }
+
+        function openCartDrawer() {
+            renderCartDrawer();
+            document.getElementById('cart-drawer').classList.add('active');
+            document.getElementById('cart-drawer-overlay').classList.add('active');
+        }
+
+        function closeCartDrawer() {
+            document.getElementById('cart-drawer').classList.remove('active');
+            document.getElementById('cart-drawer-overlay').classList.remove('active');
+        }
+
+        function proceedToCheckout() {
+            if (userCart.length === 0) return;
+
+            const primaryBook = userCart[0];
+            const isSingle = userCart.length === 1 && primaryBook.quantity === 1;
+
+            const summarizedTitle = isSingle 
+                ? primaryBook.title 
+                : `${primaryBook.title} (${primaryBook.quantity}) + ${userCart.length - 1} more`;
+
+            const totalAmount = userCart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+
+            localStorage.setItem('thrika_checkout_cart', JSON.stringify(userCart));
+
+            const checkoutUrl = `order-confirmation.html?title=${encodeURIComponent(summarizedTitle)}&author=${encodeURIComponent(primaryBook.author)}&price=${encodeURIComponent(totalAmount)}&image=${encodeURIComponent(primaryBook.image)}`;
+
+            window.location.href = checkoutUrl;
+        }
+
+        // 4. Search Filter
+        function filterBooks() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = allBooks.filter(book => 
+                (book.title && book.title.toLowerCase().includes(query)) ||
+                (book.author && book.author.toLowerCase().includes(query)) ||
+                (book.category && book.category.toLowerCase().includes(query))
+            );
+            renderBooks(filtered);
+        }
+
+        // 5. Category Filter
+        function filterByCategory(category, element) {
+            document.querySelectorAll('.tag-pill').forEach(pill => pill.classList.remove('active'));
+            if (element) element.classList.add('active');
+
+            if (category === 'All') {
+                renderBooks(allBooks);
+            } else {
+                const filtered = allBooks.filter(book => 
+                    book.category && book.category.toLowerCase() === category.toLowerCase()
+                );
+                renderBooks(filtered);
+            }
+        }
+
+        // 6. Track Order Functions
+        function openTrackModal() {
+            document.getElementById('track-modal').classList.add('active');
+            document.getElementById('track-results-container').innerHTML = '';
+            document.getElementById('track-phone-input').value = '';
+        }
+
+        function closeTrackModal() {
+            document.getElementById('track-modal').classList.remove('active');
+        }
+
+        function trackOrderByPhone() {
+            const phone = document.getElementById('track-phone-input').value.trim();
+            const results = document.getElementById('track-results-container');
+
+            if (!phone || phone.length < 10) {
+                results.innerHTML = `<div style="color: #dc2626; font-size: 0.85rem; padding: 8px 0;">Please enter a valid 10-digit mobile number.</div>`;
+                return;
+            }
+
+            results.innerHTML = `<div style="text-align:center; padding: 15px; color: var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Checking live orders...</div>`;
+
+            fetch(`${GOOGLE_SHEET_CATALOG_URL}?type=orders`)
+                .then(res => res.json())
+                .then(orders => {
+                    if (!Array.isArray(orders) || orders.length === 0) {
+                        results.innerHTML = `<div style="color: var(--text-muted); padding: 10px 0;">No orders found in database.</div>`;
+                        return;
+                    }
+
+                    const cleanPhone = phone.replace(/[^0-9]/g, '');
+                    const matched = orders.filter(o => {
+                        const orderPhone = (o.phone || '').toString().replace(/[^0-9]/g, '');
+                        return orderPhone.endsWith(cleanPhone) || cleanPhone.endsWith(orderPhone);
+                    });
+
+                    if (matched.length === 0) {
+                        results.innerHTML = `<div style="color: #dc2626; font-size: 0.88rem; padding: 12px 0;">No active orders found for <strong>${phone}</strong>.</div>`;
+                        return;
+                    }
+
+                    results.innerHTML = matched.map(order => {
+                        const status = (order.status || 'pending').toLowerCase();
+                        const pod = order.pod || '';
+
+                        return `
+                            <div class="order-result-card">
+                                <div class="order-result-row">
+                                    <strong>${order.id || '#THK-ORDER'}</strong>
+                                    <span class="badge-status ${status}">${status}</span>
+                                </div>
+                                <div class="order-result-row" style="color: var(--text-muted);">
+                                    <span>Book: ${order.book || 'N/A'}</span>
+                                    <span>₹${order.amount || 0}</span>
+                                </div>
+                                ${pod ? `
+                                    <div class="pod-box">
+                                        <span><i class="fa-solid fa-truck-fast"></i> POD / Tracking: ${pod}</span>
+                                        <button onclick="navigator.clipboard.writeText('${pod}'); alert('Tracking number copied!');" style="background: none; border: none; color: var(--emerald-main); cursor: pointer;"><i class="fa-regular fa-copy"></i></button>
+                                    </div>
+                                ` : `
+                                    <div style="font-size: 0.78rem; color: #a16207; margin-top: 6px;">
+                                        <i class="fa-solid fa-clock"></i> POD will be updated once shipped.
+                                    </div>
+                                `}
+                            </div>
+                        `;
+                    }).join('');
+                })
+                .catch(() => {
+                    results.innerHTML = `<div style="color: #dc2626; padding: 10px 0;">Failed to check orders. Please try again.</div>`;
+                });
+        }
+
+        // 7. Policy Modals
+        const POLICIES_CONTENT = {
+            terms: {
+                title: "Terms & Conditions",
+                html: `<p>All orders placed via Thrika Publications website are acknowledged immediately and dispatched via standard registered post or parcel after payment receipt.</p>`
+            },
+            privacy: {
+                title: "Privacy Policy",
+                html: `<p>Your delivery address and phone number are used strictly to ship your book orders. Financial details are securely processed via Razorpay.</p>`
+            },
+            shipping: {
+                title: "Shipping Policy",
+                html: `<p>Orders within Kerala are delivered in 2–4 business days. Outside Kerala takes 4–7 business days via India Post or DTDC.</p>`
+            },
+            refund: {
+                title: "Return & Refund Policy",
+                html: `<p>Damaged copies are eligible for free 100% replacement upon reporting to thrikapublications@gmail.com within 48 hours of delivery.</p>`
+            },
+            contact: {
+                title: "Contact Us",
+                html: `<p><strong>Thrika Publications</strong><br>Irattamuzhi, Edavannappara, Cheruvayoor PO, Malappuram, Kerala - 673645<br>Phone: +91 8943650356, +91 8138033530<br>Email: thrikapublications@gmail.com</p>`
+            }
+        };
+
+        function openPolicyModal(type) {
+            const policy = POLICIES_CONTENT[type];
+            if (!policy) return;
+            document.getElementById('policy-modal-title').textContent = policy.title;
+            document.getElementById('policy-modal-content').innerHTML = policy.html;
+            document.getElementById('policy-modal').classList.add('active');
+        }
+
+        function closePolicyModal() {
+            document.getElementById('policy-modal').classList.remove('active');
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            updateCartBadge();
+            fetchStoreCatalog();
+        });
+    </script>
+</body>
+</html>
