@@ -372,6 +372,18 @@
             gap: 24px;
         }
 
+        .loading-catalog {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            font-weight: 600;
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px dashed var(--border-light);
+        }
+
         .book-card {
             background: var(--card-bg);
             border: 1px solid var(--border-light);
@@ -1280,7 +1292,6 @@
 
         const CACHE_KEY = "thrika_catalog_cache";
         const CACHE_TIME_KEY = "thrika_catalog_timestamp";
-        const CACHE_EXPIRY_MS = 60 * 60 * 1000; // 1 hour client cache
         const CART_STORAGE_KEY = "thrika_user_cart";
 
         let allBooks = [];
@@ -1299,16 +1310,13 @@
         }
 
         // ========================================================
-        // HIGH-SPEED STALE-WHILE-REVALIDATE CATALOG FETCH
+        // LIVE CATALOG FETCH WITH INSTANT CACHE + BACKGROUND SYNC
         // ========================================================
         function fetchStoreCatalog() {
             const cachedData = localStorage.getItem(CACHE_KEY);
-            const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
-            const now = Date.now();
-
             let hasRenderedFromCache = false;
 
-            // 1. FAST PATH: Display cached books immediately (0ms delay)
+            // 1. FAST PATH: Display cached books immediately if available
             if (cachedData) {
                 try {
                     const parsed = JSON.parse(cachedData);
@@ -1317,38 +1325,44 @@
                         renderBooks(allBooks);
                         hasRenderedFromCache = true;
                     }
-                } catch (e) {}
+                } catch (e) {
+                    console.error("Cache parse error:", e);
+                }
             }
 
-            // Skip background network re-fetch if cache is fresh (less than 15 mins)
-            if (hasRenderedFromCache && cachedTime && (now - parseInt(cachedTime, 10) < 15 * 60 * 1000)) {
-                return;
-            }
+            // 2. ALWAYS FETCH LIVE DATA FROM GOOGLE APPS SCRIPT
+            // Cache-busting parameter (?t=...) prevents browser/CDN HTTP caching
+            const fetchUrl = `${GOOGLE_SHEET_CATALOG_URL}${GOOGLE_SHEET_CATALOG_URL.includes('?') ? '&' : '?'}t=${Date.now()}`;
 
-            // 2. BACKGROUND REVALIDATION: Silently update from Google Sheets
-            fetch(GOOGLE_SHEET_CATALOG_URL)
+            fetch(fetchUrl)
                 .then(res => res.json())
                 .then(freshData => {
-                    if (Array.isArray(freshData) && freshData.length > 0) {
-                        const stringifiedFresh = JSON.stringify(freshData);
-                        const isIdentical = (stringifiedFresh === cachedData);
+                    if (Array.isArray(freshData)) {
+                        // Filter out empty rows where title is missing
+                        const validBooks = freshData.filter(b => b && b.title && b.title.toString().trim() !== '');
 
-                        localStorage.setItem(CACHE_KEY, stringifiedFresh);
+                        // Update in-memory state and localStorage
+                        allBooks = validBooks;
+                        localStorage.setItem(CACHE_KEY, JSON.stringify(validBooks));
                         localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
 
-                        // Update view only if book data or stock changed
-                        if (!isIdentical || !hasRenderedFromCache) {
-                            allBooks = freshData;
-                            renderBooks(allBooks);
+                        // Immediately re-render with fresh data (or show empty state if sheet is empty)
+                        renderBooks(allBooks);
+                    } else {
+                        // Non-array response or error from sheet
+                        if (!hasRenderedFromCache) {
+                            renderBooks([]);
                         }
-                    } else if (!hasRenderedFromCache) {
-                        document.getElementById('book-grid-container').innerHTML = `<div class="loading-catalog">No books currently available in catalog.</div>`;
                     }
                 })
                 .catch(err => {
                     console.warn("Background catalog refresh failed:", err);
                     if (!hasRenderedFromCache) {
-                        document.getElementById('book-grid-container').innerHTML = `<div class="loading-catalog" style="color: #dc2626;">Unable to load catalog from Google Sheets.</div>`;
+                        document.getElementById('book-grid-container').innerHTML = `
+                            <div class="loading-catalog" style="color: #dc2626;">
+                                <i class="fa-solid fa-triangle-exclamation" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                                Unable to load catalog from Google Sheets. Please check your connection.
+                            </div>`;
                     }
                 });
         }
@@ -1365,7 +1379,11 @@
             const grid = document.getElementById('book-grid-container');
 
             if (!books || books.length === 0) {
-                grid.innerHTML = `<div class="loading-catalog">No books match your criteria.</div>`;
+                grid.innerHTML = `
+                    <div class="loading-catalog">
+                        <i class="fa-solid fa-book-open" style="font-size: 2.5rem; color: var(--border-light); margin-bottom: 12px; display: block;"></i>
+                        No books currently available in the catalog.
+                    </div>`;
                 return;
             }
 
@@ -1588,7 +1606,7 @@
 
             results.innerHTML = `<div style="text-align:center; padding: 15px; color: var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Checking live orders...</div>`;
 
-            fetch(`${GOOGLE_SHEET_CATALOG_URL}?type=orders`)
+            fetch(`${GOOGLE_SHEET_CATALOG_URL}?type=orders&t=${Date.now()}`)
                 .then(res => res.json())
                 .then(orders => {
                     if (!Array.isArray(orders) || orders.length === 0) {
