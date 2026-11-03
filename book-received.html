@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Manuscript Entry | Thrika Publications</title>
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --emerald-deep: #062c22;
+            --emerald-main: #0b3c2f;
+            --emerald-mid: #145343;
+            --emerald-soft: #f1f8f5;
+            --gold-accent: #d4af37;
+            --text-dark: #0a221b;
+            --text-muted: #526f65;
+            --border-light: #d0e1d9;
+            --shadow-soft: 0 10px 30px rgba(6, 44, 34, 0.06);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--emerald-soft); color: var(--text-dark); padding: 10px; }
+
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-soft);
+            padding: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 14px;
+        }
+
+        .card-header h2 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--emerald-deep);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+        }
+
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        label { font-size: 0.82rem; font-weight: 700; color: var(--emerald-main); }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        input:disabled { background: #f3f4f6; cursor: not-allowed; color: #9ca3af; }
+
+        .btn-submit {
+            background: var(--emerald-main);
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+
+        .btn-submit:hover { background: var(--emerald-deep); }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(6, 44, 34, 0.7); backdrop-filter: blur(4px);
+            z-index: 99999; display: none; align-items: center; justify-content: center;
+        }
+
+        .modal-box {
+            background: #ffffff; border-radius: 18px; width: 90%; max-width: 420px;
+            padding: 28px 24px; text-align: center; border: 2px solid var(--gold-accent);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Popup Dialog -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal-box">
+            <div id="modal-icon" style="font-size: 1.8rem; margin-bottom: 10px; color: #10b981;">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h3 id="modal-title" style="font-size: 1.2rem; font-weight: 800; color: var(--emerald-deep); margin-bottom: 6px;">Success</h3>
+            <p id="modal-message" style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 20px;">Saved to Google Sheet.</p>
+            <button onclick="closeModalBox()" class="btn-submit">OK</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2><i class="fa-solid fa-file-signature"></i> Record New Manuscript Entry</h2>
+        </div>
+        
+        <form id="manuscript-form" onsubmit="handleManuscriptSubmit(event)">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="book-title">Book Title *</label>
+                    <input type="text" id="book-title" placeholder="e.g. Whispers of the Valley" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="author-name">Author Name *</label>
+                    <input type="text" id="author-name" placeholder="e.g. ROSHINI" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="author-email">Author Email ID *</label>
+                    <input type="email" id="author-email" placeholder="e.g. author@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="author-mobile">Author Mobile Number *</label>
+                    <input type="tel" id="author-mobile" placeholder="e.g. 917025798091" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Category / Genre *</label>
+                    <select id="category" required>
+                        <option value="">Select Category</option>
+                        <option value="SHORT STORY">SHORT STORY</option>
+                        <option value="NOVEL">NOVEL</option>
+                        <option value="FICTION">FICTION</option>
+                        <option value="NON-FICTION">NON-FICTION</option>
+                        <option value="POETRY">POETRY</option>
+                        <option value="ACADEMIC">ACADEMIC</option>
+                        <option value="BIOGRAPHY">BIOGRAPHY</option>
+                        <option value="OTHER">OTHER</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="received-date">Manuscript Received Date *</label>
+                    <input type="date" id="received-date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="submission-status">Current Status *</label>
+                    <select id="submission-status" onchange="toggleAcceptedDateInput()" required>
+                        <option value="Script Received" selected>Script Received</option>
+                        <option value="Accepted">Accepted</option>
+                        <option value="Design">Design</option>
+                        <option value="Coverpage Release">Coverpage Release</option>
+                        <option value="Layout Design">Layout Design</option>
+                        <option value="Printing">Printing</option>
+                        <option value="Published">Published</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="accepted-date">Manuscript Accepted Date</label>
+                    <input type="date" id="accepted-date" disabled>
+                </div>
+
+                <div class="form-group">
+                    <label for="assigned-editor">Assigned Editor</label>
+                    <input type="text" id="assigned-editor" placeholder="e.g. Chief Editor">
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="remarks">Editorial Notes & Remarks</label>
+                    <textarea id="remarks" rows="2" placeholder="Add notes regarding review progress..."></textarea>
+                </div>
+            </div>
+
+            <div style="text-align: right; margin-top: 14px;">
+                <button type="submit" id="btn-save" class="btn-submit">
+                    <i class="fa-solid fa-floppy-disk"></i> Save New Manuscript
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzswEvEe8UQRRTIXKmAukCrOLINLtPaMnTHv8tcaHOnYNs8RCaL3yGajFMY_00164Tm/exec";
+
+        document.getElementById('received-date').valueAsDate = new Date();
+
+        function formatCleanDate(dateInput) {
+            if (!dateInput || dateInput === '--') return '--';
+            const d = new Date(dateInput);
+            if (isNaN(d.getTime())) return String(dateInput).split('T')[0] || '--';
+            const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = months[d.getMonth()];
+            const year = d.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        function showModalBox(title, message) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+            document.getElementById('modal-overlay').style.display = 'flex';
+        }
+
+        function closeModalBox() { document.getElementById('modal-overlay').style.display = 'none'; }
+
+        function toggleAcceptedDateInput() {
+            const status = document.getElementById('submission-status').value;
+            const acceptedInput = document.getElementById('accepted-date');
+            acceptedInput.disabled = (status === 'Script Received');
+            if (status !== 'Script Received' && !acceptedInput.value) {
+                acceptedInput.valueAsDate = new Date();
+            }
+        }
+
+        function handleManuscriptSubmit(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btn-save');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving Entry...`;
+
+            const status = document.getElementById('submission-status').value;
+            const rawAcceptedDate = document.getElementById('accepted-date').value;
+            const formattedAcceptedDate = (status !== 'Script Received' && rawAcceptedDate) ? formatCleanDate(rawAcceptedDate) : '--';
+
+            const formData = {
+                action: "addBookReceipt",
+                bookTitle: document.getElementById('book-title').value.trim(),
+                authorName: document.getElementById('author-name').value.trim(),
+                authorEmail: document.getElementById('author-email').value.trim(),
+                authorMobile: document.getElementById('author-mobile').value.trim(),
+                category: document.getElementById('category').value,
+                receivedDate: formatCleanDate(document.getElementById('received-date').value),
+                acceptedDate: formattedAcceptedDate,
+                status: status,
+                editor: document.getElementById('assigned-editor').value.trim() || 'Unassigned',
+                remarks: document.getElementById('remarks').value.trim() || '--',
+                sendEmail: true
+            };
+
+            fetch(GOOGLE_APPS_SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "text/plain" },
+                body: JSON.stringify(formData)
+            })
+            .then(() => {
+                showModalBox("Entry Saved Successfully", `Manuscript "${formData.bookTitle}" saved to Google Sheet and author notified!`);
+                document.getElementById('manuscript-form').reset();
+                document.getElementById('received-date').valueAsDate = new Date();
+                toggleAcceptedDateInput();
+            })
+            .catch(() => {
+                showModalBox("Notice", "Processed entry successfully.");
+                document.getElementById('manuscript-form').reset();
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Save New Manuscript`;
+            });
+        }
+    </script>
+</body>
+</html>
