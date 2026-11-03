@@ -16,6 +16,8 @@
             --border-light: #d0e1d9;
             --text-dark: #0a221b;
             --text-muted: #526f65;
+            --amber-prebook: #d97706;
+            --amber-bg: #fffbeb;
             --shadow-soft: 0 10px 30px rgba(6, 44, 34, 0.06);
         }
         
@@ -100,6 +102,27 @@
             box-shadow: 0 0 0 3px rgba(20, 83, 67, 0.12); 
         }
 
+        /* Pre-Book Box highlight */
+        .prebook-field-highlight {
+            background: var(--amber-bg);
+            border: 1px solid rgba(217, 119, 6, 0.35);
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        .prebook-badge-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--amber-prebook);
+            color: #ffffff;
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-left: 6px;
+        }
+
         /* Image Upload Box Styling */
         .image-upload-wrapper {
             display: flex;
@@ -137,20 +160,20 @@
             gap: 8px; 
             margin-top: 10px; 
             width: 100%; 
-            transition: all 0.2s;
-            box-shadow: 0 4px 14px rgba(11, 60, 47, 0.25);
+            transition: all 0.2s; 
+            box-shadow: 0 4px 14px rgba(11, 60, 47, 0.25); 
         }
 
         .btn-submit:hover { 
             background: var(--emerald-deep); 
-            transform: translateY(-1px);
+            transform: translateY(-1px); 
         }
 
-        .btn-submit:disabled {
-            background: #94a3b8;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
+        .btn-submit:disabled { 
+            background: #94a3b8; 
+            cursor: not-allowed; 
+            transform: none; 
+            box-shadow: none; 
         }
 
         /* Modal Popup Styles */
@@ -253,6 +276,15 @@
         .btn-modal-close:hover {
             background: var(--emerald-deep);
         }
+
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+        }
     </style>
 </head>
 <body>
@@ -303,14 +335,34 @@
                     </select>
                 </div>
 
+                <!-- Pre-Booking Option (Column I: prebook) -->
+                <div class="form-group">
+                    <label for="isPrebookSelect">
+                        Order / Listing Type *
+                        <span class="prebook-badge-tag"><i class="fa-solid fa-bolt"></i> Pre-Book Option</span>
+                    </label>
+                    <select id="isPrebookSelect" onchange="togglePrebookFields()">
+                        <option value="No">Regular Sale (In Stock)</option>
+                        <option value="Yes">Pre-Booking / Pre-Order</option>
+                    </select>
+                </div>
+
+                <!-- Dynamic Pre-Book Release Note / Date -->
+                <div class="form-group full-width prebook-field-highlight" id="prebook-extra-container" style="display: none;">
+                    <label for="releaseDateText" style="color: var(--amber-prebook);">
+                        <i class="fa-solid fa-calendar-days"></i> Expected Dispatch Date / Release Note
+                    </label>
+                    <input type="text" id="releaseDateText" placeholder="e.g. Releases Nov 25 / Pre-Booking Special Edition">
+                </div>
+
                 <!-- Book Count / Stock Quantity -->
                 <div class="form-group">
-                    <label for="bookStock">Total Copies in Stock (Book Count) *</label>
-                    <input type="number" id="bookStock" placeholder="e.g. 50" min="1" value="10" required>
+                    <label for="bookStock">Total Copies in Stock / Pre-Order Slots *</label>
+                    <input type="number" id="bookStock" placeholder="e.g. 50" min="1" value="25" required>
                 </div>
 
                 <!-- Discount Badge (Auto-Calculated, Still Editable) -->
-                <div class="form-group full-width">
+                <div class="form-group">
                     <label for="discountBadge">Discount Badge Text (Auto-Calculated)</label>
                     <input type="text" id="discountBadge" placeholder="e.g. 25% OFF">
                 </div>
@@ -353,7 +405,8 @@
                 <p><strong>Title:</strong> <span id="pop-title">--</span></p>
                 <p><strong>Author:</strong> <span id="pop-author">--</span></p>
                 <p><strong>Price:</strong> ₹<span id="pop-price">0</span></p>
-                <p><strong>Stock Added:</strong> <span id="pop-stock">0</span> copies</p>
+                <p><strong>Type:</strong> <span id="pop-type" style="font-weight: 700; color: var(--emerald-deep);">Regular</span></p>
+                <p><strong>Stock / Slots:</strong> <span id="pop-stock">0</span> copies</p>
             </div>
 
             <button type="button" class="btn-modal-close" onclick="closeSuccessModal()">
@@ -366,6 +419,13 @@
         const GOOGLE_SHEET_CATALOG_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzswEvEe8UQRRTIXKmAukCrOLINLtPaMnTHv8tcaHOnYNs8RCaL3yGajFMY_00164Tm/exec";
 
         let uploadedBase64Image = "";
+
+        // Toggle Pre-book container
+        function togglePrebookFields() {
+            const isPre = document.getElementById('isPrebookSelect').value === 'Yes';
+            const extraContainer = document.getElementById('prebook-extra-container');
+            extraContainer.style.display = isPre ? 'flex' : 'none';
+        }
 
         // Preview selected local image file
         function previewUploadedImage(event) {
@@ -402,11 +462,12 @@
         document.getElementById('originalPrice').addEventListener('input', autoCalculateDiscount);
 
         // Show Success Popup Modal
-        function showSuccessModal(title, author, price, stock) {
+        function showSuccessModal(title, author, price, stock, isPrebookVal) {
             document.getElementById('pop-title').textContent = title;
             document.getElementById('pop-author').textContent = author;
             document.getElementById('pop-price').textContent = price;
             document.getElementById('pop-stock').textContent = stock;
+            document.getElementById('pop-type').textContent = isPrebookVal === 'Yes' ? 'Pre-Order / Pre-Book' : 'Regular Sale';
             document.getElementById('save-success-modal').classList.add('active');
         }
 
@@ -430,6 +491,8 @@
             const category = document.getElementById('category').value;
             const stock = parseInt(document.getElementById('bookStock').value, 10);
             const discount = document.getElementById('discountBadge').value.trim() || null;
+            const prebookVal = document.getElementById('isPrebookSelect').value;
+            const releaseDate = document.getElementById('releaseDateText').value.trim();
             let imageUrl = document.getElementById('coverImage').value.trim();
 
             let finalImage = uploadedBase64Image || imageUrl;
@@ -438,7 +501,10 @@
                 finalImage = `https://via.placeholder.com/200x280/0b3c2f/ffffff?text=${encodedTitle}`;
             }
 
+            // Maps exactly to Google Sheet columns:
+            // A: Date, B: id, C: title, D: author, E: price, F: originalPrice, G: category, H: stock, I: prebook, J: discount, K: image
             const newBook = {
+                Date: new Date().toLocaleDateString('en-GB'),
                 id: Date.now(),
                 title: title,
                 author: author,
@@ -446,6 +512,9 @@
                 originalPrice: originalPrice,
                 category: category,
                 stock: stock,
+                prebook: prebookVal,             // Exactly matches Column I: prebook
+                isPrebook: prebookVal === 'Yes', // Boolean flag for quick catalog matching
+                releaseDate: releaseDate,
                 discount: discount,
                 image: finalImage
             };
@@ -457,12 +526,14 @@
                 body: JSON.stringify(newBook)
             })
             .then(() => {
+                // Clear local catalog cache so the main website fetches the updated catalog immediately
                 localStorage.removeItem('thrika_catalog_cache');
                 localStorage.removeItem('thrika_catalog_timestamp');
 
-                showSuccessModal(title, author, price, stock);
+                showSuccessModal(title, author, price, stock, prebookVal);
 
                 document.getElementById('add-book-form').reset();
+                togglePrebookFields();
                 uploadedBase64Image = "";
                 document.getElementById('image-preview').style.display = "none";
             })
