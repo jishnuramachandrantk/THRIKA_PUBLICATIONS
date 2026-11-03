@@ -129,6 +129,7 @@
             list-style: none;
             padding: 16px 0;
             flex: 1;
+            overflow-y: auto;
         }
 
         .sidebar-menu li a {
@@ -432,6 +433,12 @@
             <li class="active" onclick="navigateTo('dashboard-overview.html', this, 'Dashboard Overview', 'Real-time sales performance and key business metrics')">
                 <a title="Dashboard"><i class="fa-solid fa-chart-line"></i> <span>Dashboard</span></a>
             </li>
+            <li onclick="navigateTo('book-received.html', this, 'Add Manuscript Entry', 'Record new incoming author manuscripts')">
+                <a title="Add Manuscript"><i class="fa-solid fa-file-circle-plus"></i> <span>Add Manuscript</span></a>
+            </li>
+            <li onclick="navigateTo('book-logs.html', this, 'Manuscript & Book Receipt Logs', 'Track, edit status, and view manuscript pipeline milestones')">
+                <a title="Manuscript Logs"><i class="fa-solid fa-book-bookmark"></i> <span>Manuscript Logs</span></a>
+            </li>
             <li onclick="navigateTo('add-book.html', this, 'Add New Book Title', 'Publish a new title directly to your online catalog')">
                 <a title="Add New Book"><i class="fa-solid fa-plus-circle"></i> <span>Add New Book</span></a>
             </li>
@@ -439,7 +446,7 @@
                 <a title="Recent Orders"><i class="fa-solid fa-receipt"></i> <span>Recent Orders</span></a>
             </li>
             <li onclick="navigateTo('inventory-catalog.html', this, 'Inventory & Catalog Manager', 'View, filter, or remove books from your live inventory')">
-                <a title="Managed Inventory"><i class="fa-solid fa-book-bookmark"></i> <span>Managed Inventory</span></a>
+                <a title="Managed Inventory"><i class="fa-solid fa-boxes-stacked"></i> <span>Managed Inventory</span></a>
             </li>
             <li onclick="navigateTo('delivery_charge.html', this, 'State Delivery Charges', 'Configure shipping fees per state and regional zones')">
                 <a title="Delivery Charges"><i class="fa-solid fa-truck-fast"></i> <span>Delivery Charges</span></a>
