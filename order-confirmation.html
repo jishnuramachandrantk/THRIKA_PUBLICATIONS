@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Checkout & Payment | Thrika Publications</title>
     <!-- Google Fonts & Font Awesome Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -40,6 +40,7 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -142,6 +143,7 @@
             max-height: 380px;
             overflow-y: auto;
             padding-right: 4px;
+            -webkit-overflow-scrolling: touch;
         }
 
         .order-item-row {
@@ -256,11 +258,11 @@
 
         .form-group input, .form-group select {
             width: 100%;
-            padding: 10px 14px;
+            padding: 12px 14px;
             border-radius: 8px;
             border: 1px solid var(--border-light);
             outline: none;
-            font-size: 0.88rem;
+            font-size: 0.92rem;
             background: #ffffff;
             transition: all 0.25s ease;
         }
@@ -374,6 +376,7 @@
             transition: all 0.25s ease;
             box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
             margin-top: 20px;
+            touch-action: manipulation;
         }
 
         .btn-pay-now:hover {
@@ -636,6 +639,8 @@
         @media (max-width: 768px) {
             .checkout-container {
                 grid-template-columns: 1fr;
+                margin: 16px auto;
+                padding: 0 14px;
             }
             .form-grid {
                 grid-template-columns: 1fr;
@@ -645,6 +650,9 @@
             }
             .policy-links-grid {
                 grid-template-columns: 1fr;
+            }
+            .order-summary-card {
+                position: static;
             }
         }
     </style>
@@ -874,9 +882,7 @@
         const THRIKA_OFFICIAL_WHATSAPP = "918943650356";
         const MERCHANT_LOGO_URL = "https://via.placeholder.com/150/0b3c2f/ffffff?text=Thrika";
 
-        // Dynamic Razorpay Key retrieved from Google Sheet AdminAuth
         let liveRazorpayKey = "";
-
         let checkoutCart = [];
         let itemsSubtotal = 0;
         let existingOrders = [];
@@ -884,6 +890,16 @@
         let deliveryRates = null;
         let currentDeliveryCharge = 0;
         let grandTotal = 0;
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.toString()
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
 
         // 1. Fetch Razorpay Key dynamically from Google Sheet
         function fetchLiveRazorpayKey() {
@@ -905,9 +921,8 @@
                     }
                 })
                 .catch(err => {
-                    console.warn("Could not fetch key from paymentConfig, checking fallback:", err);
+                    console.warn("Could not fetch key from paymentConfig:", err);
                     if (!liveRazorpayKey) {
-                        // Fallback: check cached key or alert
                         showKeyError();
                     }
                 });
@@ -928,12 +943,12 @@
 
         function validatePayButtonState() {
             const payBtn = document.getElementById('btn-pay-now');
-            if (deliveryRates !== null && liveRazorpayKey !== "") {
+            if (deliveryRates !== null && liveRazorpayKey !== "" && checkoutCart.length > 0) {
                 payBtn.disabled = false;
             }
         }
 
-        // 2. Fetch Live Orders to calculate sequential ID (Latest + 1)
+        // 2. Fetch Live Orders to calculate sequential ID
         function fetchLiveOrdersForSequence() {
             fetch(`${GOOGLE_SHEET_WEBHOOK_URL}?type=orders&t=${Date.now()}`)
                 .then(res => res.json())
@@ -947,7 +962,6 @@
 
         function getNextSequentialOrderId() {
             let maxNumber = 0;
-
             if (Array.isArray(existingOrders)) {
                 existingOrders.forEach(o => {
                     if (o && o.id) {
@@ -961,12 +975,11 @@
                     }
                 });
             }
-
             const nextNum = maxNumber + 1;
             return `#THK-${String(nextNum).padStart(6, '0')}`;
         }
 
-        // 3. Fetch Live Delivery Settings from Google Sheet Settings tab
+        // 3. Fetch Live Delivery Settings
         function fetchLiveDeliveryRates() {
             const cachedRates = localStorage.getItem('thrika_delivery_rates_cache');
             if (cachedRates) {
@@ -989,7 +1002,7 @@
                     }
                 })
                 .catch(err => {
-                    console.error("Could not load delivery rates from Google Sheets:", err);
+                    console.error("Could not load delivery rates:", err);
                     if (!deliveryRates) {
                         deliveryRates = { "Kerala": 0, "Tamil Nadu": 0, "Karnataka": 0, "Other": 0 };
                         updateDeliveryRate();
@@ -999,7 +1012,6 @@
 
         function updateDeliveryRate() {
             const feeElement = document.getElementById('summary-delivery-fee');
-
             if (!deliveryRates) {
                 feeElement.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Checking sheet...`;
                 return;
@@ -1029,27 +1041,41 @@
             validatePayButtonState();
         }
 
-        // 4. Load Cart items from LocalStorage
+        // 4. Robust Cart Loader that Prioritizes Latest User Cart
         function loadOrderItems() {
-            if (window.location.search && window.location.search.length > 120) {
-                try {
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                } catch (e) {}
-            }
-
-            const container = document.getElementById('order-items-list-container');
-            const storedCart = localStorage.getItem('thrika_checkout_cart') || localStorage.getItem('thrika_user_cart');
+            // Prioritize the user's active cart over any old checkout cache
+            const rawUserCart = localStorage.getItem('thrika_user_cart');
+            const rawCheckoutCart = localStorage.getItem('thrika_checkout_cart');
+            
+            let parsedCart = [];
 
             try {
-                if (storedCart) {
-                    const parsed = JSON.parse(storedCart);
-                    if (Array.isArray(parsed) && parsed.length > 0) {
-                        checkoutCart = parsed;
+                if (rawUserCart) {
+                    const testUser = JSON.parse(rawUserCart);
+                    if (Array.isArray(testUser) && testUser.length > 0) {
+                        parsedCart = testUser;
+                    }
+                }
+                
+                // Fallback to checkoutCart only if userCart is empty
+                if (parsedCart.length === 0 && rawCheckoutCart) {
+                    const testCheckout = JSON.parse(rawCheckoutCart);
+                    if (Array.isArray(testCheckout) && testCheckout.length > 0) {
+                        parsedCart = testCheckout;
                     }
                 }
             } catch (e) {
-                console.warn("Could not parse storage cart:", e);
+                console.error("Cart parsing error:", e);
             }
+
+            checkoutCart = parsedCart;
+
+            // Sync the validated cart back to keep both storage keys identical
+            if (checkoutCart.length > 0) {
+                localStorage.setItem('thrika_checkout_cart', JSON.stringify(checkoutCart));
+            }
+
+            const container = document.getElementById('order-items-list-container');
 
             if (checkoutCart.length === 0) {
                 container.innerHTML = `
@@ -1058,6 +1084,10 @@
                         <a href="Catalog.html" style="color: var(--emerald-main); font-weight: 700; text-decoration: underline; margin-top: 6px; display: inline-block;">Return to Storefront</a>
                     </div>
                 `;
+                document.getElementById('items-badge-count').textContent = '0 items';
+                document.getElementById('summary-book-price').textContent = '₹0';
+                itemsSubtotal = 0;
+                updateDeliveryRate();
                 return;
             }
 
@@ -1065,7 +1095,7 @@
             let totalItemQuantity = 0;
 
             container.innerHTML = checkoutCart.map(item => {
-                const qty = item.quantity || 1;
+                const qty = parseInt(item.quantity, 10) || 1;
                 const price = parseFloat(item.price) || 0;
                 const rowTotal = price * qty;
                 const isPrebook = item.isPrebook || false;
@@ -1077,10 +1107,10 @@
 
                 return `
                     <div class="order-item-row">
-                        <img src="${displayImg}" alt="${item.title}" class="book-thumb" onerror="this.src='https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Cover'">
+                        <img src="${escapeHtml(displayImg)}" alt="${escapeHtml(item.title)}" class="book-thumb" onerror="this.src='https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Cover'">
                         <div class="book-info">
-                            <h4 title="${item.title}">${item.title}</h4>
-                            <p>By ${item.author || 'Author'}</p>
+                            <h4 title="${escapeHtml(item.title)}">${escapeHtml(item.title)}</h4>
+                            <p>By ${escapeHtml(item.author) || 'Author'}</p>
                             ${isPrebook ? `<span class="badge-cart-prebook"><i class="fa-solid fa-clock"></i> Pre-Order</span>` : ''}
                             <span class="qty-pill">Qty: ${qty}</span>
                         </div>
@@ -1098,6 +1128,7 @@
             updateDeliveryRate();
         }
 
+        // Initialize with support for iOS bfcache (pageshow event)
         window.addEventListener('DOMContentLoaded', () => {
             loadOrderItems();
             fetchLiveRazorpayKey();
@@ -1108,6 +1139,12 @@
                 const el = document.getElementById(id);
                 if (el) el.addEventListener('blur', () => validateField(id));
             });
+        });
+
+        // iPhone / Safari bfcache re-trigger on navigation
+        window.addEventListener('pageshow', (event) => {
+            loadOrderItems();
+            validatePayButtonState();
         });
 
         function validateField(fieldId) {
@@ -1183,7 +1220,7 @@
             }
 
             const razorpayOptions = {
-                "key": liveRazorpayKey, // Dynamically loaded from Google Sheet AdminAuth
+                "key": liveRazorpayKey,
                 "amount": Math.round(grandTotal * 100),
                 "currency": "INR",
                 "name": MERCHANT_NAME,
@@ -1235,7 +1272,6 @@
             rzp.open();
         }
 
-        // Show Success Confirmation Modal with direct WhatsApp receiver link
         function showOrderSuccess(orderId, txnId, name, phone, state, booksList) {
             document.getElementById('modal-order-id').textContent = orderId;
             document.getElementById('modal-payment-id').textContent = txnId || "N/A";
