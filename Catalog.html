@@ -46,7 +46,6 @@
             line-height: 1.5;
         }
 
-        /* Top Bar Announcement */
         .top-bar {
             background-color: var(--emerald-deep);
             color: #ffffff;
@@ -66,7 +65,6 @@
             color: var(--gold-accent);
         }
 
-        /* Navigation Header */
         header {
             background: #ffffff;
             border-bottom: 1px solid var(--border-light);
@@ -209,7 +207,6 @@
             display: inline-block;
         }
 
-        /* Category Scroll Bar */
         .category-scroll {
             background: #ffffff;
             border-bottom: 1px solid var(--border-light);
@@ -264,7 +261,6 @@
             border-color: var(--prebook-amber);
         }
 
-        /* Hero Spotlight Banner */
         .hero-banner {
             max-width: 1240px;
             margin: 28px auto 10px;
@@ -352,7 +348,6 @@
             box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
         }
 
-        /* Section Containers */
         .section-container {
             max-width: 1240px;
             margin: 42px auto;
@@ -382,7 +377,6 @@
             font-size: 1.1rem;
         }
 
-        /* Book Grid Layout */
         .book-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
@@ -419,7 +413,6 @@
             border-color: var(--gold-accent);
         }
 
-        /* Skeleton Loading Cards */
         .skeleton-card {
             background: #ffffff;
             border: 1px solid var(--border-light);
@@ -474,7 +467,6 @@
             transform: scale(1.02);
         }
 
-        /* Badges */
         .badges-container {
             position: absolute;
             top: 8px;
@@ -535,7 +527,6 @@
             border-color: #fca5a5;
         }
 
-        /* Automatic Stock Indicators */
         .stock-indicator {
             font-size: 0.74rem;
             font-weight: 700;
@@ -670,7 +661,6 @@
             cursor: not-allowed;
         }
 
-        /* Slide-over Cart Drawer */
         .cart-drawer-overlay {
             position: fixed;
             top: 0; left: 0;
@@ -876,7 +866,6 @@
             margin-bottom: 12px;
         }
 
-        /* Sell CTA */
         .sell-banner {
             max-width: 1240px;
             margin: 40px auto;
@@ -926,7 +915,6 @@
             color: #ffffff;
         }
 
-        /* Footer */
         footer {
             background: var(--emerald-deep);
             color: var(--emerald-tint);
@@ -1021,7 +1009,6 @@
             color: var(--gold-accent);
         }
 
-        /* Order Tracking Modal */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0;
@@ -1172,13 +1159,11 @@
 </head>
 <body>
 
-    <!-- Top Announcement Bar -->
     <div class="top-bar">
         <i class="fa-solid fa-star"></i>
         <span>Pre-Book Exclusive Titles from Thrika Publications • Special Release Offers Available!</span>
     </div>
 
-    <!-- Main Navigation Header -->
     <header>
         <div class="nav-container">
             <a href="Catalog.html" class="brand-logo">
@@ -1203,7 +1188,6 @@
         </div>
     </header>
 
-    <!-- Category Scroll Bar -->
     <div class="category-scroll">
         <div class="category-scroll-inner">
             <span class="tag-pill active" onclick="filterByCategory('All', this)">All Categories</span>
@@ -1219,7 +1203,6 @@
         </div>
     </div>
 
-    <!-- Hero Spotlight Banner -->
     <section class="hero-banner">
         <div class="hero-card">
             <div class="hero-text">
@@ -1231,7 +1214,6 @@
         </div>
     </section>
 
-    <!-- Main Available Titles Grid -->
     <section class="section-container" id="store-catalog">
         <div class="section-header">
             <h2 class="section-title"><i class="fa-solid fa-fire"></i> Available Titles & Pre-Orders</h2>
@@ -1265,7 +1247,6 @@
         </div>
     </section>
 
-    <!-- Slide-over Cart Drawer -->
     <div class="cart-drawer-overlay" id="cart-drawer-overlay" onclick="closeCartDrawer()"></div>
     <div class="cart-drawer" id="cart-drawer">
         <div class="cart-drawer-header">
@@ -1290,7 +1271,6 @@
         </div>
     </div>
 
-    <!-- Sell/List Book CTA -->
     <section class="sell-banner">
         <div class="sell-card">
             <div class="sell-text">
@@ -1301,7 +1281,6 @@
         </div>
     </section>
 
-    <!-- Footer -->
     <footer>
         <div class="footer-grid">
             <div class="footer-col">
@@ -1342,7 +1321,6 @@
         </div>
     </footer>
 
-    <!-- Track Order Modal -->
     <div class="modal-overlay" id="track-modal">
         <div class="modal-container">
             <div class="modal-header">
@@ -1360,7 +1338,6 @@
         </div>
     </div>
 
-    <!-- Policy Modal -->
     <div class="modal-overlay" id="policy-modal">
         <div class="modal-container">
             <div class="modal-header">
@@ -1398,7 +1375,10 @@
 
         function syncCart() {
             try {
-                localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(userCart));
+                const jsonStr = JSON.stringify(userCart);
+                localStorage.setItem(CART_STORAGE_KEY, jsonStr);
+                localStorage.setItem('thrika_checkout_cart', jsonStr);
+                sessionStorage.setItem('thrika_checkout_cart', jsonStr);
             } catch (e) {
                 console.error("Storage write error:", e);
             }
@@ -1407,19 +1387,19 @@
         }
 
         function updateCartBadge() {
-            const count = userCart.reduce((sum, item) => sum + (parseInt(item.quantity, 10) || 1), 0);
+            let totalCount = 0;
+            userCart.forEach(item => {
+                totalCount += (parseInt(item.quantity, 10) || 1);
+            });
             
-            // 1. Header Cart Badge
             const badge = document.getElementById('nav-cart-count');
             if (badge) {
-                badge.textContent = count.toString();
-                badge.style.display = 'inline-block';
+                badge.textContent = totalCount.toString();
             }
 
-            // 2. In-Drawer Header Badge (visible immediately on Mobile)
             const drawerBadge = document.getElementById('drawer-cart-count');
             if (drawerBadge) {
-                drawerBadge.textContent = `${count} ${count === 1 ? 'item' : 'items'}`;
+                drawerBadge.textContent = `${totalCount} ${totalCount === 1 ? 'item' : 'items'}`;
             }
         }
 
@@ -1523,7 +1503,7 @@
                 if (isPrebook) {
                     stockHtml = `<div class="stock-indicator pre-order"><span class="stock-dot"></span> Pre-Order • ${escapeHtml(releaseDate)}</div>`;
                     actionBtnHtml = `
-                        <button type="button" class="btn-card-action prebook-action" onclick="addToCart(${globalIndex})">
+                        <button type="button" class="btn-card-action prebook-action" onclick="addToCartByIndex(${globalIndex})">
                             <i class="fa-solid fa-calendar-check"></i> Pre-Book Now
                         </button>
                     `;
@@ -1538,21 +1518,21 @@
                 } else if (stock <= 10) {
                     stockHtml = `<div class="stock-indicator low-stock"><span class="stock-dot"></span> Last Pieces Available!</div>`;
                     actionBtnHtml = `
-                        <button type="button" class="btn-card-action" onclick="addToCart(${globalIndex})">
+                        <button type="button" class="btn-card-action" onclick="addToCartByIndex(${globalIndex})">
                             <i class="fa-solid fa-cart-plus"></i> Add to Cart
                         </button>
                     `;
                 } else if (stock <= 20) {
                     stockHtml = `<div class="stock-indicator in-stock"><span class="stock-dot"></span> Available</div>`;
                     actionBtnHtml = `
-                        <button type="button" class="btn-card-action" onclick="addToCart(${globalIndex})">
+                        <button type="button" class="btn-card-action" onclick="addToCartByIndex(${globalIndex})">
                             <i class="fa-solid fa-cart-plus"></i> Add to Cart
                         </button>
                     `;
                 } else {
                     stockHtml = `<div class="stock-indicator in-stock"><span class="stock-dot"></span> In Stock</div>`;
                     actionBtnHtml = `
-                        <button type="button" class="btn-card-action" onclick="addToCart(${globalIndex})">
+                        <button type="button" class="btn-card-action" onclick="addToCartByIndex(${globalIndex})">
                             <i class="fa-solid fa-cart-plus"></i> Add to Cart
                         </button>
                     `;
@@ -1601,14 +1581,18 @@
                 .replace(/'/g, '&#039;');
         }
 
-        // Cart Actions - Optimized for Mobile Browsers & iPhone Safari
-        function addToCart(bookIndex) {
-            const book = allBooks[bookIndex];
+        function addToCartByIndex(index) {
+            const book = allBooks[index];
             if (!book) return;
 
             const isPrebook = isBookPrebook(book);
             const stock = parseInt(book.stock, 10) || (isPrebook ? 99 : 0);
-            const existingIndex = userCart.findIndex(item => (item.id && item.id == book.id) || (item.title && item.title === book.title));
+            const bookTitle = (book.title || 'Untitled Book').trim();
+
+            const existingIndex = userCart.findIndex(item => 
+                (item.id && book.id && String(item.id) === String(book.id)) || 
+                (item.title && item.title.trim().toLowerCase() === bookTitle.toLowerCase())
+            );
 
             if (existingIndex > -1) {
                 const currentQty = parseInt(userCart[existingIndex].quantity, 10) || 1;
@@ -1620,8 +1604,8 @@
                 }
             } else {
                 userCart.push({
-                    id: book.id || ('book_' + Date.now()),
-                    title: book.title || 'Untitled Book',
+                    id: book.id ? String(book.id) : ('book_' + Date.now()),
+                    title: bookTitle,
                     author: book.author || 'Unknown Author',
                     price: parseFloat(book.price) || 0,
                     image: book.image || '',
@@ -1632,10 +1616,7 @@
                 });
             }
 
-            // Immediately synchronize badge state synchronously
             syncCart();
-
-            // Mobile-first drawer opening
             openCartDrawer();
         }
 
@@ -1731,15 +1712,22 @@
 
         function proceedToCheckout() {
             if (userCart.length === 0) return;
+            
+            const cartJson = JSON.stringify(userCart);
             try {
-                localStorage.setItem('thrika_checkout_cart', JSON.stringify(userCart));
+                localStorage.setItem(CART_STORAGE_KEY, cartJson);
+                localStorage.setItem('thrika_checkout_cart', cartJson);
+                sessionStorage.setItem('thrika_checkout_cart', cartJson);
             } catch (e) {
-                console.warn("Storage sync before checkout failed:", e);
+                console.warn("Storage sync failed:", e);
             }
-            window.location.href = "order-confirmation.html";
+            
+            const encodedCart = encodeURIComponent(cartJson);
+            setTimeout(() => {
+                window.location.href = `order-confirmation.html?cart=${encodedCart}`;
+            }, 50);
         }
 
-        // Search Filter
         function filterBooks() {
             const query = document.getElementById('search-input').value.toLowerCase().trim();
             const filtered = allBooks.filter(book => 
@@ -1751,7 +1739,6 @@
             renderBooks(filtered);
         }
 
-        // Category Filter
         function filterByCategory(category, element) {
             document.querySelectorAll('.tag-pill').forEach(pill => pill.classList.remove('active'));
             if (element) element.classList.add('active');
@@ -1769,7 +1756,6 @@
             }
         }
 
-        // Track Order
         function openTrackModal() {
             document.getElementById('track-modal').classList.add('active');
             document.getElementById('track-results-container').innerHTML = '';
@@ -1843,7 +1829,6 @@
                 });
         }
 
-        // Policy Modals
         const POLICIES_CONTENT = {
             terms: {
                 title: "Terms & Conditions",
@@ -1879,13 +1864,13 @@
             document.getElementById('policy-modal').classList.remove('active');
         }
 
-        // Initialize immediately & handle Safari mobile page restoration cache
         window.addEventListener('DOMContentLoaded', () => {
+            userCart = getCartSafe();
             updateCartBadge();
             fetchStoreCatalog();
         });
 
-        window.addEventListener('pageshow', (event) => {
+        window.addEventListener('pageshow', () => {
             userCart = getCartSafe();
             updateCartBadge();
         });
