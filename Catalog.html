@@ -23,7 +23,7 @@
             --gold-hover: #b89428;
             --prebook-amber: #d97706;
             --prebook-bg: #fffbeb;
-            
+
             --text-dark: #0a221b;
             --text-muted: #526f65;
             --border-light: #d0e1d9;
@@ -1476,7 +1476,7 @@
                 // AUTOMATIC STOCK LABEL LOGIC (Without revealing exact counts)
                 // ========================================================
                 if (isPrebook) {
-                    stockHtml = `<div class="stock-indicator pre-order"><span class="stock-dot"></span> Pre-Order • ${releaseDate}</div>`;
+                    stockHtml = `<div class="stock-indicator pre-order"><span class="stock-dot"></span> Pre-Order • ${escapeHtml(releaseDate)}</div>`;
                     actionBtnHtml = `
                         <button class="btn-card-action prebook-action" onclick="addToCart(${globalIndex})">
                             <i class="fa-solid fa-calendar-check"></i> Pre-Book Now
@@ -1491,7 +1491,6 @@
                         </button>
                     `;
                 } else if (stock <= 10) {
-                    // Below 10 copies: Urgency notice without exact number
                     stockHtml = `<div class="stock-indicator low-stock"><span class="stock-dot"></span> Last Pieces Available!</div>`;
                     actionBtnHtml = `
                         <button class="btn-card-action" onclick="addToCart(${globalIndex})">
@@ -1499,7 +1498,6 @@
                         </button>
                     `;
                 } else if (stock <= 20) {
-                    // 11 to 20 copies: Standard Available
                     stockHtml = `<div class="stock-indicator in-stock"><span class="stock-dot"></span> Available</div>`;
                     actionBtnHtml = `
                         <button class="btn-card-action" onclick="addToCart(${globalIndex})">
@@ -1507,7 +1505,6 @@
                         </button>
                     `;
                 } else {
-                    // Above 20 copies: In Stock (no numbers)
                     stockHtml = `<div class="stock-indicator in-stock"><span class="stock-dot"></span> In Stock</div>`;
                     actionBtnHtml = `
                         <button class="btn-card-action" onclick="addToCart(${globalIndex})">
@@ -1522,22 +1519,22 @@
                     <div class="book-cover-wrap">
                         <div class="badges-container">
                             ${isPrebook ? `<span class="prebook-badge"><i class="fa-solid fa-clock"></i> PRE-BOOK</span>` : ''}
-                            ${discountText ? `<span class="discount-badge">${discountText}</span>` : ''}
+                            ${discountText ? `<span class="discount-badge">${escapeHtml(discountText)}</span>` : ''}
                         </div>
                         <button class="fav-btn" title="Add to Favourites"><i class="fa-regular fa-heart"></i></button>
-                        <img src="${image}" alt="${title}" class="book-cover" loading="lazy" decoding="async" onerror="this.src='https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Cover'">
+                        <img src="${escapeHtml(image)}" alt="${escapeHtml(title)}" class="book-cover" loading="lazy" decoding="async" onerror="this.src='https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Cover'">
                     </div>
                     
                     <div class="book-details">
                         ${stockHtml}
-                        <h3 class="book-title" title="${title}">${title}</h3>
-                        <p class="book-author"><i class="fa-solid fa-circle-check verified-icon"></i> ${author}</p>
+                        <h3 class="book-title" title="${escapeHtml(title)}">${escapeHtml(title)}</h3>
+                        <p class="book-author"><i class="fa-solid fa-circle-check verified-icon"></i> ${escapeHtml(author)}</p>
                     </div>
 
                     <div class="price-row">
                         <div class="price-group">
                             <span class="current-price">₹${price}</span>
-                            ${origPrice ? `<span class="original-price">₹${origPrice}</span>` : ''}
+                            ${origPrice ? `<span class="original-price">₹${escapeHtml(origPrice.toString())}</span>` : ''}
                         </div>
                         ${actionBtnHtml}
                     </div>
@@ -1547,6 +1544,16 @@
 
             grid.innerHTML = '';
             grid.appendChild(fragment);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.toString()
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
         }
 
         // Cart Actions
@@ -1562,7 +1569,7 @@
                 if (userCart[existingIndex].quantity < stock) {
                     userCart[existingIndex].quantity += 1;
                 } else {
-                    alert(`Maximum available quantity reached for this title.`);
+                    alert('Maximum available quantity reached for this title.');
                     return;
                 }
             } else {
@@ -1591,7 +1598,7 @@
             if (newQty <= 0) {
                 userCart.splice(cartIndex, 1);
             } else if (newQty > item.maxStock) {
-                alert(`Cannot add more than available copies of this title.`);
+                alert('Cannot add more than available copies of this title.');
                 return;
             } else {
                 item.quantity = newQty;
@@ -1631,11 +1638,11 @@
 
                 return `
                     <div class="cart-item">
-                        <img src="${item.image || 'https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Cover'}" class="cart-item-img">
+                        <img src="${escapeHtml(item.image) || 'https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Cover'}" class="cart-item-img">
                         <div class="cart-item-details">
                             ${item.isPrebook ? `<span class="cart-tag-prebook"><i class="fa-solid fa-clock"></i> Pre-Order</span>` : ''}
-                            <h4>${item.title}</h4>
-                            <p>${item.author} • ₹${item.price} each</p>
+                            <h4>${escapeHtml(item.title)}</h4>
+                            <p>${escapeHtml(item.author)} • ₹${item.price} each</p>
                             <div class="cart-item-bottom">
                                 <div class="qty-controls">
                                     <button class="qty-btn" onclick="changeCartQty(${idx}, -1)">-</button>
@@ -1737,7 +1744,7 @@
                     });
 
                     if (matched.length === 0) {
-                        results.innerHTML = `<div style="color: #dc2626; font-size: 0.88rem; padding: 12px 0;">No active orders found for <strong>${phone}</strong>.</div>`;
+                        results.innerHTML = `<div style="color: #dc2626; font-size: 0.88rem; padding: 12px 0;">No active orders found for <strong>${escapeHtml(phone)}</strong>.</div>`;
                         return;
                     }
 
@@ -1748,17 +1755,17 @@
                         return `
                             <div class="order-result-card">
                                 <div class="order-result-row">
-                                    <strong>${order.id || '#THK-ORDER'}</strong>
-                                    <span class="badge-status ${status}">${status}</span>
+                                    <strong>${escapeHtml(order.id) || '#THK-ORDER'}</strong>
+                                    <span class="badge-status ${escapeHtml(status)}">${escapeHtml(status)}</span>
                                 </div>
                                 <div class="order-result-row" style="color: var(--text-muted);">
-                                    <span>Book: ${order.book || 'N/A'}</span>
+                                    <span>Book: ${escapeHtml(order.book) || 'N/A'}</span>
                                     <span>₹${order.amount || 0}</span>
                                 </div>
                                 ${pod ? `
                                     <div class="pod-box">
-                                        <span><i class="fa-solid fa-truck-fast"></i> POD / Tracking: ${pod}</span>
-                                        <button onclick="navigator.clipboard.writeText('${pod}'); alert('Tracking number copied!');" style="background: none; border: none; color: var(--emerald-main); cursor: pointer;"><i class="fa-regular fa-copy"></i></button>
+                                        <span><i class="fa-solid fa-truck-fast"></i> POD / Tracking: ${escapeHtml(pod)}</span>
+                                        <button onclick="navigator.clipboard.writeText('${escapeHtml(pod)}'); alert('Tracking number copied!');" style="background: none; border: none; color: var(--emerald-main); cursor: pointer;"><i class="fa-regular fa-copy"></i></button>
                                     </div>
                                 ` : `
                                     <div style="font-size: 0.78rem; color: #a16207; margin-top: 6px;">
