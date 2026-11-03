@@ -31,6 +31,8 @@
             --shadow-soft: 0 10px 30px rgba(6, 44, 34, 0.06);
             --shadow-hover: 0 18px 40px rgba(6, 44, 34, 0.12);
             --whatsapp-green: #25D366;
+            --amber-prebook: #d97706;
+            --amber-bg: #fffbeb;
         }
 
         * {
@@ -188,6 +190,18 @@
             font-size: 0.78rem;
             color: var(--text-muted);
             margin-bottom: 4px;
+        }
+
+        .badge-cart-prebook {
+            display: inline-block;
+            background: var(--amber-bg);
+            color: var(--amber-prebook);
+            border: 1px solid rgba(217, 119, 6, 0.35);
+            font-size: 0.68rem;
+            font-weight: 800;
+            padding: 1px 6px;
+            border-radius: 4px;
+            margin-right: 4px;
         }
 
         .book-info .qty-pill {
@@ -376,6 +390,14 @@
             box-shadow: none;
         }
 
+        .key-loading-note {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 6px;
+            display: block;
+        }
+
         .trust-badges {
             display: flex;
             justify-content: space-around;
@@ -399,7 +421,7 @@
             font-size: 1.1rem;
         }
 
-        /* Sidebar Integrated Store Policies */
+        /* Sidebar Policies */
         .sidebar-policies-section {
             margin-top: 22px;
             padding-top: 18px;
@@ -462,7 +484,7 @@
             color: var(--gold-accent);
         }
 
-        /* Success Receipt Modal */
+        /* Modal Overlay */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -761,6 +783,7 @@
                 <button type="button" class="btn-pay-now" id="btn-pay-now" onclick="processOrder()" disabled>
                     Pay & Confirm Order <i class="fa-solid fa-arrow-right"></i>
                 </button>
+                <span id="key-status-note" class="key-loading-note"><i class="fa-solid fa-spinner fa-spin"></i> Connecting secure gateway...</span>
 
                 <!-- Trust Badges -->
                 <div class="trust-badges">
@@ -778,7 +801,7 @@
                     </div>
                 </div>
 
-                <!-- Store Policies & Terms Relocated Below Pay Button -->
+                <!-- Store Policies & Terms -->
                 <div class="sidebar-policies-section">
                     <div class="sidebar-policies-header">
                         <i class="fa-solid fa-file-contract"></i>
@@ -825,7 +848,7 @@
                 <p><span>Order Status:</span> <span style="color: #15803d; font-weight: 800;">Payment Received</span></p>
             </div>
 
-            <!-- Pre-filled link to Thrika Publications WhatsApp support -->
+            <!-- WhatsApp confirmation link -->
             <a href="#" target="_blank" class="btn-whatsapp-receipt" id="btn-user-whatsapp">
                 <i class="fa-brands fa-whatsapp"></i> Get Order Details on WhatsApp
             </a>
@@ -847,27 +870,72 @@
 
     <script>
         const GOOGLE_SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzswEvEe8UQRRTIXKmAukCrOLINLtPaMnTHv8tcaHOnYNs8RCaL3yGajFMY_00164Tm/exec";
-        const RAZORPAY_KEY_ID = "rzp_test_TrI5N3Ez3NLnBv"; 
         const MERCHANT_NAME = "Thrika Publications";
-
-        // Thrika Publications Official WhatsApp Phone Number for order confirmations
         const THRIKA_OFFICIAL_WHATSAPP = "918943650356";
-
-        // Lightweight logo for Razorpay modal
         const MERCHANT_LOGO_URL = "https://via.placeholder.com/150/0b3c2f/ffffff?text=Thrika";
+
+        // Dynamic Razorpay Key retrieved from Google Sheet AdminAuth
+        let liveRazorpayKey = "";
 
         let checkoutCart = [];
         let itemsSubtotal = 0;
         let existingOrders = [];
 
-        // Dynamic rates table loaded exclusively from Google Sheet
         let deliveryRates = null;
         let currentDeliveryCharge = 0;
         let grandTotal = 0;
 
-        // Fetch Live Orders to calculate sequential ID (Latest + 1)
+        // 1. Fetch Razorpay Key dynamically from Google Sheet
+        function fetchLiveRazorpayKey() {
+            const cachedKey = localStorage.getItem('thrika_rzp_key_cache');
+            if (cachedKey) {
+                liveRazorpayKey = cachedKey;
+                hideKeyLoadingStatus();
+            }
+
+            fetch(`${GOOGLE_SHEET_WEBHOOK_URL}?type=paymentConfig&t=${Date.now()}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.razorpayKey) {
+                        liveRazorpayKey = data.razorpayKey.trim();
+                        localStorage.setItem('thrika_rzp_key_cache', liveRazorpayKey);
+                        hideKeyLoadingStatus();
+                    } else if (!liveRazorpayKey) {
+                        showKeyError();
+                    }
+                })
+                .catch(err => {
+                    console.warn("Could not fetch key from paymentConfig, checking fallback:", err);
+                    if (!liveRazorpayKey) {
+                        // Fallback: check cached key or alert
+                        showKeyError();
+                    }
+                });
+        }
+
+        function hideKeyLoadingStatus() {
+            const note = document.getElementById('key-status-note');
+            if (note) note.style.display = 'none';
+            validatePayButtonState();
+        }
+
+        function showKeyError() {
+            const note = document.getElementById('key-status-note');
+            if (note) {
+                note.innerHTML = `<span style="color: #dc2626;"><i class="fa-solid fa-triangle-exclamation"></i> Gateway key not ready. Refresh page.</span>`;
+            }
+        }
+
+        function validatePayButtonState() {
+            const payBtn = document.getElementById('btn-pay-now');
+            if (deliveryRates !== null && liveRazorpayKey !== "") {
+                payBtn.disabled = false;
+            }
+        }
+
+        // 2. Fetch Live Orders to calculate sequential ID (Latest + 1)
         function fetchLiveOrdersForSequence() {
-            fetch(`${GOOGLE_SHEET_WEBHOOK_URL}?type=orders`)
+            fetch(`${GOOGLE_SHEET_WEBHOOK_URL}?type=orders&t=${Date.now()}`)
                 .then(res => res.json())
                 .then(orders => {
                     if (Array.isArray(orders)) {
@@ -877,7 +945,6 @@
                 .catch(err => console.warn("Could not fetch orders for sequence:", err));
         }
 
-        // Calculate next sequential Order ID (#THK-000004 after #THK-000003)
         function getNextSequentialOrderId() {
             let maxNumber = 0;
 
@@ -899,7 +966,7 @@
             return `#THK-${String(nextNum).padStart(6, '0')}`;
         }
 
-        // Fetch Live Delivery Settings directly from Google Sheet Settings tab
+        // 3. Fetch Live Delivery Settings from Google Sheet Settings tab
         function fetchLiveDeliveryRates() {
             const cachedRates = localStorage.getItem('thrika_delivery_rates_cache');
             if (cachedRates) {
@@ -912,7 +979,7 @@
                 } catch(e) {}
             }
 
-            fetch(`${GOOGLE_SHEET_WEBHOOK_URL}?type=settings`)
+            fetch(`${GOOGLE_SHEET_WEBHOOK_URL}?type=settings&t=${Date.now()}`)
                 .then(res => res.json())
                 .then(sheetRates => {
                     if (sheetRates && typeof sheetRates === 'object' && Object.keys(sheetRates).length > 0) {
@@ -930,14 +997,11 @@
                 });
         }
 
-        // Recalculate price dynamically when state selection changes
         function updateDeliveryRate() {
-            const payBtn = document.getElementById('btn-pay-now');
             const feeElement = document.getElementById('summary-delivery-fee');
 
             if (!deliveryRates) {
                 feeElement.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Checking sheet...`;
-                payBtn.disabled = true;
                 return;
             }
 
@@ -961,10 +1025,11 @@
 
             grandTotal = itemsSubtotal + currentDeliveryCharge;
             document.getElementById('summary-total-price').textContent = `₹${grandTotal}`;
-            payBtn.disabled = false;
+            
+            validatePayButtonState();
         }
 
-        // Unpack cart directly from localStorage
+        // 4. Load Cart items from LocalStorage
         function loadOrderItems() {
             if (window.location.search && window.location.search.length > 120) {
                 try {
@@ -1003,6 +1068,7 @@
                 const qty = item.quantity || 1;
                 const price = parseFloat(item.price) || 0;
                 const rowTotal = price * qty;
+                const isPrebook = item.isPrebook || false;
                 
                 itemsSubtotal += rowTotal;
                 totalItemQuantity += qty;
@@ -1015,6 +1081,7 @@
                         <div class="book-info">
                             <h4 title="${item.title}">${item.title}</h4>
                             <p>By ${item.author || 'Author'}</p>
+                            ${isPrebook ? `<span class="badge-cart-prebook"><i class="fa-solid fa-clock"></i> Pre-Order</span>` : ''}
                             <span class="qty-pill">Qty: ${qty}</span>
                         </div>
                         <div class="item-price-calc">
@@ -1033,6 +1100,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             loadOrderItems();
+            fetchLiveRazorpayKey();
             fetchLiveDeliveryRates();
             fetchLiveOrdersForSequence();
 
@@ -1092,6 +1160,12 @@
                 return;
             }
 
+            if (!liveRazorpayKey) {
+                alert("Payment gateway key is not ready yet from Google Sheets. Please wait a moment or reload.");
+                fetchLiveRazorpayKey();
+                return;
+            }
+
             const sequentialOrderId = getNextSequentialOrderId();
 
             const fullName = document.getElementById('fullName').value.trim();
@@ -1109,7 +1183,7 @@
             }
 
             const razorpayOptions = {
-                "key": RAZORPAY_KEY_ID,
+                "key": liveRazorpayKey, // Dynamically loaded from Google Sheet AdminAuth
                 "amount": Math.round(grandTotal * 100),
                 "currency": "INR",
                 "name": MERCHANT_NAME,
