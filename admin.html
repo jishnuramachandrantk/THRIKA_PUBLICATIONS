@@ -397,7 +397,7 @@
             <i class="fa-solid fa-shield-halved lock-icon"></i>
             <h3>Admin Verification</h3>
             <p>Enter the SecretKey from your Google Sheet <code>AdminAuth</code> tab, or sign in via the login page.</p>
-            
+
             <form onsubmit="handleAdminKeySubmit(event)">
                 <input type="password" id="admin-passkey-input" class="lock-input" placeholder="Enter Secret Passkey..." autofocus required>
                 <button type="submit" id="btn-verify-key" class="btn-unlock">Unlock Dashboard</button>
@@ -494,13 +494,11 @@
             const urlParams = new URLSearchParams(window.location.search);
             const urlKey = urlParams.get('key');
 
-            // 1. Key passed in bookmark URL (e.g. admin.html?key=3456)
             if (urlKey) {
                 verifyKeyWithSheet(urlKey, true);
                 return;
             }
 
-            // 2. Verified session from login.html or previous visit
             if (localStorage.getItem('thrika_admin_token') === 'verified') {
                 const user = localStorage.getItem('thrika_admin_user');
                 if (user && document.getElementById('admin-display-name')) {
@@ -509,7 +507,6 @@
                 return;
             }
 
-            // 3. Otherwise show lock screen
             document.addEventListener('DOMContentLoaded', () => {
                 const lock = document.getElementById('admin-lock-screen');
                 if (lock) lock.style.display = 'flex';
@@ -523,13 +520,12 @@
             verifyKeyWithSheet(entered, false);
         }
 
-        // Live check against AdminAuth sheet
         function verifyKeyWithSheet(keyToTest, isFromUrl) {
             const btn = document.getElementById('btn-verify-key');
             const err = document.getElementById('lock-error-msg');
             if (btn) {
                 btn.disabled = true;
-                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Checking Google Sheet...`;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking Google Sheet...';
             }
 
             fetch(GOOGLE_APPS_SCRIPT_URL, {
@@ -543,7 +539,7 @@
             .then(data => {
                 if (data && data.authorized) {
                     localStorage.setItem('thrika_admin_token', 'verified');
-                    
+
                     if (isFromUrl) {
                         window.history.replaceState({}, document.title, window.location.pathname);
                     }
