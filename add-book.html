@@ -20,27 +20,27 @@
             --amber-bg: #fffbeb;
             --shadow-soft: 0 10px 30px rgba(6, 44, 34, 0.06);
         }
-        
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: var(--emerald-soft); 
-            padding: 20px; 
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--emerald-soft);
+            padding: 20px;
             color: var(--text-dark);
         }
 
-        .admin-card { 
-            background: #ffffff; 
-            border: 1px solid var(--border-light); 
-            border-radius: 16px; 
-            padding: 28px; 
-            box-shadow: var(--shadow-soft); 
-            max-width: 800px; 
+        .admin-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: var(--shadow-soft);
+            max-width: 800px;
             margin: 0 auto;
         }
 
@@ -63,46 +63,45 @@
             color: var(--gold-accent);
         }
 
-        .form-grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 16px; 
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
         }
 
-        .form-group { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 6px; 
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
 
-        .form-group.full-width { 
-            grid-column: span 2; 
+        .form-group.full-width {
+            grid-column: span 2;
         }
 
-        .form-group label { 
-            font-size: 0.82rem; 
-            font-weight: 700; 
-            color: var(--emerald-deep); 
+        .form-group label {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--emerald-deep);
         }
 
-        .form-group input, .form-group select { 
-            width: 100%; 
-            padding: 10px 14px; 
-            border-radius: 8px; 
-            border: 1px solid var(--border-light); 
-            outline: none; 
-            font-size: 0.88rem; 
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+            outline: none;
+            font-size: 0.88rem;
             background: #ffffff;
             color: var(--text-dark);
             transition: all 0.2s;
         }
 
-        .form-group input:focus, .form-group select:focus { 
-            border-color: var(--emerald-mid); 
-            box-shadow: 0 0 0 3px rgba(20, 83, 67, 0.12); 
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--emerald-mid);
+            box-shadow: 0 0 0 3px rgba(20, 83, 67, 0.12);
         }
 
-        /* Pre-Book Box highlight */
         .prebook-field-highlight {
             background: var(--amber-bg);
             border: 1px solid rgba(217, 119, 6, 0.35);
@@ -123,7 +122,6 @@
             margin-left: 6px;
         }
 
-        /* Image Upload Box Styling */
         .image-upload-wrapper {
             display: flex;
             gap: 16px;
@@ -145,35 +143,35 @@
             padding: 2px;
         }
 
-        .btn-submit { 
-            background: var(--emerald-main); 
-            color: #ffffff; 
-            border: none; 
-            padding: 13px 24px; 
-            border-radius: 30px; 
-            font-weight: 700; 
-            font-size: 0.92rem; 
-            cursor: pointer; 
-            display: inline-flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 8px; 
-            margin-top: 10px; 
-            width: 100%; 
-            transition: all 0.2s; 
-            box-shadow: 0 4px 14px rgba(11, 60, 47, 0.25); 
+        .btn-submit {
+            background: var(--emerald-main);
+            color: #ffffff;
+            border: none;
+            padding: 13px 24px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.92rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+            width: 100%;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(11, 60, 47, 0.25);
         }
 
-        .btn-submit:hover { 
-            background: var(--emerald-deep); 
-            transform: translateY(-1px); 
+        .btn-submit:hover {
+            background: var(--emerald-deep);
+            transform: translateY(-1px);
         }
 
-        .btn-submit:disabled { 
-            background: #94a3b8; 
-            cursor: not-allowed; 
-            transform: none; 
-            box-shadow: none; 
+        .btn-submit:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         /* Modal Popup Styles */
@@ -420,14 +418,12 @@
 
         let uploadedBase64Image = "";
 
-        // Toggle Pre-book container
         function togglePrebookFields() {
             const isPre = document.getElementById('isPrebookSelect').value === 'Yes';
             const extraContainer = document.getElementById('prebook-extra-container');
             extraContainer.style.display = isPre ? 'flex' : 'none';
         }
 
-        // Preview selected local image file
         function previewUploadedImage(event) {
             const file = event.target.files[0];
             if (file) {
@@ -442,7 +438,6 @@
             }
         }
 
-        // Auto-calculate discount percentage
         function autoCalculateDiscount() {
             const sellingPrice = parseFloat(document.getElementById('sellingPrice').value);
             const originalPrice = parseFloat(document.getElementById('originalPrice').value);
@@ -461,7 +456,6 @@
         document.getElementById('sellingPrice').addEventListener('input', autoCalculateDiscount);
         document.getElementById('originalPrice').addEventListener('input', autoCalculateDiscount);
 
-        // Show Success Popup Modal
         function showSuccessModal(title, author, price, stock, isPrebookVal) {
             document.getElementById('pop-title').textContent = title;
             document.getElementById('pop-author').textContent = author;
@@ -476,7 +470,6 @@
             document.getElementById('bookTitle').focus();
         }
 
-        // Handle Add Book Submission
         document.getElementById('add-book-form').addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -501,9 +494,8 @@
                 finalImage = `https://via.placeholder.com/200x280/0b3c2f/ffffff?text=${encodedTitle}`;
             }
 
-            // Maps exactly to Google Sheet columns:
-            // A: Date, B: id, C: title, D: author, E: price, F: originalPrice, G: category, H: stock, I: prebook, J: discount, K: image
             const newBook = {
+                action: "addCatalogBook",
                 Date: new Date().toLocaleDateString('en-GB'),
                 id: Date.now(),
                 title: title,
@@ -512,8 +504,8 @@
                 originalPrice: originalPrice,
                 category: category,
                 stock: stock,
-                prebook: prebookVal,             // Exactly matches Column I: prebook
-                isPrebook: prebookVal === 'Yes', // Boolean flag for quick catalog matching
+                prebook: prebookVal,
+                isPrebook: prebookVal === 'Yes',
                 releaseDate: releaseDate,
                 discount: discount,
                 image: finalImage
@@ -526,7 +518,6 @@
                 body: JSON.stringify(newBook)
             })
             .then(() => {
-                // Clear local catalog cache so the main website fetches the updated catalog immediately
                 localStorage.removeItem('thrika_catalog_cache');
                 localStorage.removeItem('thrika_catalog_timestamp');
 
