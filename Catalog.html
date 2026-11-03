@@ -21,6 +21,8 @@
             --gold-accent: #d4af37;
             --gold-light: #fef3c7;
             --gold-hover: #b89428;
+            --prebook-amber: #d97706;
+            --prebook-bg: #fffbeb;
             
             --text-dark: #0a221b;
             --text-muted: #526f65;
@@ -247,6 +249,18 @@
             border-color: var(--emerald-main);
         }
 
+        .tag-pill.prebook-pill {
+            border-color: rgba(217, 119, 6, 0.4);
+            color: var(--prebook-amber);
+            background: var(--prebook-bg);
+        }
+
+        .tag-pill.prebook-pill:hover, .tag-pill.prebook-pill.active {
+            background: var(--prebook-amber);
+            color: #ffffff;
+            border-color: var(--prebook-amber);
+        }
+
         /* Hero Spotlight Banner */
         .hero-banner {
             max-width: 1240px;
@@ -457,20 +471,40 @@
             transform: scale(1.02);
         }
 
-        /* Discount Ribbon */
-        .discount-badge {
+        /* Badges */
+        .badges-container {
             position: absolute;
             top: 8px;
             left: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            z-index: 2;
+        }
+
+        .discount-badge {
             background: var(--emerald-deep);
             color: var(--gold-accent);
             font-size: 0.70rem;
             font-weight: 800;
             padding: 4px 8px;
             border-radius: 6px;
-            z-index: 2;
             border: 1px solid rgba(212, 175, 55, 0.4);
             box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        .prebook-badge {
+            background: var(--prebook-amber);
+            color: #ffffff;
+            font-size: 0.70rem;
+            font-weight: 800;
+            padding: 4px 8px;
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(217, 119, 6, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            letter-spacing: 0.3px;
         }
 
         .fav-btn {
@@ -498,6 +532,7 @@
             border-color: #fca5a5;
         }
 
+        /* Automatic Stock Indicators */
         .stock-indicator {
             font-size: 0.74rem;
             font-weight: 700;
@@ -510,6 +545,7 @@
         .stock-indicator.in-stock { color: #15803d; }
         .stock-indicator.low-stock { color: #b45309; }
         .stock-indicator.out-of-stock { color: #dc2626; }
+        .stock-indicator.pre-order { color: var(--prebook-amber); }
 
         .stock-dot {
             width: 7px;
@@ -521,6 +557,7 @@
         .stock-indicator.in-stock .stock-dot { background: #22c55e; }
         .stock-indicator.low-stock .stock-dot { background: #f59e0b; }
         .stock-indicator.out-of-stock .stock-dot { background: #ef4444; }
+        .stock-indicator.pre-order .stock-dot { background: var(--prebook-amber); }
 
         .book-details {
             display: flex;
@@ -607,6 +644,18 @@
             background: var(--emerald-main);
             color: #ffffff;
             border-color: var(--emerald-main);
+        }
+
+        .btn-card-action.prebook-action {
+            background: var(--prebook-bg);
+            color: var(--prebook-amber);
+            border-color: rgba(217, 119, 6, 0.4);
+        }
+
+        .btn-card-action.prebook-action:hover {
+            background: var(--prebook-amber);
+            color: #ffffff;
+            border-color: var(--prebook-amber);
         }
 
         .btn-card-action.disabled {
@@ -712,7 +761,19 @@
         .cart-item-details p {
             font-size: 0.76rem;
             color: var(--text-muted);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+        }
+
+        .cart-tag-prebook {
+            display: inline-block;
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--prebook-amber);
+            background: var(--prebook-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(217, 119, 6, 0.3);
+            margin-bottom: 6px;
         }
 
         .cart-item-bottom {
@@ -1127,6 +1188,7 @@
     <div class="category-scroll">
         <div class="category-scroll-inner">
             <span class="tag-pill active" onclick="filterByCategory('All', this)">All Categories</span>
+            <span class="tag-pill prebook-pill" onclick="filterByCategory('Pre-Book', this)"><i class="fa-solid fa-calendar-check"></i> Pre-Bookings</span>
             <span class="tag-pill" onclick="filterByCategory('Novels', this)">Novels</span>
             <span class="tag-pill" onclick="filterByCategory('Short Stories', this)">Short Stories</span>
             <span class="tag-pill" onclick="filterByCategory('Poetry', this)">Poetry</span>
@@ -1142,9 +1204,9 @@
     <section class="hero-banner">
         <div class="hero-card">
             <div class="hero-text">
-                <span class="badge-pill">Exclusive Title</span>
+                <span class="badge-pill">Exclusive Titles</span>
                 <h2>Discover Modern Malayalam Literature</h2>
-                <p>Explore original works, curated novels, and literary masterpieces published directly by Thrika Publications.</p>
+                <p>Explore original works, curated novels, and pre-book upcoming literary releases published directly by Thrika Publications.</p>
                 <a href="#store-catalog" class="btn-gold">Explore Catalog <i class="fa-solid fa-arrow-right"></i></a>
             </div>
         </div>
@@ -1153,7 +1215,7 @@
     <!-- Main Available Titles Grid -->
     <section class="section-container" id="store-catalog">
         <div class="section-header">
-            <h2 class="section-title"><i class="fa-solid fa-fire"></i> Available Titles</h2>
+            <h2 class="section-title"><i class="fa-solid fa-fire"></i> Available Titles & Pre-Orders</h2>
         </div>
 
         <div class="book-grid" id="book-grid-container">
@@ -1316,7 +1378,6 @@
             const cachedData = localStorage.getItem(CACHE_KEY);
             let hasRenderedFromCache = false;
 
-            // 1. FAST PATH: Display cached books immediately if available
             if (cachedData) {
                 try {
                     const parsed = JSON.parse(cachedData);
@@ -1330,26 +1391,20 @@
                 }
             }
 
-            // 2. ALWAYS FETCH LIVE DATA FROM GOOGLE APPS SCRIPT
-            // Cache-busting parameter (?t=...) prevents browser/CDN HTTP caching
             const fetchUrl = `${GOOGLE_SHEET_CATALOG_URL}${GOOGLE_SHEET_CATALOG_URL.includes('?') ? '&' : '?'}t=${Date.now()}`;
 
             fetch(fetchUrl)
                 .then(res => res.json())
                 .then(freshData => {
                     if (Array.isArray(freshData)) {
-                        // Filter out empty rows where title is missing
                         const validBooks = freshData.filter(b => b && b.title && b.title.toString().trim() !== '');
 
-                        // Update in-memory state and localStorage
                         allBooks = validBooks;
                         localStorage.setItem(CACHE_KEY, JSON.stringify(validBooks));
                         localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
 
-                        // Immediately re-render with fresh data (or show empty state if sheet is empty)
                         renderBooks(allBooks);
                     } else {
-                        // Non-array response or error from sheet
                         if (!hasRenderedFromCache) {
                             renderBooks([]);
                         }
@@ -1374,6 +1429,18 @@
             return str;
         }
 
+        function isBookPrebook(book) {
+            return (
+                book.isPrebook === true ||
+                String(book.isPrebook).toLowerCase() === 'true' ||
+                String(book.prebook).toLowerCase() === 'yes' ||
+                String(book.isPrebook).toLowerCase() === 'yes' ||
+                String(book.status).toLowerCase() === 'prebook' ||
+                String(book.category).toLowerCase().includes('pre-book') ||
+                Boolean(book.releaseDate)
+            );
+        }
+
         // Optimized batch render using DocumentFragment
         function renderBooks(books) {
             const grid = document.getElementById('book-grid-container');
@@ -1389,7 +1456,8 @@
 
             const fragment = document.createDocumentFragment();
 
-            books.forEach((book, index) => {
+            books.forEach((book) => {
+                const globalIndex = allBooks.indexOf(book);
                 const title = book.title || 'Untitled Book';
                 const author = book.author || 'Unknown Author';
                 const price = parseFloat(book.price) || 0;
@@ -1397,23 +1465,65 @@
                 const discountText = formatDiscountLabel(book.discount);
                 const image = book.image || 'https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Cover';
                 const stock = parseInt(book.stock, 10) || 0;
+                const isPrebook = isBookPrebook(book);
+                const releaseDate = book.releaseDate || 'Upcoming Release';
 
                 let stockHtml = '';
                 let isOutOfStock = false;
-                if (stock <= 0) {
+                let actionBtnHtml = '';
+
+                // ========================================================
+                // AUTOMATIC STOCK LABEL LOGIC (Without revealing exact counts)
+                // ========================================================
+                if (isPrebook) {
+                    stockHtml = `<div class="stock-indicator pre-order"><span class="stock-dot"></span> Pre-Order • ${releaseDate}</div>`;
+                    actionBtnHtml = `
+                        <button class="btn-card-action prebook-action" onclick="addToCart(${globalIndex})">
+                            <i class="fa-solid fa-calendar-check"></i> Pre-Book Now
+                        </button>
+                    `;
+                } else if (stock <= 0) {
                     stockHtml = `<div class="stock-indicator out-of-stock"><span class="stock-dot"></span> Out of Stock</div>`;
                     isOutOfStock = true;
-                } else if (stock <= 5) {
-                    stockHtml = `<div class="stock-indicator low-stock"><span class="stock-dot"></span> Only ${stock} left!</div>`;
+                    actionBtnHtml = `
+                        <button class="btn-card-action disabled">
+                            <i class="fa-solid fa-cart-plus"></i> Sold Out
+                        </button>
+                    `;
+                } else if (stock <= 10) {
+                    // Below 10 copies: Urgency notice without exact number
+                    stockHtml = `<div class="stock-indicator low-stock"><span class="stock-dot"></span> Last Pieces Available!</div>`;
+                    actionBtnHtml = `
+                        <button class="btn-card-action" onclick="addToCart(${globalIndex})">
+                            <i class="fa-solid fa-cart-plus"></i> Add to Cart
+                        </button>
+                    `;
+                } else if (stock <= 20) {
+                    // 11 to 20 copies: Standard Available
+                    stockHtml = `<div class="stock-indicator in-stock"><span class="stock-dot"></span> Available</div>`;
+                    actionBtnHtml = `
+                        <button class="btn-card-action" onclick="addToCart(${globalIndex})">
+                            <i class="fa-solid fa-cart-plus"></i> Add to Cart
+                        </button>
+                    `;
                 } else {
-                    stockHtml = `<div class="stock-indicator in-stock"><span class="stock-dot"></span> In Stock (${stock} copies)</div>`;
+                    // Above 20 copies: In Stock (no numbers)
+                    stockHtml = `<div class="stock-indicator in-stock"><span class="stock-dot"></span> In Stock</div>`;
+                    actionBtnHtml = `
+                        <button class="btn-card-action" onclick="addToCart(${globalIndex})">
+                            <i class="fa-solid fa-cart-plus"></i> Add to Cart
+                        </button>
+                    `;
                 }
 
                 const card = document.createElement('div');
                 card.className = 'book-card';
                 card.innerHTML = `
                     <div class="book-cover-wrap">
-                        ${discountText ? `<span class="discount-badge">${discountText}</span>` : ''}
+                        <div class="badges-container">
+                            ${isPrebook ? `<span class="prebook-badge"><i class="fa-solid fa-clock"></i> PRE-BOOK</span>` : ''}
+                            ${discountText ? `<span class="discount-badge">${discountText}</span>` : ''}
+                        </div>
                         <button class="fav-btn" title="Add to Favourites"><i class="fa-regular fa-heart"></i></button>
                         <img src="${image}" alt="${title}" class="book-cover" loading="lazy" decoding="async" onerror="this.src='https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Cover'">
                     </div>
@@ -1429,9 +1539,7 @@
                             <span class="current-price">₹${price}</span>
                             ${origPrice ? `<span class="original-price">₹${origPrice}</span>` : ''}
                         </div>
-                        <button class="btn-card-action ${isOutOfStock ? 'disabled' : ''}" onclick="addToCart(${index})">
-                            <i class="fa-solid fa-cart-plus"></i> ${isOutOfStock ? 'Sold Out' : 'Add to Cart'}
-                        </button>
+                        ${actionBtnHtml}
                     </div>
                 `;
                 fragment.appendChild(card);
@@ -1446,14 +1554,15 @@
             const book = allBooks[bookIndex];
             if (!book) return;
 
+            const isPrebook = isBookPrebook(book);
+            const stock = parseInt(book.stock, 10) || (isPrebook ? 99 : 0);
             const existingIndex = userCart.findIndex(item => item.id == book.id || item.title === book.title);
-            const stock = parseInt(book.stock, 10) || 0;
 
             if (existingIndex > -1) {
                 if (userCart[existingIndex].quantity < stock) {
                     userCart[existingIndex].quantity += 1;
                 } else {
-                    alert(`Maximum available stock (${stock} copies) reached for this book.`);
+                    alert(`Maximum available quantity reached for this title.`);
                     return;
                 }
             } else {
@@ -1464,6 +1573,8 @@
                     price: parseFloat(book.price) || 0,
                     image: book.image,
                     maxStock: stock,
+                    isPrebook: isPrebook,
+                    releaseDate: book.releaseDate || '',
                     quantity: 1
                 });
             }
@@ -1480,7 +1591,7 @@
             if (newQty <= 0) {
                 userCart.splice(cartIndex, 1);
             } else if (newQty > item.maxStock) {
-                alert(`Cannot add more than ${item.maxStock} copies of this book.`);
+                alert(`Cannot add more than available copies of this title.`);
                 return;
             } else {
                 item.quantity = newQty;
@@ -1522,6 +1633,7 @@
                     <div class="cart-item">
                         <img src="${item.image || 'https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Cover'}" class="cart-item-img">
                         <div class="cart-item-details">
+                            ${item.isPrebook ? `<span class="cart-tag-prebook"><i class="fa-solid fa-clock"></i> Pre-Order</span>` : ''}
                             <h4>${item.title}</h4>
                             <p>${item.author} • ₹${item.price} each</p>
                             <div class="cart-item-bottom">
@@ -1564,7 +1676,8 @@
             const filtered = allBooks.filter(book => 
                 (book.title && book.title.toLowerCase().includes(query)) ||
                 (book.author && book.author.toLowerCase().includes(query)) ||
-                (book.category && book.category.toLowerCase().includes(query))
+                (book.category && book.category.toLowerCase().includes(query)) ||
+                (isBookPrebook(book) && 'pre-book'.includes(query))
             );
             renderBooks(filtered);
         }
@@ -1576,6 +1689,9 @@
 
             if (category === 'All') {
                 renderBooks(allBooks);
+            } else if (category === 'Pre-Book') {
+                const filtered = allBooks.filter(book => isBookPrebook(book));
+                renderBooks(filtered);
             } else {
                 const filtered = allBooks.filter(book => 
                     book.category && book.category.toLowerCase() === category.toLowerCase()
@@ -1662,7 +1778,7 @@
         const POLICIES_CONTENT = {
             terms: {
                 title: "Terms & Conditions",
-                html: `<p>All orders placed via Thrika Publications website are acknowledged immediately and dispatched via standard registered post or parcel after payment receipt.</p>`
+                html: `<p>All orders placed via Thrika Publications website are acknowledged immediately and dispatched via standard registered post or parcel after payment receipt. Pre-booked titles are dispatched immediately upon official release.</p>`
             },
             privacy: {
                 title: "Privacy Policy",
@@ -1670,7 +1786,7 @@
             },
             shipping: {
                 title: "Shipping Policy",
-                html: `<p>Orders within Kerala are delivered in 2–4 business days. Outside Kerala takes 4–7 business days via India Post or DTDC.</p>`
+                html: `<p>Orders within Kerala are delivered in 2–4 business days. Outside Kerala takes 4–7 business days via India Post or DTDC. Pre-ordered titles ship sequentially based on your booking timestamp.</p>`
             },
             refund: {
                 title: "Return & Refund Policy",
