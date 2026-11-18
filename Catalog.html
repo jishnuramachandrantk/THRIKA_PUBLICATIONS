@@ -1373,15 +1373,32 @@
 
         userCart = getCartSafe();
 
-        function syncCart() {
+        function saveCartToStorage(cartArray) {
+            const jsonStr = JSON.stringify(cartArray);
             try {
-                const jsonStr = JSON.stringify(userCart);
                 localStorage.setItem(CART_STORAGE_KEY, jsonStr);
                 localStorage.setItem('thrika_checkout_cart', jsonStr);
                 sessionStorage.setItem('thrika_checkout_cart', jsonStr);
             } catch (e) {
-                console.error("Storage write error:", e);
+                // Fallback if Base64 images exceed browser localStorage 5MB quota
+                console.warn("Storage quota exceeded with full images, saving lightweight cart:", e);
+                const lightCart = cartArray.map(item => ({
+                    ...item,
+                    image: (item.image && item.image.startsWith('data:image')) ? '' : item.image
+                }));
+                const lightJson = JSON.stringify(lightCart);
+                try {
+                    localStorage.setItem(CART_STORAGE_KEY, lightJson);
+                    localStorage.setItem('thrika_checkout_cart', lightJson);
+                    sessionStorage.setItem('thrika_checkout_cart', lightJson);
+                } catch (innerErr) {
+                    console.error("Critical storage write error:", innerErr);
+                }
             }
+        }
+
+        function syncCart() {
+            saveCartToStorage(userCart);
             updateCartBadge();
             renderCartDrawer();
         }
@@ -1429,8 +1446,12 @@
                         const validBooks = freshData.filter(b => b && b.title && b.title.toString().trim() !== '');
 
                         allBooks = validBooks;
-                        localStorage.setItem(CACHE_KEY, JSON.stringify(validBooks));
-                        localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+                        try {
+                            localStorage.setItem(CACHE_KEY, JSON.stringify(validBooks));
+                            localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+                        } catch (cacheErr) {
+                            console.warn("Catalog too large for localStorage cache:", cacheErr);
+                        }
 
                         renderBooks(allBooks);
                     } else {
@@ -1713,19 +1734,11 @@
         function proceedToCheckout() {
             if (userCart.length === 0) return;
             
-            const cartJson = JSON.stringify(userCart);
-            try {
-                localStorage.setItem(CART_STORAGE_KEY, cartJson);
-                localStorage.setItem('thrika_checkout_cart', cartJson);
-                sessionStorage.setItem('thrika_checkout_cart', cartJson);
-            } catch (e) {
-                console.warn("Storage sync failed:", e);
-            }
+            // Save cart safely to localStorage/sessionStorage (order-confirmation.html reads from here)
+            saveCartToStorage(userCart);
             
-            const encodedCart = encodeURIComponent(cartJson);
-            setTimeout(() => {
-                window.location.href = `order-confirmation.html?cart=${encodedCart}`;
-            }, 50);
+            // Redirect cleanly without passing Base64 data in the URL query string
+            window.location.href = 'order-confirmation.html';
         }
 
         function filterBooks() {
