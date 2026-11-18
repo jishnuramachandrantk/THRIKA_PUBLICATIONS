@@ -147,7 +147,8 @@
             gap: 16px;
         }
 
-        .sidebar-menu li a:hover, .sidebar-menu li.active a {
+        .sidebar-menu li a:hover,
+        .sidebar-menu li.active a {
             background: rgba(212, 175, 55, 0.12);
             color: var(--gold-accent);
             border-left-color: var(--gold-accent);
@@ -172,7 +173,8 @@
             gap: 10px;
         }
 
-        .btn-store-link, .btn-sidebar-lock {
+        .btn-store-link,
+        .btn-sidebar-lock {
             color: var(--emerald-tint);
             text-decoration: none;
             font-size: 0.85rem;
@@ -189,7 +191,8 @@
             text-align: left;
         }
 
-        .btn-store-link i, .btn-sidebar-lock i {
+        .btn-store-link i,
+        .btn-sidebar-lock i {
             font-size: 1.1rem;
             width: 24px;
             min-width: 24px;
@@ -199,8 +202,13 @@
             justify-content: center;
         }
 
-        .btn-store-link:hover { color: var(--gold-accent); }
-        .btn-sidebar-lock:hover { color: #fca5a5; }
+        .btn-store-link:hover {
+            color: var(--gold-accent);
+        }
+
+        .btn-sidebar-lock:hover {
+            color: #fca5a5;
+        }
 
         /* Workspace */
         main.main-content {
@@ -213,8 +221,13 @@
             transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        body.sidebar-collapsed aside.sidebar { width: var(--sidebar-collapsed); }
-        body.sidebar-collapsed main.main-content { margin-left: var(--sidebar-collapsed); }
+        body.sidebar-collapsed aside.sidebar {
+            width: var(--sidebar-collapsed);
+        }
+
+        body.sidebar-collapsed main.main-content {
+            margin-left: var(--sidebar-collapsed);
+        }
 
         body.sidebar-collapsed .brand-info,
         body.sidebar-collapsed .sidebar-menu li a span,
@@ -222,11 +235,29 @@
             display: none !important;
         }
 
-        body.sidebar-collapsed .sidebar-brand { justify-content: center; padding: 0; }
-        body.sidebar-collapsed .sidebar-menu li a { padding: 14px 0; justify-content: center; gap: 0; }
-        body.sidebar-collapsed .sidebar-footer { padding: 16px 0; display: flex; flex-direction: column; align-items: center; }
+        body.sidebar-collapsed .sidebar-brand {
+            justify-content: center;
+            padding: 0;
+        }
+
+        body.sidebar-collapsed .sidebar-menu li a {
+            padding: 14px 0;
+            justify-content: center;
+            gap: 0;
+        }
+
+        body.sidebar-collapsed .sidebar-footer {
+            padding: 16px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
         body.sidebar-collapsed .btn-store-link,
-        body.sidebar-collapsed .btn-sidebar-lock { justify-content: center; gap: 0; }
+        body.sidebar-collapsed .btn-sidebar-lock {
+            justify-content: center;
+            gap: 0;
+        }
 
         .top-header {
             display: flex;
@@ -305,9 +336,17 @@
             margin-top: 2px;
         }
 
-        .expense-pill .pill-value { color: #dc2626; }
-        .revenue-pill .pill-value { color: #059669; }
-        .net-pill .pill-value { color: #b45309; }
+        .expense-pill .pill-value {
+            color: #dc2626;
+        }
+
+        .revenue-pill .pill-value {
+            color: #059669;
+        }
+
+        .net-pill .pill-value {
+            color: #b45309;
+        }
 
         .btn-sync-finance {
             background: var(--emerald-soft);
@@ -399,7 +438,7 @@
             max-width: 400px;
             width: 90%;
             text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
             border: 2px solid var(--gold-accent);
         }
 
@@ -454,8 +493,14 @@
             transition: all 0.2s;
         }
 
-        .btn-unlock:hover { background: #e6bf3c; }
-        .btn-unlock:disabled { background: #cbd5e1; cursor: not-allowed; }
+        .btn-unlock:hover {
+            background: #e6bf3c;
+        }
+
+        .btn-unlock:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+        }
 
         #lock-error-msg {
             color: #dc2626;
@@ -627,12 +672,16 @@
             ]).then(([expenses, orders]) => {
                 let totalExpense = 0;
                 if (Array.isArray(expenses)) {
-                    expenses.forEach(item => { totalExpense += parseFloat(item.amount) || 0; });
+                    expenses.forEach(item => {
+                        totalExpense += parseFloat(item.amount) || 0;
+                    });
                 }
 
                 let totalRevenue = 0;
                 if (Array.isArray(orders)) {
-                    orders.forEach(order => { totalRevenue += parseFloat(order.amount) || 0; });
+                    orders.forEach(order => {
+                        totalRevenue += parseFloat(order.amount) || 0;
+                    });
                 }
 
                 const netBalance = totalRevenue - totalExpense;
