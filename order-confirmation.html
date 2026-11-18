@@ -135,7 +135,6 @@
             color: var(--gold-accent);
         }
 
-        /* Multi-Item Order Summary List */
         .order-items-list {
             display: flex;
             flex-direction: column;
@@ -233,7 +232,6 @@
             color: var(--text-muted);
         }
 
-        /* Form Grid */
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -322,7 +320,6 @@
             color: var(--text-muted);
         }
 
-        /* Order Summary Sidebar */
         .order-summary-card {
             background: var(--card-bg);
             border: 1px solid var(--border-light);
@@ -424,7 +421,6 @@
             font-size: 1.1rem;
         }
 
-        /* Sidebar Policies */
         .sidebar-policies-section {
             margin-top: 22px;
             padding-top: 18px;
@@ -487,7 +483,6 @@
             color: var(--gold-accent);
         }
 
-        /* Modal Overlay */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -891,7 +886,6 @@
         let currentDeliveryCharge = 0;
         let grandTotal = 0;
 
-        // Clean up any leftover query parameters in the URL bar without reloading
         if (window.location.search) {
             try {
                 window.history.replaceState({}, document.title, window.location.pathname);
@@ -908,7 +902,6 @@
                 .replace(/'/g, '&#039;');
         }
 
-        // 1. Fetch Razorpay Key dynamically from Google Sheet
         function fetchLiveRazorpayKey() {
             const cachedKey = localStorage.getItem('thrika_rzp_key_cache');
             if (cachedKey) {
@@ -957,7 +950,6 @@
             }
         }
 
-        // 2. Fetch Live Orders to calculate sequential ID
         function fetchLiveOrdersForSequence() {
             fetch(`${GOOGLE_SHEET_WEBHOOK_URL}?type=orders&t=${Date.now()}`)
                 .then(res => res.json())
@@ -988,7 +980,6 @@
             return `#THK-${String(nextNum).padStart(6, '0')}`;
         }
 
-        // 3. Fetch Live Delivery Settings
         function fetchLiveDeliveryRates() {
             const cachedRates = localStorage.getItem('thrika_delivery_rates_cache');
             if (cachedRates) {
@@ -1052,7 +1043,6 @@
             validatePayButtonState();
         }
 
-        // Helper to recover cover image from cached catalog if stripped due to storage quota
         function resolveBookImage(item) {
             if (item.image && item.image.trim() !== '') {
                 return item.image;
@@ -1073,7 +1063,6 @@
             return 'https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Cover';
         }
 
-        // 4. Robust Cart Loader that Prioritizes Latest User Cart
         function loadOrderItems() {
             const rawUserCart = localStorage.getItem('thrika_user_cart');
             const rawCheckoutCart = localStorage.getItem('thrika_checkout_cart');
@@ -1167,7 +1156,6 @@
             updateDeliveryRate();
         }
 
-        // Initialize with support for iOS bfcache (pageshow event)
         window.addEventListener('DOMContentLoaded', () => {
             loadOrderItems();
             fetchLiveRazorpayKey();
@@ -1180,7 +1168,6 @@
             });
         });
 
-        // iPhone / Safari bfcache re-trigger on navigation
         window.addEventListener('pageshow', (event) => {
             loadOrderItems();
             validatePayButtonState();
