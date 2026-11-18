@@ -891,6 +891,13 @@
         let currentDeliveryCharge = 0;
         let grandTotal = 0;
 
+        // Clean up any leftover query parameters in the URL bar without reloading
+        if (window.location.search) {
+            try {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } catch (e) {}
+        }
+
         function escapeHtml(text) {
             if (!text) return '';
             return text.toString()
@@ -914,7 +921,9 @@
                 .then(data => {
                     if (data && data.razorpayKey) {
                         liveRazorpayKey = data.razorpayKey.trim();
-                        localStorage.setItem('thrika_rzp_key_cache', liveRazorpayKey);
+                        try {
+                            localStorage.setItem('thrika_rzp_key_cache', liveRazorpayKey);
+                        } catch (e) {}
                         hideKeyLoadingStatus();
                     } else if (!liveRazorpayKey) {
                         showKeyError();
@@ -997,7 +1006,9 @@
                 .then(sheetRates => {
                     if (sheetRates && typeof sheetRates === 'object' && Object.keys(sheetRates).length > 0) {
                         deliveryRates = sheetRates;
-                        localStorage.setItem('thrika_delivery_rates_cache', JSON.stringify(sheetRates));
+                        try {
+                            localStorage.setItem('thrika_delivery_rates_cache', JSON.stringify(sheetRates));
+                        } catch (e) {}
                         updateDeliveryRate();
                     }
                 })
@@ -1041,11 +1052,32 @@
             validatePayButtonState();
         }
 
+        // Helper to recover cover image from cached catalog if stripped due to storage quota
+        function resolveBookImage(item) {
+            if (item.image && item.image.trim() !== '') {
+                return item.image;
+            }
+            try {
+                const cachedCatalog = localStorage.getItem('thrika_catalog_cache');
+                if (cachedCatalog) {
+                    const books = JSON.parse(cachedCatalog);
+                    if (Array.isArray(books)) {
+                        const match = books.find(b => 
+                            (b.id && item.id && String(b.id) === String(item.id)) ||
+                            (b.title && item.title && b.title.trim().toLowerCase() === item.title.trim().toLowerCase())
+                        );
+                        if (match && match.image) return match.image;
+                    }
+                }
+            } catch (e) {}
+            return 'https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Cover';
+        }
+
         // 4. Robust Cart Loader that Prioritizes Latest User Cart
         function loadOrderItems() {
-            // Prioritize the user's active cart over any old checkout cache
             const rawUserCart = localStorage.getItem('thrika_user_cart');
             const rawCheckoutCart = localStorage.getItem('thrika_checkout_cart');
+            const rawSessionCart = sessionStorage.getItem('thrika_checkout_cart');
             
             let parsedCart = [];
 
@@ -1057,11 +1089,17 @@
                     }
                 }
                 
-                // Fallback to checkoutCart only if userCart is empty
                 if (parsedCart.length === 0 && rawCheckoutCart) {
                     const testCheckout = JSON.parse(rawCheckoutCart);
                     if (Array.isArray(testCheckout) && testCheckout.length > 0) {
                         parsedCart = testCheckout;
+                    }
+                }
+
+                if (parsedCart.length === 0 && rawSessionCart) {
+                    const testSession = JSON.parse(rawSessionCart);
+                    if (Array.isArray(testSession) && testSession.length > 0) {
+                        parsedCart = testSession;
                     }
                 }
             } catch (e) {
@@ -1070,9 +1108,10 @@
 
             checkoutCart = parsedCart;
 
-            // Sync the validated cart back to keep both storage keys identical
             if (checkoutCart.length > 0) {
-                localStorage.setItem('thrika_checkout_cart', JSON.stringify(checkoutCart));
+                try {
+                    localStorage.setItem('thrika_checkout_cart', JSON.stringify(checkoutCart));
+                } catch (e) {}
             }
 
             const container = document.getElementById('order-items-list-container');
@@ -1103,7 +1142,7 @@
                 itemsSubtotal += rowTotal;
                 totalItemQuantity += qty;
 
-                const displayImg = item.image && item.image.trim() !== '' ? item.image : 'https://via.placeholder.com/200x280/0b3c2f/ffffff?text=Cover';
+                const displayImg = resolveBookImage(item);
 
                 return `
                     <div class="order-item-row">
@@ -1250,6 +1289,7 @@
                     
                     localStorage.removeItem('thrika_user_cart');
                     localStorage.removeItem('thrika_checkout_cart');
+                    sessionStorage.removeItem('thrika_checkout_cart');
 
                     showOrderSuccess(sequentialOrderId, capturedTxnId, fullName, phone, selectedState, booksDescription);
                 },
