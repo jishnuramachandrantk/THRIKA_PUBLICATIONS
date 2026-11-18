@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Management | Thrika Publications</title>
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --emerald-deep: #062c22;
+            --emerald-main: #0b3c2f;
+            --emerald-mid: #145343;
+            --emerald-soft: #f1f8f5;
+            --emerald-tint: #e3efe9;
+            --gold-accent: #d4af37;
+            --text-dark: #0a221b;
+            --text-muted: #526f65;
+            --border-light: #d0e1d9;
+            --shadow-soft: 0 10px 30px rgba(6, 44, 34, 0.06);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--emerald-soft); color: var(--text-dark); padding: 10px; }
+
+        .container { display: flex; flex-direction: column; gap: 24px; }
+
+        /* Summary Metric Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 16px;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 18px 20px;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-soft);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .stat-icon {
+            width: 46px; height: 46px; border-radius: 12px;
+            background: var(--emerald-tint); color: var(--emerald-main);
+            display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .stat-info h4 { font-size: 0.74rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-info p { font-size: 1.3rem; font-weight: 800; color: var(--emerald-deep); margin-top: 2px; }
+
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-soft);
+            padding: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .card-header h2 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--emerald-deep);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .top-form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 18px;
+            border-bottom: 1px dashed var(--border-light);
+        }
+
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        label { font-size: 0.8rem; font-weight: 700; color: var(--emerald-main); }
+
+        input, select {
+            width: 100%; padding: 10px 12px; border: 1px solid var(--border-light);
+            border-radius: 9px; font-size: 0.88rem; outline: none; background: #ffffff; color: var(--text-dark);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--emerald-mid);
+            box-shadow: 0 0 0 3px rgba(20, 83, 67, 0.12);
+        }
+
+        /* Multi-Expense Line Items */
+        .expense-lines-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .expense-lines-header h3 {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--emerald-deep);
+        }
+
+        .expense-line-card {
+            background: var(--emerald-soft);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 14px;
+        }
+
+        .line-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+            gap: 12px;
+            align-items: end;
+        }
+
+        /* Split Payer Sub-Panel */
+        .split-panel {
+            display: none;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px dashed #b7d4c8;
+            background: #ffffff;
+            padding: 14px;
+            border-radius: 10px;
+        }
+
+        .split-panel.active {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            align-items: end;
+        }
+
+        .split-badge-tag {
+            grid-column: 1 / -1;
+            font-size: 0.78rem;
+            font-weight: 800;
+            color: var(--emerald-mid);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-add-line {
+            background: var(--gold-accent);
+            color: var(--emerald-deep);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 0.82rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+        .btn-add-line:hover { background: #c5a028; }
+
+        .btn-remove-line {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fca5a5;
+            padding: 9px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.82rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .btn-remove-line:hover { background: #dc2626; color: #ffffff; }
+
+        .btn-submit {
+            background: var(--emerald-main); color: #ffffff; border: none; padding: 12px 24px;
+            border-radius: 10px; font-weight: 700; font-size: 0.9rem; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s;
+        }
+        .btn-submit:hover { background: var(--emerald-deep); }
+        .btn-submit:disabled { background: #9ca3af; cursor: not-allowed; }
+
+        .form-footer-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border-light);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .batch-total-display {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--emerald-deep);
+            background: var(--emerald-tint);
+            padding: 8px 16px;
+            border-radius: 10px;
+        }
+
+        /* Table Controls */
+        .table-controls {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .search-box { position: relative; flex: 1; min-width: 220px; }
+        .search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        .search-box input { padding-left: 38px; }
+
+        .table-responsive { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; }
+
+        th {
+            background: var(--emerald-soft); color: var(--emerald-deep); padding: 12px 14px;
+            font-weight: 700; border-bottom: 2px solid var(--border-light); white-space: nowrap;
+        }
+
+        td { padding: 12px 14px; border-bottom: 1px solid var(--border-light); color: var(--text-dark); white-space: nowrap; }
+        tr:hover { background-color: rgba(241, 248, 245, 0.6); }
+
+        .badge {
+            padding: 4px 10px; border-radius: 20px; font-size: 0.74rem; font-weight: 700; display: inline-block;
+        }
+        .badge-book { background: #d1fae5; color: #065f46; }
+        .badge-normal { background: #fef3c7; color: #92400e; }
+
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+        .empty-state i { font-size: 2.5rem; color: var(--border-light); margin-bottom: 10px; display: block; }
+
+        /* Modal Box Styling */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(6, 44, 34, 0.7); backdrop-filter: blur(4px); z-index: 99999;
+            display: none; align-items: center; justify-content: center;
+        }
+
+        .modal-box {
+            background: #ffffff; border-radius: 18px; width: 90%; max-width: 440px;
+            padding: 28px 24px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+            border: 2px solid var(--gold-accent); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-icon {
+            width: 54px; height: 54px; border-radius: 50%; background: var(--emerald-soft);
+            color: #10b981; display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem; margin: 0 auto 14px auto;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Popup Notification Box -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal-box">
+            <div id="modal-icon" class="modal-icon"><i class="fa-solid fa-circle-check"></i></div>
+            <h3 id="modal-title" style="font-size: 1.2rem; font-weight: 800; color: var(--emerald-deep); margin-bottom: 6px;">Expenses Saved</h3>
+            <p id="modal-message" style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 20px;">All expense items saved to Google Sheet.</p>
+            <button onclick="closeModalBox()" class="btn-submit">OK</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Summary Metrics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fa-solid fa-wallet"></i></div>
+                <div class="stat-info">
+                    <h4>Total Expenses</h4>
+                    <p id="stat-total">₹0.00</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#d1fae5; color:#065f46;"><i class="fa-solid fa-book"></i></div>
+                <div class="stat-info">
+                    <h4>Book Expense Spend</h4>
+                    <p id="stat-book">₹0.00</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fef3c7; color:#92400e;"><i class="fa-solid fa-building"></i></div>
+                <div class="stat-info">
+                    <h4>Normal / General Spend</h4>
+                    <p id="stat-normal">₹0.00</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#dbeafe; color:#1e40af;"><i class="fa-solid fa-users"></i></div>
+                <div class="stat-info">
+                    <h4>Payer Breakdown</h4>
+                    <p id="stat-payers" style="font-size: 0.82rem; font-weight: 700; line-height: 1.4;">--</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 1: Multi-Expense & Split-Payer Entry Form -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fa-solid fa-file-invoice-dollar"></i> Add Book or Normal Expenses (Single or Split Payer)</h2>
+            </div>
+
+            <form id="expense-form" onsubmit="handleExpenseSubmit(event)">
+                <!-- Shared Header Details -->
+                <div class="top-form-grid">
+                    <div class="form-group">
+                        <label for="expense-date">Expense Date *</label>
+                        <input type="date" id="expense-date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expense-type">Expense Type *</label>
+                        <select id="expense-type" onchange="toggleBookDropdown()" required>
+                            <option value="Book Expense" selected>Book Expense</option>
+                            <option value="Normal Expense">Normal / General Expense</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="book-select-container">
+                        <label for="book-name-select">Select Book Name (From Sheet) *</label>
+                        <select id="book-name-select" required>
+                            <option value="">Loading books from sheet...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Multiple Expense Items Section -->
+                <div class="expense-lines-header">
+                    <h3><i class="fa-solid fa-layer-group"></i> Expense Items (Supports Single Payer or 2-Person Split)</h3>
+                    <button type="button" class="btn-add-line" onclick="addExpenseLine()">
+                        <i class="fa-solid fa-plus"></i> Add Another Expense Line
+                    </button>
+                </div>
+
+                <div id="expense-lines-container">
+                    <!-- Initial Expense Row -->
+                    <div class="expense-line-card">
+                        <div class="line-grid">
+                            <div class="form-group">
+                                <label>Expense Category *</label>
+                                <select class="line-category" required>
+                                    <option value="">Select Category</option>
+                                    <option value="Editing">Editing</option>
+                                    <option value="Printing">Printing</option>
+                                    <option value="Layout">Layout</option>
+                                    <option value="Marketing">Marketing</option>
+                                    <option value="Cover Design">Cover Design</option>
+                                    <option value="Distribution / Courier">Distribution / Courier</option>
+                                    <option value="Office & General">Office & General</option>
+                                    <option value="Other Expense">Other Expense</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Total Amount (₹) *</label>
+                                <input type="number" class="line-amount" step="0.01" min="1" placeholder="e.g. 3000" oninput="onAmountOrSplitChange(this)" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Payment Split Mode *</label>
+                                <select class="line-split-mode" onchange="toggleSplitMode(this)" required>
+                                    <option value="Single" selected>Single Person Paid</option>
+                                    <option value="Split">Split Between Two Persons</option>
+                                </select>
+                            </div>
+
+                            <!-- Single Payer Field -->
+                            <div class="form-group single-payer-group">
+                                <label>Paid By (Person Name) *</label>
+                                <input type="text" class="line-single-payer" list="staff-suggestions" placeholder="e.g. Jishnu" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Payment Mode *</label>
+                                <select class="line-mode" required>
+                                    <option value="UPI / GPay">UPI / GPay</option>
+                                    <option value="Bank Transfer">Bank Transfer</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Card">Card</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Paid To (Vendor)</label>
+                                <input type="text" class="line-vendor" placeholder="e.g. Press / Designer">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Notes / Bill No.</label>
+                                <input type="text" class="line-notes" placeholder="Optional remarks">
+                            </div>
+                        </div>
+
+                        <!-- Split Between 2 Persons Sub-Panel -->
+                        <div class="split-panel">
+                            <div class="split-badge-tag">
+                                <span><i class="fa-solid fa-code-branch"></i> Split Expense Details (Auto-splits 50/50 or enter custom amounts)</span>
+                                <span class="split-validation-msg" style="color: #059669;">Split OK</span>
+                            </div>
+                            <div class="form-group">
+                                <label>Person 1 Name *</label>
+                                <input type="text" class="split-p1-name" list="staff-suggestions" value="Jishnu" placeholder="Person 1">
+                            </div>
+                            <div class="form-group">
+                                <label>Person 1 Amount (₹) *</label>
+                                <input type="number" class="split-p1-amt" step="0.01" min="0" placeholder="1500" oninput="validateSplitAmounts(this)">
+                            </div>
+                            <div class="form-group">
+                                <label>Person 2 Name *</label>
+                                <input type="text" class="split-p2-name" list="staff-suggestions" value="Abhishek" placeholder="Person 2">
+                            </div>
+                            <div class="form-group">
+                                <label>Person 2 Amount (₹) *</label>
+                                <input type="number" class="split-p2-amt" step="0.01" min="0" placeholder="1500" oninput="validateSplitAmounts(this)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Suggestions for Payer Names -->
+                <datalist id="staff-suggestions">
+                    <option value="Jishnu">
+                    <option value="Abhishek">
+                </datalist>
+
+                <div class="form-footer-bar">
+                    <div class="batch-total-display">
+                        Total Expense Entry: <span id="batch-total-amount">₹0.00</span>
+                    </div>
+                    <button type="submit" id="btn-save-expense" class="btn-submit">
+                        <i class="fa-solid fa-floppy-disk"></i> Save All Expenses to Expanse Sheet
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Section 2: Expense History Ledger -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fa-solid fa-receipt"></i> Expanse Sheet Ledger History</h2>
+                <button onclick="loadExpensesFromSheet()" class="btn-submit" style="padding:6px 12px; font-size:0.8rem;">
+                    <i class="fa-solid fa-rotate-right"></i> Refresh Sheet
+                </button>
+            </div>
+
+            <div class="table-controls">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="search-input" onkeyup="filterExpenseTable()" placeholder="Search book name, person, vendor, category...">
+                </div>
+                <div style="width: 180px;">
+                    <select id="filter-type" onchange="filterExpenseTable()">
+                        <option value="">All Expense Types</option>
+                        <option value="Book Expense">Book Expense</option>
+                        <option value="Normal Expense">Normal Expense</option>
+                    </select>
+                </div>
+                <div style="width: 180px;">
+                    <select id="filter-category" onchange="filterExpenseTable()">
+                        <option value="">All Categories</option>
+                        <option value="Editing">Editing</option>
+                        <option value="Printing">Printing</option>
+                        <option value="Layout">Layout</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Cover Design">Cover Design</option>
+                        <option value="Distribution / Courier">Distribution / Courier</option>
+                        <option value="Office & General">Office & General</option>
+                        <option value="Other Expense">Other Expense</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Book Name</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                            <th>Expense By</th>
+                            <th>Paid To</th>
+                            <th>Mode</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expense-table-body">
+                        <tr>
+                            <td colspan="9" class="empty-state">
+                                <i class="fa-solid fa-spinner fa-spin"></i>
+                                Loading expenses from Google Sheet...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzswEvEe8UQRRTIXKmAukCrOLINLtPaMnTHv8tcaHOnYNs8RCaL3yGajFMY_00164Tm/exec";
+
+        document.getElementById('expense-date').valueAsDate = new Date();
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadBookTitlesDropdown();
+            loadExpensesFromSheet();
+        });
+
+        function formatCleanDate(dateInput) {
+            if (!dateInput || dateInput === '--') return '--';
+            const d = new Date(dateInput);
+            if (isNaN(d.getTime())) return String(dateInput).split('T')[0] || '--';
+            const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+            return `${String(d.getDate()).padStart(2, '0')}/${months[d.getMonth()]}/${d.getFullYear()}`;
+        }
+
+        function showModalBox(title, message, isSuccess = true) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+            document.getElementById('modal-icon').innerHTML = isSuccess
+                ? `<i class="fa-solid fa-circle-check" style="color:#10b981;"></i>`
+                : `<i class="fa-solid fa-circle-exclamation" style="color:#ef4444;"></i>`;
+            document.getElementById('modal-overlay').style.display = 'flex';
+        }
+
+        function closeModalBox() {
+            document.getElementById('modal-overlay').style.display = 'none';
+        }
+
+        function toggleBookDropdown() {
+            const type = document.getElementById('expense-type').value;
+            const bookContainer = document.getElementById('book-select-container');
+            const bookSelect = document.getElementById('book-name-select');
+
+            if (type === 'Book Expense') {
+                bookContainer.style.display = 'flex';
+                bookSelect.required = true;
+            } else {
+                bookContainer.style.display = 'none';
+                bookSelect.required = false;
+                bookSelect.value = '';
+            }
+        }
+
+        // Toggle between Single Payer and 2-Person Split
+        function toggleSplitMode(selectEl) {
+            const card = selectEl.closest('.expense-line-card');
+            const mode = selectEl.value;
+            const singleGroup = card.querySelector('.single-payer-group');
+            const singleInput = card.querySelector('.line-single-payer');
+            const splitPanel = card.querySelector('.split-panel');
+            const p1Name = card.querySelector('.split-p1-name');
+            const p1Amt = card.querySelector('.split-p1-amt');
+            const p2Name = card.querySelector('.split-p2-name');
+            const p2Amt = card.querySelector('.split-p2-amt');
+
+            if (mode === 'Split') {
+                singleGroup.style.display = 'none';
+                singleInput.required = false;
+                splitPanel.classList.add('active');
+                p1Name.required = true;
+                p1Amt.required = true;
+                p2Name.required = true;
+                p2Amt.required = true;
+
+                // Auto-fill 50/50 split from total amount
+                const total = parseFloat(card.querySelector('.line-amount').value) || 0;
+                if (total > 0) {
+                    const half = (total / 2).toFixed(2);
+                    p1Amt.value = half;
+                    p2Amt.value = (total - parseFloat(half)).toFixed(2);
+                }
+                validateSplitAmounts(p1Amt);
+            } else {
+                singleGroup.style.display = 'flex';
+                singleInput.required = true;
+                splitPanel.classList.remove('active');
+                p1Name.required = false;
+                p1Amt.required = false;
+                p2Name.required = false;
+                p2Amt.required = false;
+            }
+        }
+
+        function onAmountOrSplitChange(amountInput) {
+            calculateFormBatchTotal();
+            const card = amountInput.closest('.expense-line-card');
+            const mode = card.querySelector('.line-split-mode').value;
+            if (mode === 'Split') {
+                const total = parseFloat(amountInput.value) || 0;
+                const half = (total / 2).toFixed(2);
+                card.querySelector('.split-p1-amt').value = half;
+                card.querySelector('.split-p2-amt').value = (total - parseFloat(half)).toFixed(2);
+                validateSplitAmounts(amountInput);
+            }
+        }
+
+        function validateSplitAmounts(inputEl) {
+            const card = inputEl.closest('.expense-line-card');
+            const total = parseFloat(card.querySelector('.line-amount').value) || 0;
+            const a1 = parseFloat(card.querySelector('.split-p1-amt').value) || 0;
+            const a2 = parseFloat(card.querySelector('.split-p2-amt').value) || 0;
+            const msgEl = card.querySelector('.split-validation-msg');
+
+            if (Math.abs((a1 + a2) - total) < 0.01) {
+                msgEl.textContent = `Matched: ₹${a1.toFixed(2)} + ₹${a2.toFixed(2)} = ₹${total.toFixed(2)}`;
+                msgEl.style.color = '#059669';
+            } else {
+                msgEl.textContent = `Mismatch: ₹${(a1 + a2).toFixed(2)} vs Total ₹${total.toFixed(2)}`;
+                msgEl.style.color = '#dc2626';
+            }
+        }
+
+        // Add another expense row
+        function addExpenseLine() {
+            const container = document.getElementById('expense-lines-container');
+            const card = document.createElement('div');
+            card.className = 'expense-line-card';
+            card.innerHTML = `
+                <div class="line-grid">
+                    <div class="form-group">
+                        <label>Expense Category *</label>
+                        <select class="line-category" required>
+                            <option value="">Select Category</option>
+                            <option value="Editing">Editing</option>
+                            <option value="Printing">Printing</option>
+                            <option value="Layout">Layout</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="Cover Design">Cover Design</option>
+                            <option value="Distribution / Courier">Distribution / Courier</option>
+                            <option value="Office & General">Office & General</option>
+                            <option value="Other Expense">Other Expense</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Total Amount (₹) *</label>
+                        <input type="number" class="line-amount" step="0.01" min="1" placeholder="e.g. 3000" oninput="onAmountOrSplitChange(this)" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Payment Split Mode *</label>
+                        <select class="line-split-mode" onchange="toggleSplitMode(this)" required>
+                            <option value="Single" selected>Single Person Paid</option>
+                            <option value="Split">Split Between Two Persons</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group single-payer-group">
+                        <label>Paid By (Person Name) *</label>
+                        <input type="text" class="line-single-payer" list="staff-suggestions" placeholder="e.g. Jishnu" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Payment Mode *</label>
+                        <select class="line-mode" required>
+                            <option value="UPI / GPay">UPI / GPay</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Card">Card</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Paid To (Vendor)</label>
+                        <input type="text" class="line-vendor" placeholder="e.g. Press / Designer">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Notes / Bill No.</label>
+                        <input type="text" class="line-notes" placeholder="Optional remarks">
+                    </div>
+
+                    <div>
+                        <button type="button" class="btn-remove-line" onclick="removeExpenseLine(this)" title="Remove Item">
+                            <i class="fa-solid fa-trash"></i> Remove
+                        </button>
+                    </div>
+                </div>
+
+                <div class="split-panel">
+                    <div class="split-badge-tag">
+                        <span><i class="fa-solid fa-code-branch"></i> Split Expense Details (Auto-splits 50/50 or enter custom amounts)</span>
+                        <span class="split-validation-msg" style="color: #059669;">Split OK</span>
+                    </div>
+                    <div class="form-group">
+                        <label>Person 1 Name *</label>
+                        <input type="text" class="split-p1-name" list="staff-suggestions" value="Jishnu" placeholder="Person 1">
+                    </div>
+                    <div class="form-group">
+                        <label>Person 1 Amount (₹) *</label>
+                        <input type="number" class="split-p1-amt" step="0.01" min="0" placeholder="1500" oninput="validateSplitAmounts(this)">
+                    </div>
+                    <div class="form-group">
+                        <label>Person 2 Name *</label>
+                        <input type="text" class="split-p2-name" list="staff-suggestions" value="Abhishek" placeholder="Person 2">
+                    </div>
+                    <div class="form-group">
+                        <label>Person 2 Amount (₹) *</label>
+                        <input type="number" class="split-p2-amt" step="0.01" min="0" placeholder="1500" oninput="validateSplitAmounts(this)">
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        }
+
+        function removeExpenseLine(btn) {
+            btn.closest('.expense-line-card').remove();
+            calculateFormBatchTotal();
+        }
+
+        function calculateFormBatchTotal() {
+            const amounts = document.querySelectorAll('.line-amount');
+            let sum = 0;
+            amounts.forEach(inp => { sum += parseFloat(inp.value) || 0; });
+            document.getElementById('batch-total-amount').textContent = `₹${sum.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+        }
+
+        // Load Book Titles from Google Sheet
+        function loadBookTitlesDropdown() {
+            const select = document.getElementById('book-name-select');
+            Promise.all([
+                fetch(`${GOOGLE_APPS_SCRIPT_URL}?type=bookReceipts`).then(r => r.json()).catch(() => []),
+                fetch(`${GOOGLE_APPS_SCRIPT_URL}?type=catalog`).then(r => r.json()).catch(() => [])
+            ]).then(([receiptBooks, catalogBooks]) => {
+                const titlesSet = new Set();
+                if (Array.isArray(receiptBooks)) {
+                    receiptBooks.forEach(b => { if (b.bookTitle) titlesSet.add(b.bookTitle.trim()); });
+                }
+                if (Array.isArray(catalogBooks)) {
+                    catalogBooks.forEach(c => { if (c.title) titlesSet.add(c.title.trim()); });
+                }
+
+                select.innerHTML = `<option value="">-- Select Book Name --</option>`;
+                if (titlesSet.size > 0) {
+                    titlesSet.forEach(title => {
+                        const opt = document.createElement('option');
+                        opt.value = title;
+                        opt.textContent = title;
+                        select.appendChild(opt);
+                    });
+                } else {
+                    select.innerHTML = `<option value="">No books available in Google Sheet</option>`;
+                }
+            });
+        }
+
+        // Fetch Expense Records from 'Expanse' Sheet
+        function loadExpensesFromSheet() {
+            const tbody = document.getElementById('expense-table-body');
+            tbody.innerHTML = `<tr><td colspan="9" class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i> Loading expenses from Expanse sheet...</td></tr>`;
+
+            fetch(`${GOOGLE_APPS_SCRIPT_URL}?type=expenses`)
+            .then(res => res.json())
+            .then(data => {
+                tbody.innerHTML = '';
+                let totalSum = 0;
+                let bookSum = 0;
+                let normalSum = 0;
+                const payerTotals = {};
+
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="9" class="empty-state"><i class="fa-solid fa-folder-open"></i><strong>No expenses recorded in Expanse sheet yet</strong></td></tr>`;
+                    updateSummaryCards(0, 0, 0, {});
+                    return;
+                }
+
+                data.forEach(item => {
+                    const amt = parseFloat(item.amount) || 0;
+                    totalSum += amt;
+                    if (item.expenseType === 'Book Expense') bookSum += amt;
+                    else normalSum += amt;
+
+                    const payer = (item.expenseBy || 'Unknown').trim();
+                    if (payer && payer !== '--') {
+                        payerTotals[payer] = (payerTotals[payer] || 0) + amt;
+                    }
+
+                    const isBook = item.expenseType === 'Book Expense';
+                    const badgeHtml = isBook 
+                        ? `<span class="badge badge-book">Book Expense</span>` 
+                        : `<span class="badge badge-normal">Normal Expense</span>`;
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${formatCleanDate(item.date)}</td>
+                        <td>${badgeHtml}</td>
+                        <td><strong>${isBook ? (item.bookName || '--') : 'Normal / General'}</strong></td>
+                        <td>${item.category}</td>
+                        <td><strong style="color:#dc2626;">₹${amt.toFixed(2)}</strong></td>
+                        <td><strong>${item.expenseBy || '--'}</strong></td>
+                        <td>${item.paidTo || '--'}</td>
+                        <td>${item.paymentMode || '--'}</td>
+                        <td>${item.notes || '--'}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                updateSummaryCards(totalSum, bookSum, normalSum, payerTotals);
+            })
+            .catch(() => {
+                tbody.innerHTML = `<tr><td colspan="9" class="empty-state"><i class="fa-solid fa-triangle-exclamation" style="color:#dc2626;"></i><strong>Unable to load expenses</strong></td></tr>`;
+            });
+        }
+
+        function updateSummaryCards(total, book, normal, payerTotals) {
+            document.getElementById('stat-total').textContent = `₹${total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+            document.getElementById('stat-book').textContent = `₹${book.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+            document.getElementById('stat-normal').textContent = `₹${normal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+
+            const payerEntries = Object.entries(payerTotals);
+            if (payerEntries.length === 0) {
+                document.getElementById('stat-payers').textContent = '--';
+            } else {
+                document.getElementById('stat-payers').innerHTML = payerEntries
+                    .map(([name, amt]) => `${name}: ₹${amt.toLocaleString('en-IN')}`)
+                    .join('<br>');
+            }
+        }
+
+        function handleExpenseSubmit(event) {
+            event.preventDefault();
+
+            const expDate = formatCleanDate(document.getElementById('expense-date').value);
+            const expType = document.getElementById('expense-type').value;
+            const bookName = expType === 'Book Expense' ? document.getElementById('book-name-select').value : 'Normal / General';
+
+            const lineCards = document.querySelectorAll('.expense-line-card');
+            const items = [];
+            let batchTotal = 0;
+
+            for (let i = 0; i < lineCards.length; i++) {
+                const card = lineCards[i];
+                const category = card.querySelector('.line-category').value;
+                const totalAmt = parseFloat(card.querySelector('.line-amount').value) || 0;
+                const splitMode = card.querySelector('.line-split-mode').value;
+                const payMode = card.querySelector('.line-mode').value;
+                const vendor = card.querySelector('.line-vendor').value.trim() || '--';
+                const notes = card.querySelector('.line-notes').value.trim();
+
+                if (splitMode === 'Split') {
+                    const p1Name = card.querySelector('.split-p1-name').value.trim();
+                    const p1Amt = parseFloat(card.querySelector('.split-p1-amt').value) || 0;
+                    const p2Name = card.querySelector('.split-p2-name').value.trim();
+                    const p2Amt = parseFloat(card.querySelector('.split-p2-amt').value) || 0;
+
+                    if (Math.abs((p1Amt + p2Amt) - totalAmt) > 0.01) {
+                        showModalBox("Split Amount Mismatch", `For "${category}", Person 1 (₹${p1Amt}) + Person 2 (₹${p2Amt}) must equal the Total Amount (₹${totalAmt}).`, false);
+                        return;
+                    }
+
+                    const splitTag = `(Split of ₹${totalAmt} with ${p2Name})`;
+                    if (p1Amt > 0) {
+                        items.push({
+                            date: expDate,
+                            expenseType: expType,
+                            bookName: bookName,
+                            expenseBy: p1Name,
+                            category: category,
+                            amount: p1Amt,
+                            paymentMode: payMode,
+                            paidTo: vendor,
+                            notes: notes ? `${notes} ${splitTag}` : splitTag
+                        });
+                    }
+
+                    const splitTag2 = `(Split of ₹${totalAmt} with ${p1Name})`;
+                    if (p2Amt > 0) {
+                        items.push({
+                            date: expDate,
+                            expenseType: expType,
+                            bookName: bookName,
+                            expenseBy: p2Name,
+                            category: category,
+                            amount: p2Amt,
+                            paymentMode: payMode,
+                            paidTo: vendor,
+                            notes: notes ? `${notes} ${splitTag2}` : splitTag2
+                        });
+                    }
+                    batchTotal += totalAmt;
+                } else {
+                    const singlePayer = card.querySelector('.line-single-payer').value.trim();
+                    items.push({
+                        date: expDate,
+                        expenseType: expType,
+                        bookName: bookName,
+                        expenseBy: singlePayer,
+                        category: category,
+                        amount: totalAmt,
+                        paymentMode: payMode,
+                        paidTo: vendor,
+                        notes: notes || '--'
+                    });
+                    batchTotal += totalAmt;
+                }
+            }
+
+            const btn = document.getElementById('btn-save-expense');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving All Expenses...`;
+
+            fetch(GOOGLE_APPS_SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "text/plain" },
+                body: JSON.stringify({
+                    action: "addExpenseBatch",
+                    items: items
+                })
+            })
+            .then(() => {
+                showModalBox("Expenses Saved", `${items.length} record(s) totaling ₹${batchTotal.toFixed(2)} saved to the 'Expanse' Google Sheet!`, true);
+                
+                document.getElementById('expense-form').reset();
+                document.getElementById('expense-date').valueAsDate = new Date();
+                const container = document.getElementById('expense-lines-container');
+                while (container.children.length > 1) {
+                    container.removeChild(container.lastChild);
+                }
+                toggleSplitMode(container.querySelector('.line-split-mode'));
+                calculateFormBatchTotal();
+                toggleBookDropdown();
+                setTimeout(loadExpensesFromSheet, 800);
+            })
+            .catch(() => {
+                showModalBox("Notice", "Expense entries submitted.", true);
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Save All Expenses to Expanse Sheet`;
+            });
+        }
+
+        function filterExpenseTable() {
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const typeFilter = document.getElementById('filter-type').value;
+            const catFilter = document.getElementById('filter-category').value;
+            const rows = document.querySelectorAll('#expense-table-body tr');
+
+            rows.forEach(row => {
+                if (row.querySelector('.empty-state')) return;
+                const text = row.textContent.toLowerCase();
+                const rowType = row.children[1].textContent.trim();
+                const rowCat = row.children[3].textContent.trim();
+
+                const matchesSearch = text.includes(search);
+                const matchesType = !typeFilter || rowType === typeFilter;
+                const matchesCat = !catFilter || rowCat === catFilter;
+
+                row.style.display = (matchesSearch && matchesType && matchesCat) ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>
