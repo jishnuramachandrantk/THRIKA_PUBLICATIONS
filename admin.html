@@ -238,6 +238,8 @@
             border-radius: 14px;
             border: 1px solid var(--border-light);
             box-shadow: var(--shadow-soft);
+            flex-wrap: wrap;
+            gap: 16px;
         }
 
         .page-title h1 {
@@ -249,6 +251,81 @@
         .page-title p {
             font-size: 0.82rem;
             color: var(--text-muted);
+        }
+
+        /* Live Financial Summary Strip in Header */
+        .header-finance-strip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .finance-pill {
+            padding: 8px 14px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            min-width: 125px;
+            border: 1px solid var(--border-light);
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+
+        .finance-pill:hover {
+            transform: translateY(-2px);
+        }
+
+        .finance-pill.expense-pill {
+            background: #fef2f2;
+            border-color: #fecaca;
+        }
+
+        .finance-pill.revenue-pill {
+            background: #ecfdf5;
+            border-color: #a7f3d0;
+        }
+
+        .finance-pill.net-pill {
+            background: #fffbeb;
+            border-color: #fde68a;
+        }
+
+        .finance-pill span.pill-label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+
+        .finance-pill span.pill-value {
+            font-size: 0.95rem;
+            font-weight: 800;
+            margin-top: 2px;
+        }
+
+        .expense-pill .pill-value { color: #dc2626; }
+        .revenue-pill .pill-value { color: #059669; }
+        .net-pill .pill-value { color: #b45309; }
+
+        .btn-sync-finance {
+            background: var(--emerald-soft);
+            color: var(--emerald-main);
+            border: 1px solid var(--border-light);
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .btn-sync-finance:hover {
+            background: var(--emerald-main);
+            color: #ffffff;
         }
 
         .user-profile {
@@ -294,7 +371,7 @@
         #content-frame {
             width: 100%;
             flex: 1;
-            min-height: 720px;
+            min-height: 750px;
             border: none;
             border-radius: 16px;
             background: transparent;
@@ -430,7 +507,7 @@
         </div>
 
         <ul class="sidebar-menu">
-            <li class="active" onclick="navigateTo('dashboard-overview.html', this, 'Dashboard Overview', 'Real-time sales performance and key business metrics')">
+            <li class="active" onclick="navigateTo('dashboard-overview.html', this, 'Dashboard Overview', 'Real-time sales performance, expenses, and key business metrics')">
                 <a title="Dashboard"><i class="fa-solid fa-chart-line"></i> <span>Dashboard</span></a>
             </li>
             <li onclick="navigateTo('book-received.html', this, 'Add Manuscript Entry', 'Record new incoming author manuscripts')">
@@ -439,10 +516,13 @@
             <li onclick="navigateTo('book-logs.html', this, 'Manuscript & Book Receipt Logs', 'Track, edit status, and view manuscript pipeline milestones')">
                 <a title="Manuscript Logs"><i class="fa-solid fa-book-bookmark"></i> <span>Manuscript Logs</span></a>
             </li>
+            <li id="nav-expenses" onclick="navigateTo('expenses.html', this, 'Expense Tracker & Ledger', 'Record book production expenses, split costs, and operational spend')">
+                <a title="Expenses"><i class="fa-solid fa-file-invoice-dollar"></i> <span>Expenses</span></a>
+            </li>
             <li onclick="navigateTo('add-book.html', this, 'Add New Book Title', 'Publish a new title directly to your online catalog')">
                 <a title="Add New Book"><i class="fa-solid fa-plus-circle"></i> <span>Add New Book</span></a>
             </li>
-            <li onclick="navigateTo('recent-orders.html', this, 'Customer Order Management', 'Track sales, order status, and customer shipping info')">
+            <li id="nav-orders" onclick="navigateTo('recent-orders.html', this, 'Customer Order Management', 'Track sales, order status, and customer shipping info')">
                 <a title="Recent Orders"><i class="fa-solid fa-receipt"></i> <span>Recent Orders</span></a>
             </li>
             <li onclick="navigateTo('inventory-catalog.html', this, 'Inventory & Catalog Manager', 'View, filter, or remove books from your live inventory')">
@@ -468,8 +548,31 @@
         <div class="top-header">
             <div class="page-title">
                 <h1 id="header-title">Dashboard Overview</h1>
-                <p id="header-subtitle">Real-time sales performance and key business metrics</p>
+                <p id="header-subtitle">Real-time sales performance, expenses, and key business metrics</p>
             </div>
+
+            <!-- Live Expense vs Revenue Summary Pills -->
+            <div class="header-finance-strip">
+                <div class="finance-pill expense-pill" onclick="navigateTo('expenses.html', document.getElementById('nav-expenses'), 'Expense Tracker & Ledger', 'Record book production expenses, split costs, and operational spend')" title="Click to view all expenses">
+                    <span class="pill-label"><i class="fa-solid fa-arrow-trend-down"></i> Total Expense</span>
+                    <span class="pill-value" id="top-total-expense">₹0.00</span>
+                </div>
+
+                <div class="finance-pill revenue-pill" onclick="navigateTo('recent-orders.html', document.getElementById('nav-orders'), 'Customer Order Management', 'Track sales, order status, and customer shipping info')" title="Click to view all orders">
+                    <span class="pill-label"><i class="fa-solid fa-arrow-trend-up"></i> Total Revenue</span>
+                    <span class="pill-value" id="top-total-revenue">₹0.00</span>
+                </div>
+
+                <div class="finance-pill net-pill" title="Revenue minus Expense">
+                    <span class="pill-label"><i class="fa-solid fa-scale-balanced"></i> Net Balance</span>
+                    <span class="pill-value" id="top-net-balance">₹0.00</span>
+                </div>
+
+                <button class="btn-sync-finance" onclick="loadHeaderFinancialSummary()" title="Refresh Totals">
+                    <i class="fa-solid fa-rotate" id="sync-finance-icon"></i>
+                </button>
+            </div>
+
             <div class="user-profile">
                 <div class="avatar">TP</div>
                 <div>
@@ -513,6 +616,40 @@
             });
         })();
 
+        // Fetch live Expense & Revenue totals for the top bar
+        function loadHeaderFinancialSummary() {
+            const syncIcon = document.getElementById('sync-finance-icon');
+            if (syncIcon) syncIcon.classList.add('fa-spin');
+
+            Promise.all([
+                fetch(`${GOOGLE_APPS_SCRIPT_URL}?type=expenses`).then(r => r.json()).catch(() => []),
+                fetch(`${GOOGLE_APPS_SCRIPT_URL}?type=orders`).then(r => r.json()).catch(() => [])
+            ]).then(([expenses, orders]) => {
+                let totalExpense = 0;
+                if (Array.isArray(expenses)) {
+                    expenses.forEach(item => { totalExpense += parseFloat(item.amount) || 0; });
+                }
+
+                let totalRevenue = 0;
+                if (Array.isArray(orders)) {
+                    orders.forEach(order => { totalRevenue += parseFloat(order.amount) || 0; });
+                }
+
+                const netBalance = totalRevenue - totalExpense;
+
+                document.getElementById('top-total-expense').textContent = `₹${totalExpense.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+                document.getElementById('top-total-revenue').textContent = `₹${totalRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+
+                const netEl = document.getElementById('top-net-balance');
+                netEl.textContent = `₹${netBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+                netEl.style.color = netBalance >= 0 ? '#059669' : '#dc2626';
+            }).finally(() => {
+                if (syncIcon) syncIcon.classList.remove('fa-spin');
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', loadHeaderFinancialSummary);
+
         function handleAdminKeySubmit(event) {
             event.preventDefault();
             const entered = document.getElementById('admin-passkey-input').value.trim();
@@ -546,6 +683,7 @@
 
                     const lock = document.getElementById('admin-lock-screen');
                     if (lock) lock.style.display = 'none';
+                    loadHeaderFinancialSummary();
                 } else {
                     if (isFromUrl) {
                         alert("Unauthorized secret key. Redirecting to login.");
@@ -594,6 +732,7 @@
             document.getElementById('header-subtitle').textContent = subtitle;
 
             document.getElementById('content-frame').src = pageUrl;
+            loadHeaderFinancialSummary();
         }
 
         const frame = document.getElementById('content-frame');
